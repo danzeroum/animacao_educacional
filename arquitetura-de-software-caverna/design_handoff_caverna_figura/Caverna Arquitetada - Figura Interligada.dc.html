@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{background:#140d07}
+    @keyframes cvpulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}50%{transform:translate(-50%,-50%) scale(1.55);opacity:.35}}
+    @keyframes cvring{0%{transform:translate(-50%,-50%) scale(.6);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0}}
+    @keyframes cvslide{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes cvhalo{0%,100%{opacity:.45}50%{opacity:1}}
+    @media (prefers-reduced-motion: reduce){.cv-marker,.cv-ring,.cv-halo{animation:none!important}}
+  </style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(120% 80% at 50% 0%, #2a1c10 0%, #160e07 55%, #100a05 100%);color:#f0e6d2;font-family:'Spectral',Georgia,serif;display:flex;flex-direction:column;align-items:center;padding:0 0 64px">
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header style="width:100%;max-width:1180px;padding:40px 24px 10px;text-align:center">
+    <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:.34em;color:#b9925a;text-transform:uppercase;margin-bottom:14px">Objeto educacional · Arquitetura de Software</div>
+    <h1 style="font-family:'Cinzel',serif;font-weight:700;font-size:clamp(28px,5vw,52px);line-height:1.05;color:#f0d29a;letter-spacing:.01em">A Caverna Arquitetada</h1>
+    <p style="font-size:clamp(15px,2.2vw,20px);color:#d9c4a0;margin-top:14px;max-width:760px;margin-left:auto;margin-right:auto;line-height:1.5">Da <em>coleção de objetos soltos</em> para a <strong style="color:#f0d29a">figura que ensina por inteiro</strong>. A própria ilustração vira a interface — cada região da caverna é um conceito vivo, no seu lugar dentro do sistema.</p>
+  </header>
+
+  <!-- ===================== TESE / ANTES vs DEPOIS ===================== -->
+  <section style="width:100%;max-width:1180px;padding:18px 24px 6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+    <div style="background:#1d140c;border:1px solid #3a2c1e;border-radius:14px;padding:18px 20px">
+      <div style="font-family:'Cinzel',serif;font-size:13px;letter-spacing:.16em;color:#8a6f43;text-transform:uppercase;margin-bottom:8px">Antes · objetos sozinhos</div>
+      <p style="font-size:14.5px;line-height:1.62;color:#c9b89a">12 caixinhas SVG abstratas, lado a lado. O aluno decora 12 fatos <em>isolados</em> — sem ver como convivem no mesmo sistema, quem fica perto de quem, o que vira dívida no canto.</p>
+    </div>
+    <div style="background:#221a0e;border:1px solid #6d5b47;border-radius:14px;padding:18px 20px;box-shadow:0 0 0 1px rgba(240,210,154,.06)">
+      <div style="font-family:'Cinzel',serif;font-size:13px;letter-spacing:.16em;color:#e0b066;text-transform:uppercase;margin-bottom:8px">Depois · conhecimento integrado</div>
+      <p style="font-size:14.5px;line-height:1.62;color:#ecdcb8">Uma <strong>cena única</strong>. A escalabilidade na entrada, a segurança no portão, a dívida acumulando no fundo. O cérebro aprende por <em>espaço e história</em> — a figura carrega proximidade, fluxo e escala que caixas soltas nunca contam.</p>
+    </div>
+  </section>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section style="width:100%;max-width:1180px;padding:14px 24px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+      <p style="font-size:14px;color:#b9925a;font-style:italic">Passe o mouse e clique em qualquer setor da caverna — a história inteira mora numa imagem só.</p>
+      <div style="display:flex;gap:8px">
+        <button onClick="{{ toggleTour }}" style="font-family:'Cinzel',serif;font-size:12.5px;letter-spacing:.08em;background:#3a2c1e;color:#f0d29a;border:1px solid #6d5b47;border-radius:8px;padding:9px 16px;cursor:pointer" style-hover="background:#57442e">{{ tourBtnLabel }}</button>
+      </div>
+    </div>
+
+    <div style="position:relative;width:100%;aspect-ratio:2752 / 1536;border-radius:16px;overflow:hidden;border:1px solid #4a3826;box-shadow:0 24px 60px -20px rgba(0,0,0,.8)">
+      <img src="assets/caverna-arquitetada-v2.png" alt="Caverna pré-histórica em corte: cada setor representa um conceito de arquitetura de software" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+
+      <sc-for list="{{ hotspots }}" as="h" hint-placeholder-count="12">
+        <button onClick="{{ h.open }}" aria-label="{{ h.aria }}" style="{{ h.style }}" style-hover="border-color:var(--c);background:color-mix(in srgb, var(--c) 15%, transparent);box-shadow:0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent)">
+          <span class="cv-halo" style="{{ h.haloStyle }}"></span>
+          <span class="cv-ring" style="{{ h.ringStyle }}"></span>
+          <span class="cv-marker" style="{{ h.markerStyle }}"></span>
+          <span style="{{ h.numStyle }}">{{ h.num }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- legenda numerada -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:6px 16px;margin-top:16px">
+      <sc-for list="{{ hotspots }}" as="h" hint-placeholder-count="12">
+        <button onClick="{{ h.open }}" style="display:flex;align-items:center;gap:9px;background:transparent;border:none;cursor:pointer;text-align:left;padding:5px 4px" style-hover="opacity:.78">
+          <span style="{{ h.legendDot }}">{{ h.num }}</span>
+          <span style="font-size:13px;color:#cdbb9a;line-height:1.2">{{ h.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onOverlayClick }}" style="position:fixed;inset:0;background:rgba(8,5,2,.8);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)">
+      <div data-modal-card="1" style="{{ cardStyle }}">
+        <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px">
+          <span style="font-size:34px;line-height:1">{{ active.icone }}</span>
+          <div style="flex:1">
+            <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9a7b4a;margin-bottom:3px">{{ active.zona }}</div>
+            <h2 style="font-family:'Cinzel',serif;font-weight:700;font-size:21px;line-height:1.15;color:#2a2018">{{ active.titulo }}</h2>
+          </div>
+          <button onClick="{{ close }}" aria-label="Fechar" style="background:#2a2018;color:#f4ecde;border:none;border-radius:8px;width:34px;height:34px;font-size:16px;cursor:pointer;flex-shrink:0" style-hover="background:#48372a">✕</button>
+        </div>
+
+        <p style="{{ metaforaStyle }}">{{ active.metafora }}</p>
+
+        <ul style="list-style:none;padding:0;margin:0 0 16px;display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ active.bullets }}" as="b" hint-placeholder-count="3">
+            <li style="position:relative;padding-left:22px;font-size:14px;line-height:1.55;color:#3a2e22">
+              <span style="{{ bulletDot }}"></span>{{ b }}
+            </li>
+          </sc-for>
+        </ul>
+
+        <div style="margin-bottom:14px">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9a7b4a;margin-right:6px">Ferramentas reais</span>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:7px">
+            <sc-for list="{{ active.ferramentas }}" as="f" hint-placeholder-count="3">
+              <a href="{{ f.url }}" target="_blank" rel="noopener" style="font-size:12.5px;color:#6b4a17;border:1px solid #cdab6b;border-radius:7px;padding:4px 10px;text-decoration:none;background:#f3e4c4" style-hover="background:#e6d2a6">{{ f.nome }}</a>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9a7b4a">🔗 Conecta-se com</span>
+          <p style="font-size:12.5px;color:#6a5640;font-style:italic;margin:5px 0 8px;line-height:1.45">{{ active.conexaoNota }}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <sc-for list="{{ relacionados }}" as="r" hint-placeholder-count="3">
+              <button onClick="{{ r.open }}" style="{{ r.chipStyle }}" style-hover="filter:brightness(.94)">
+                <span style="font-size:14px;line-height:1">{{ r.icone }}</span>{{ r.label }}
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="{{ dicaStyle }}">
+          <strong style="display:block;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.05em;color:#7a4f00;margin-bottom:4px">💡 Dica de Arquiteto</strong>
+          <span style="font-size:13.5px;line-height:1.55;color:#5a3d0a">{{ active.dica }}</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== ORIENTAÇÕES PARA O DEV ===================== -->
+  <sc-if value="{{ mostrarPainelDev }}" hint-placeholder-val="{{ true }}">
+    <section style="width:100%;max-width:1180px;padding:46px 24px 0">
+      <div style="border-top:1px solid #3a2c1e;padding-top:36px">
+        <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:.28em;color:#b9925a;text-transform:uppercase;margin-bottom:8px">Handoff</div>
+        <h2 style="font-family:'Cinzel',serif;font-weight:700;font-size:clamp(22px,3.4vw,34px);color:#f0d29a;line-height:1.1">Orientações para o Dev</h2>
+        <p style="font-size:15px;color:#cdbb9a;max-width:760px;margin-top:12px;line-height:1.6">O conteúdo do objeto atual já é excelente — o dicionário <code style="background:#241910;padding:1px 6px;border-radius:5px;color:#e0b066;font-family:ui-monospace,monospace;font-size:13px">CONCEITOS</code> permanece intacto. O que muda é o <strong style="color:#f0d29a">palco</strong>: trocamos 12 caixas SVG abstratas pela ilustração coesa, com regiões interativas sobre a própria arte.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:26px">
+          <sc-for list="{{ orientacoes }}" as="o" hint-placeholder-count="8">
+            <div style="background:#1c140c;border:1px solid #34281b;border-radius:14px;padding:18px 20px">
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:9px">
+                <span style="width:30px;height:30px;flex-shrink:0;border-radius:8px;background:#2c2014;border:1px solid #6d5b47;color:#e0b066;font-family:'Cinzel',serif;font-size:14px;display:flex;align-items:center;justify-content:center">{{ o.n }}</span>
+                <h3 style="font-family:'Cinzel',serif;font-size:15px;color:#f0d29a;line-height:1.2">{{ o.titulo }}</h3>
+              </div>
+              <p style="font-size:13.5px;line-height:1.6;color:#c4b094">{{ o.texto }}</p>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- snippet -->
+        <div style="margin-top:24px;background:#0f0a05;border:1px solid #34281b;border-radius:14px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;padding:11px 18px;border-bottom:1px solid #241910;background:#1a120b">
+            <span style="width:10px;height:10px;border-radius:50%;background:#c0563a"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#d9a441"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#6ba368"></span>
+            <span style="margin-left:8px;font-family:ui-monospace,monospace;font-size:12px;color:#8a6f43">hotspot — posição em % escala com a arte</span>
+          </div>
+          <pre style="margin:0;padding:18px;overflow-x:auto;font-family:ui-monospace,'SFMono-Regular',monospace;font-size:12.5px;line-height:1.7;color:#cdbb9a"><span style="color:#6d8a5f">&lt;!-- palco: a figura é a interface, não decoração --&gt;</span>
+<span style="color:#c98f5f">&lt;div</span> <span style="color:#d9a441">class</span>=<span style="color:#9fc08a">"figura"</span> <span style="color:#d9a441">style</span>=<span style="color:#9fc08a">"position:relative; aspect-ratio:1408/768"</span><span style="color:#c98f5f">&gt;</span>
+  <span style="color:#c98f5f">&lt;img</span> <span style="color:#d9a441">src</span>=<span style="color:#9fc08a">"caverna.png"</span> <span style="color:#d9a441">style</span>=<span style="color:#9fc08a">"width:100%"</span><span style="color:#c98f5f">&gt;</span>
+  <span style="color:#6d8a5f">&lt;!-- 1 botão por conceito, ancorado em % --&gt;</span>
+  <span style="color:#c98f5f">&lt;button</span> <span style="color:#d9a441">class</span>=<span style="color:#9fc08a">"hotspot"</span> <span style="color:#d9a441">data-conceito</span>=<span style="color:#9fc08a">"escalabilidade"</span>
+          <span style="color:#d9a441">style</span>=<span style="color:#9fc08a">"left:8%; top:9%; width:22%; height:33%"</span><span style="color:#c98f5f">&gt;&lt;/button&gt;</span>
+<span style="color:#c98f5f">&lt;/div&gt;</span>
+
+<span style="color:#c98f5f">.hotspot</span> { <span style="color:#d9a441">position</span>:absolute; <span style="color:#d9a441">border</span>:2px solid transparent; <span style="color:#d9a441">background</span>:transparent }
+<span style="color:#c98f5f">.hotspot:hover</span> { <span style="color:#d9a441">border-color</span>:var(--cor); <span style="color:#d9a441">box-shadow</span>:0 0 26px var(--cor) }
+<span style="color:#6d8a5f">// clique reaproveita o modal atual — zero conteúdo reescrito</span>
+<span style="color:#c98f5f">btn.onclick</span> = () =&gt; abrirConceito(btn.dataset.conceito);</pre>
+        </div>
+      </div>
+    </section>
+  </sc-if>
+
+  <footer style="width:100%;max-width:1180px;padding:40px 24px 0;text-align:center">
+    <p style="font-size:13.5px;color:#8a6f43;font-style:italic;line-height:1.6;max-width:680px;margin:0 auto">"Uma caverna forte não é a que tem mais pedras, mas a que sabe onde colocar cada pedra." A figura faz isso pelo aluno: mostra onde cada conceito mora dentro do sistema.</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:860},&quot;estiloMarcador&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Pontos pulsantes&quot;,&quot;Números&quot;,&quot;Nenhum&quot;],&quot;default&quot;:&quot;Números&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Figura&quot;},&quot;mostrarPainelDev&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Conteúdo&quot;}}">
+class Component extends DCLogic {
+  state = { activeId: null, tourActive: false, tourIdx: -1 };
+
+  CONCEITOS = {
+    escalabilidade: { zona:'Macro · A Caverna-Tribo', titulo:'Escalabilidade — O Abrigo que Cresce', icone:'🪨', cor:'#d9a441', label:'Escalabilidade',
+      metafora:'Quando chegam mais membros à tribo, o troglodita não derruba a caverna inteira: encaixa novas lajes na estrutura. Escalabilidade é crescer encaixando peças, não reconstruindo tudo.',
+      bullets:['Escala horizontal = mais "lajes" (instâncias); escala vertical = trocar uma laje por uma maior (mais CPU/RAM).','Sistemas sem estado (stateless) escalam horizontalmente com muito mais facilidade — guarde o estado em banco ou cache.','Projete para escalar quando os dados pedirem; escalar cedo demais é energia gasta sem retorno.'],
+      ferramentas:[{nome:'Kubernetes',url:'https://kubernetes.io'},{nome:'AWS Auto Scaling',url:'https://aws.amazon.com/autoscaling/'},{nome:'NGINX',url:'https://nginx.org'}],
+      dica:'Antes de comprar uma "laje maior" (vertical), pergunte se dá para encaixar mais lajes iguais (horizontal). Horizontal costuma ser mais barato, resiliente e elástico.' },
+    seguranca: { zona:'Macro · A Caverna-Tribo', titulo:'Segurança — A Muralha e o Crachá-Pedra', icone:'🛡️', cor:'#c0563a', label:'Segurança',
+      metafora:'A entrada tem muralha de pedras gigantes e uma armadilha de ossos que só libera quem mostra o crachá com sua marca. É a diferença entre saber QUEM entra (autenticação) e o que pode fazer (autorização).',
+      bullets:['Autenticação responde "quem é você?"; autorização responde "o que você pode fazer?". São coisas distintas.','Defesa em profundidade: várias camadas valem mais que um único portão "inquebrável".','Nunca confie na entrada: valide e sanitize todo dado que chega de fora.'],
+      ferramentas:[{nome:'OWASP Top 10',url:'https://owasp.org/www-project-top-ten/'},{nome:'OAuth 2.0',url:'https://oauth.net/2/'},{nome:'Keycloak',url:'https://www.keycloak.org'}],
+      dica:'Aplique o menor privilégio: cada membro recebe só o crachá que precisa. Acesso "de admin para todo mundo" é a armadilha que mais machuca.' },
+    devops: { zona:'Macro · A Caverna-Tribo', titulo:'DevOps & CI/CD — A Caça Automatizada', icone:'🏹', cor:'#6ba368', label:'DevOps & CI/CD',
+      metafora:'A armadilha testa a presa sozinha: se é boa (graveto verde), libera a carne em containers de argila padronizados; se não, devolve pro mato. CI/CD faz isso com o código — testa, aprova e empacota automaticamente.',
+      bullets:['CI: cada mudança roda testes automáticos antes de ser aceita — presa ruim volta pro mato.','CD: o que passa é empacotado em "containers de argila" idênticos e entregue sempre do mesmo jeito.','Containers garantem que "funciona na minha caverna" funcione nas outras — mesmo recipiente, mesmo resultado.'],
+      ferramentas:[{nome:'GitHub Actions',url:'https://github.com/features/actions'},{nome:'Docker',url:'https://www.docker.com'},{nome:'GitLab CI',url:'https://docs.gitlab.com/ee/ci/'}],
+      dica:'Automatize o pipeline antes de ele doer. Um teste que roda a cada commit pega a presa ruim cedo — bem mais barato que descobrir já na produção.' },
+    cloud: { zona:'Macro · A Caverna-Tribo', titulo:'Cloud — Os Sinais de Fumaça', icone:'☁️', cor:'#8fb8d6', label:'Cloud',
+      metafora:'A fogueira manda sinais de fumaça coordenando todas as cavernas à distância, sem cada tribo manter sua estrutura gigante. A nuvem é isso: recursos sob demanda, coordenados remotamente.',
+      bullets:['Você usa servidores e armazenamento de outra pessoa, pagando pelo que consome.','Elasticidade: a fumaça sobe mais forte nos picos e diminui quando a demanda cai.','Modelos: IaaS (a lenha), PaaS (a fogueira pronta), SaaS (a fumaça já mandada) — quanto mais alto, menos você gerencia.'],
+      ferramentas:[{nome:'AWS',url:'https://aws.amazon.com'},{nome:'Google Cloud',url:'https://cloud.google.com'},{nome:'Azure',url:'https://azure.microsoft.com'}],
+      dica:'Cuidado com vendor lock-in: depender de uma só fogueira prende a tribo. Use padrões abertos (containers, Terraform) para poder trocar de céu.' },
+    redundancia: { zona:'Macro · A Caverna-Tribo', titulo:'Disponibilidade — As Duas Fogueiras', icone:'🔥', cor:'#ff7a18', label:'Disponibilidade & Redundância',
+      metafora:'A tribo mantém duas fogueiras idênticas: se uma apaga, a outra segue aquecendo. Redundância é ter mais de uma "fogueira" para que a falha de uma não deixe a tribo no frio.',
+      bullets:['Elimine pontos únicos de falha (SPOF): uma só fogueira congela a tribo no dia que apagar.','Failover: quando a principal cai, o tráfego é desviado para a reserva.','Disponibilidade é medida em "noves" (99,9%, 99,99%) — cada nove a mais custa muito mais energia.'],
+      ferramentas:[{nome:'Resiliency Patterns',url:'https://learn.microsoft.com/azure/architecture/patterns/category/resiliency'},{nome:'HAProxy',url:'https://www.haproxy.org'},{nome:'Google SRE Book',url:'https://sre.google/sre-book/table-of-contents/'}],
+      dica:'Redundância só vale se você testa o failover. Apague a fogueira principal de propósito (chaos engineering) e veja se a reserva aquece de verdade.' },
+    c4: { zona:'Micro · A Parede de Pinturas', titulo:'Modelo C4 — As Pinturas em Camadas', icone:'🎨', cor:'#d4915a', label:'Modelo C4',
+      metafora:'A parede tem quatro pinturas sobrepostas: o mapa do território, cada caverna, as ferramentas dentro dela e o código gravado em símbolos. O C4 documenta a arquitetura nesses quatro níveis de zoom.',
+      bullets:['Contexto → Container → Componente → Código: cada nível dá mais detalhe, como aproximar o olhar na parede.','Você escolhe o nível certo para cada plateia: a tribo vê o mapa; o artesão vê o código.','Diagramas em camadas evitam o "diagrama de tudo" ilegível — cada pintura responde a uma pergunta.'],
+      ferramentas:[{nome:'C4 Model',url:'https://c4model.com'},{nome:'Structurizr',url:'https://structurizr.com'},{nome:'Mermaid',url:'https://mermaid.js.org'}],
+      dica:'Comece só pelos dois primeiros níveis (Contexto e Container). Eles cabem numa pedra e já dão 80% do que um dev novo precisa para se localizar.' },
+    observabilidade: { zona:'Micro · A Parede de Pinturas', titulo:'Observabilidade — Pegadas, Corda e Fogueira', icone:'👣', cor:'#5fc8a0', label:'Observabilidade',
+      metafora:'O mural mostra pegadas (o que aconteceu), uma corda de nós (o caminho da caça por cada caverna) e uma fogueira que muda de cor (azul = ok, vermelho = problema). São logging, tracing e monitoramento.',
+      bullets:['Logging = pegadas: o registro do que aconteceu, com hora e contexto.','Tracing = corda de nós: o caminho completo de uma requisição passando por cada serviço.','Monitoramento = fogueira que muda de cor: o sinal visível de que algo saiu do esperado.'],
+      ferramentas:[{nome:'OpenTelemetry',url:'https://opentelemetry.io'},{nome:'Grafana',url:'https://grafana.com'},{nome:'Prometheus',url:'https://prometheus.io'}],
+      dica:'Passe um Correlation ID único em cada requisição: ele amarra pegadas, nós da corda e cor da fogueira numa história só. Sem ele, você investiga incidentes às cegas.' },
+    refatoracao: { zona:'Micro · A Parede de Pinturas', titulo:'Refatoração — A Oficina de Pedras', icone:'🔨', cor:'#c9aa5c', label:'Refatoração',
+      metafora:'O troglodita desmonta uma ferramenta emaranhada e a reconstrói com pedras polidas que encaixam, testando cada peça. Refatorar é melhorar a estrutura interna sem mudar o que a ferramenta faz por fora.',
+      bullets:['Refatoração muda a forma, não o comportamento: a lança caça igual, só fica mais fácil de manter.','Reduzir acoplamento (peças que encaixam, não emaranhadas) deixa cada parte trocável sem quebrar as outras.','Só refatore com testes cobrindo a peça — eles provam que ela ainda funciona depois de polida.'],
+      ferramentas:[{nome:'Refactoring (Fowler)',url:'https://refactoring.com'},{nome:'SonarQube',url:'https://www.sonarsource.com/products/sonarqube/'},{nome:'ESLint',url:'https://eslint.org'}],
+      dica:'Regra do escoteiro: deixe a pedra um pouco mais polida do que encontrou. Pequenas refatorações contínuas evitam a reconstrução dolorosa lá na frente.' },
+    leis: { zona:'Micro · A Parede de Pinturas', titulo:'Leis da Arquitetura — As Pedras Gravadas', icone:'⚖️', cor:'#b08cc4', label:'Leis da Arquitetura',
+      metafora:'Duas pedras guardam as leis da tribo: "toda escolha gasta energia" (o músculo) e "olhe o clima antes de caçar" (o sol e a chuva). São as duas verdades centrais de qualquer arquitetura.',
+      bullets:['Tudo é trade-off: ganhar de um lado custa do outro. A pergunta é "o que estou disposto a perder?".','Arquitetura depende do contexto: a melhor decisão para uma tribo pode ser péssima para outra.','"Depende" é resposta honesta de arquiteto — o trabalho é tornar explícito de QUÊ depende.'],
+      ferramentas:[{nome:'Fundamentals of SW Architecture',url:'https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/'},{nome:'ADR',url:'https://adr.github.io'},{nome:'Architectural Katas',url:'https://www.architecturalkatas.com'}],
+      dica:'Grave suas decisões em "pedra" com ADRs: registre o que foi escolhido, o contexto e o trade-off aceito. A tribo do futuro vai querer saber por quê.' },
+    cofre: { zona:'Micro · A Parede de Pinturas', titulo:'Criptografia & Acesso Mínimo — O Cofre de Ossos', icone:'🦴', cor:'#cdbd9a', label:'Cofre de Ossos',
+      metafora:'Os dados mais sensíveis ficam num cofre de ossos gravado com uma caveira, e só o xamã com a chave-pedra abre. É criptografia (embaralhar para quem não tem a chave) somada ao acesso mínimo (poucos podem abrir).',
+      bullets:['Criptografe dados sensíveis em repouso (no cofre) e em trânsito (no caminho entre cavernas).','Menor privilégio: só quem realmente precisa recebe a chave — nunca a chave-mestra "de tudo".','Nunca grave segredos (senhas, tokens) nas pinturas da parede (código/logs); guarde-os num cofre próprio.'],
+      ferramentas:[{nome:'HashiCorp Vault',url:'https://www.vaultproject.io'},{nome:"Let's Encrypt",url:'https://letsencrypt.org'},{nome:'AWS KMS',url:'https://aws.amazon.com/kms/'}],
+      dica:'Rotacione as chaves periodicamente e revogue na hora quando um membro sai da tribo. Chave que nunca muda é caveira esperando para virar incidente.' },
+    conformidade: { zona:'Micro · A Parede de Pinturas', titulo:'Conformidade — As Tábuas de Regras', icone:'📜', cor:'#e0c04a', label:'Conformidade',
+      metafora:'O ancião entrega à tribo tábuas com as regras que todos devem seguir. No software são as leis externas — LGPD, GDPR — que ditam como você pode coletar, guardar e usar os dados das pessoas.',
+      bullets:['Conformidade é obrigação externa: não basta ser seguro, é preciso seguir a lei (LGPD, GDPR).','Princípios comuns: consentimento, minimização (colete só o necessário) e direito ao esquecimento.','Privacy by design: as regras entram no projeto desde o começo, não como remendo depois do incidente.'],
+      ferramentas:[{nome:'LGPD',url:'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm'},{nome:'GDPR',url:'https://gdpr.eu'},{nome:'OWASP Privacy Risks',url:'https://owasp.org/www-project-top-10-privacy-risks/'}],
+      dica:'Mapeie quais dados pessoais a tribo coleta e por quê. Não dá para cumprir as regras sobre dados que você nem sabe que está guardando.' },
+    divida: { zona:'Micro · A Parede de Pinturas', titulo:'Dívida Técnica — O Monte de Ossos Velhos', icone:'💀', cor:'#9aa0a6', label:'Dívida Técnica',
+      metafora:'A cada atalho apressado, a tribo joga mais uma ferramenta quebrada na pilha. O sábio aponta preocupado: a dívida técnica é esse monte que cresce e, sem ser limpo, trava toda a caverna.',
+      bullets:['Dívida técnica é o custo futuro de escolhas rápidas de hoje — às vezes vale contraí-la conscientemente.','Como dívida financeira, ela cobra "juros": cada mudança fica mais lenta e arriscada enquanto a pilha cresce.','O perigo é a dívida invisível: o que ninguém mede e ninguém paga é o que trava a tribo de repente.'],
+      ferramentas:[{nome:'Tech Debt (Fowler)',url:'https://martinfowler.com/bliki/TechnicalDebt.html'},{nome:'SonarQube',url:'https://www.sonarsource.com/products/sonarqube/'},{nome:'CodeScene',url:'https://codescene.com'}],
+      dica:'Torne a pilha visível: registre a dívida no backlog como qualquer tarefa e reserve uma fatia fixa de cada ciclo para limpar "ossos velhos".' }
+  };
+
+  // geometria dos hotspots em % da figura (1408x768)
+  GEO = {
+    escalabilidade:[1,12,22,34], seguranca:[25.5,5,17,42], devops:[44,18,19,28],
+    cloud:[63,3,18,43], redundancia:[82,27,17,20],
+    c4:[2.5,60,14.5,35], observabilidade:[18,54,22,37], refatoracao:[33,71,16,26],
+    leis:[48,57,14,39], cofre:[60.5,73,14,23], conformidade:[74,61,16,36], divida:[89.5,60,10,37]
+  };
+
+  ORDEM = ['escalabilidade','seguranca','devops','cloud','redundancia','c4','observabilidade','refatoracao','leis','cofre','conformidade','divida'];
+
+  ORIENTACOES = [
+    { n:'01', titulo:'Troque o palco, não o conteúdo', texto:'O <svg> de 12 caixas abstratas vira camada de fundo única — a ilustração coesa. O dicionário CONCEITOS (metáfora, bullets, ferramentas, dica) fica intacto; ele já é o coração do objeto.' },
+    { n:'02', titulo:'Hotspots em porcentagem', texto:'Sobreponha um <button> por conceito, posicionado em % dentro de um container com aspect-ratio fixo. Assim as regiões grudam na arte e escalam juntas em qualquer tela, sem recalcular pixels.' },
+    { n:'03', titulo:'Affordance sutil', texto:'A arte não pode virar poluição visual. Em repouso, um marcador pulsante discreto sinaliza "clique aqui"; no hover, contorno + glow na cor do conceito (reaproveite cor de CONCEITOS). Sem rótulos duplicados sobre a figura.' },
+    { n:'04', titulo:'Acessibilidade primeiro', texto:'Cada hotspot é <button> com aria-label, navegável por Tab/Enter e com foco visível. Respeite prefers-reduced-motion: sem pulso, sem flicker. A legenda numerada abaixo é a rota alternativa para quem não enxerga as regiões.' },
+    { n:'05', titulo:'Reaproveite modal, tour e teclado', texto:'O modal, o Tour Guiado, os links de ferramentas e a navegação por setas continuam iguais. Só re-ancore o tour às novas regiões da figura, em vez das antigas caixas.' },
+    { n:'06', titulo:'Conecte Macro ↔ Micro', texto:'Como a figura já põe tudo na mesma cena, reforce a leitura "uma decisão lá em cima reflete aqui embaixo": ao abrir um conceito, realce sutilmente os setores relacionados. Fase 2, opcional, mas é onde a integração brilha.' },
+    { n:'07', titulo:'Arte limpa para i18n', texto:'A figura atual tem texto queimado no PNG (e alguns erros de geração). Exporte uma versão SEM rótulos: os textos passam a vir do HTML sobre a arte, permitindo tradução, correção e leitura por tela.' },
+    { n:'08', titulo:'PNG agora, SVG depois', texto:'PNG + overlay em % é o caminho rápido e já entrega a integração. Para hotspots colados ao pixel e nitidez infinita, redesenhe a cena como SVG em camadas (cada setor um <g>) — caminho robusto de longo prazo.' }
+  ];
+
+  // Fase 2 — laços que a figura torna visíveis (Macro ↔ Micro)
+  RELACOES = {
+    escalabilidade: { ids:['cloud','redundancia','devops'], nota:'Crescer encaixando lajes só funciona apoiado na nuvem elástica, em fogueiras redundantes e num pipeline que entrega as novas peças.' },
+    seguranca:      { ids:['cofre','conformidade','redundancia'], nota:'A muralha lá na entrada é a mesma defesa que protege o cofre de ossos no fundo e cumpre as tábuas de regras.' },
+    devops:         { ids:['escalabilidade','observabilidade','cloud'], nota:'A caça automatizada entrega as lajes que escalam, deixa pegadas para observar e empacota tudo para a nuvem.' },
+    cloud:          { ids:['escalabilidade','redundancia','conformidade'], nota:'Os sinais de fumaça sustentam a escala, espalham as fogueiras-reserva e levantam questões de onde os dados moram (conformidade).' },
+    redundancia:    { ids:['escalabilidade','observabilidade','seguranca'], nota:'As duas fogueiras só salvam a tribo se você as observa e protege — disponibilidade é segurança contra o frio.' },
+    c4:             { ids:['leis','observabilidade','refatoracao'], nota:'As pinturas em camadas registram as leis gravadas, guiam o que observar e mostram onde a oficina precisa polir.' },
+    observabilidade:{ ids:['devops','redundancia','divida'], nota:'Pegadas e corda de nós revelam quando o failover agiu e onde a pilha de ossos velhos está travando a caça.' },
+    refatoracao:    { ids:['divida','leis','c4'], nota:'Polir pedras é como a tribo paga o monte de ossos velhos, respeitando as leis de trade-off e atualizando as pinturas.' },
+    leis:           { ids:['c4','refatoracao','divida'], nota:'Toda escolha gasta energia: as leis explicam por que documentamos (C4), polimos (refatoração) e contraímos dívida conscientemente.' },
+    cofre:          { ids:['seguranca','conformidade'], nota:'O cofre de ossos é o braço mais fundo da muralha e o que torna as tábuas de regras (LGPD/GDPR) realidade.' },
+    conformidade:   { ids:['seguranca','cofre','cloud'], nota:'As tábuas de regras ditam como a muralha guarda o cofre e onde a fumaça pode levar os dados da tribo.' },
+    divida:         { ids:['refatoracao','observabilidade','leis'], nota:'O monte de ossos velhos só encolhe com oficina constante, fica visível pela observação e nasce das leis de trade-off.' }
+  };
+
+  componentDidMount() {
+    this._key = (e) => {
+      if (e.key === 'Escape') this.close();
+      else if (this.state.tourActive && (e.key === 'ArrowRight')) this.tourStep(1);
+      else if (this.state.tourActive && (e.key === 'ArrowLeft')) this.tourStep(-1);
+    };
+    window.addEventListener('keydown', this._key);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._key);
+    clearInterval(this._timer);
+  }
+
+  open(id) { clearInterval(this._timer); this.setState({ activeId: id, tourActive: false }); }
+  close() { clearInterval(this._timer); this.setState({ activeId: null, tourActive: false }); }
+
+  toggleTour() {
+    if (this.state.tourActive) { clearInterval(this._timer); this.setState({ tourActive:false, activeId:null }); return; }
+    this.setState({ tourActive:true, tourIdx:0, activeId:this.ORDEM[0] });
+    this._timer = setInterval(() => this.tourStep(1), 4200);
+  }
+  tourStep(dir) {
+    let i = (this.state.tourIdx + dir + this.ORDEM.length) % this.ORDEM.length;
+    this.setState({ tourIdx:i, activeId:this.ORDEM[i] });
+  }
+
+  renderVals() {
+    const estilo = this.props.estiloMarcador ?? 'Pontos pulsantes';
+    const mostrarPainelDev = this.props.mostrarPainelDev ?? true;
+    const showNum = estilo === 'Números';
+    const showDot = estilo === 'Pontos pulsantes';
+
+    const activeId = this.state.activeId;
+    const rel = activeId ? this.RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+
+    const hotspots = this.ORDEM.map((hid, i) => {
+      const id = hid;
+      const c = this.CONCEITOS[id];
+      const g = this.GEO[id];
+      const num = String(i + 1);
+      const isActive = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed = activeId && !isActive && !isRelated;
+      let haloStyle = 'display:none';
+      if (isActive) {
+        haloStyle = `position:absolute;inset:-3px;border-radius:16px;border:3px solid ${c.cor};box-shadow:0 0 34px 4px ${c.cor},inset 0 0 22px color-mix(in srgb, ${c.cor} 30%, transparent);background:color-mix(in srgb, ${c.cor} 14%, transparent);pointer-events:none`;
+      } else if (isRelated) {
+        haloStyle = `position:absolute;inset:-1px;border-radius:15px;border:2px dashed ${c.cor};box-shadow:0 0 20px 1px color-mix(in srgb, ${c.cor} 55%, transparent);animation:cvhalo 1.8s ease-in-out infinite;pointer-events:none`;
+      }
+      return {
+        id, num, label: c.label, aria: c.titulo, haloStyle,
+        open: () => this.open(id),
+        style: `position:absolute;left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%;--c:${c.cor};border:2px solid transparent;border-radius:14px;background:transparent;cursor:pointer;padding:0;margin:0;transition:background .18s,box-shadow .18s,border-color .18s`,
+        ringStyle: (showDot && !isActive && !isRelated)
+          ? `position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;border:2px solid ${c.cor};animation:cvring 2.4s ease-out infinite;pointer-events:none;opacity:${isDimmed ? .28 : 1}`
+          : 'display:none',
+        markerStyle: (showDot && !isActive)
+          ? `position:absolute;left:50%;top:50%;width:11px;height:11px;border-radius:50%;background:${c.cor};box-shadow:0 0 10px ${c.cor};animation:cvpulse 2.4s ease-in-out infinite;pointer-events:none;opacity:${isDimmed ? .3 : 1}`
+          : 'display:none',
+        numStyle: showNum
+          ? `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:${c.cor};color:#1a120b;font-family:'Cinzel',serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(20,18,11,.55),0 2px 8px rgba(0,0,0,.5);pointer-events:none;opacity:${isDimmed ? .3 : 1};transform:translate(-50%,-50%) scale(${isActive ? 1.25 : 1})`
+          : 'display:none',
+        legendDot: `flex-shrink:0;width:22px;height:22px;border-radius:50%;background:${c.cor};color:#1a120b;font-family:'Cinzel',serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center`
+      };
+    });
+
+    const id = this.state.activeId;
+    const active = id
+      ? { ...this.CONCEITOS[id], conexaoNota: (this.RELACOES[id] && this.RELACOES[id].nota) || '' }
+      : { bullets:[], ferramentas:[], conexaoNota:'' };
+    const cor = id ? this.CONCEITOS[id].cor : '#ccc';
+
+    const relacionados = (id && this.RELACOES[id] ? this.RELACOES[id].ids : []).map(rid => {
+      const rc = this.CONCEITOS[rid];
+      return {
+        id: rid, label: rc.label, icone: rc.icone,
+        open: () => this.open(rid),
+        chipStyle: `display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#2a2018;border:none;border-left:4px solid ${rc.cor};border-radius:6px;padding:5px 11px;cursor:pointer;background:color-mix(in srgb, ${rc.cor} 22%, #f3e4c4);font-family:'Spectral',serif`
+      };
+    });
+
+    return {
+      hotspots,
+      relacionados,
+      mostrarPainelDev,
+      orientacoes: this.ORIENTACOES,
+      modalOpen: !!id,
+      active,
+      tourBtnLabel: this.state.tourActive ? '⏹ Parar tour' : '▶ Tour guiado',
+      toggleTour: () => this.toggleTour(),
+      close: () => this.close(),
+      onOverlayClick: (e) => { if (e.target === e.currentTarget) this.close(); },
+      cardStyle: `background:#f4ecde;border-radius:16px;padding:24px;max-width:540px;width:100%;max-height:88vh;overflow-y:auto;border-top:6px solid ${cor};box-shadow:0 30px 80px -20px rgba(0,0,0,.7);animation:cvslide .26s ease`,
+      metaforaStyle: `font-style:italic;color:#5a4633;font-size:14.5px;line-height:1.6;border-left:3px solid ${cor};padding-left:14px;margin-bottom:16px`,
+      bulletDot: `position:absolute;left:4px;top:7px;width:7px;height:7px;border-radius:50%;background:${cor}`,
+      dicaStyle: `background:#f3e4c4;border-left:4px solid ${cor};padding:12px 14px;border-radius:0 8px 8px 0`
+    };
+  }
+}
+</script>
+</body>
+</html>
