@@ -2,7 +2,7 @@
 
 Objeto educacional interativo no formato **mapa-metáfora** para devs juniores. Uma caverna pré-histórica em corte transversal (estilo "casa de boneca") vira a interface: a **faixa superior** é a *visão macro do processo* (a tribo desenha, decide, coordena e automatiza) e a **faixa inferior** são os *componentes e práticas micro*. Cada nicho — separado por pilares de rocha — é um conceito de **BPM / BPMS** (BPMN, gateways, DMN, process mining, orquestração, low-code, subprocessos, mensageria, retry/fallback, bots/RPA, monitoramento e automação end-to-end). Clique em qualquer nicho para abrir a explicação, ou use o **tour guiado** para percorrer os 12 conceitos em ordem.
 
-A ilustração é desenhada em **SVG inline** (sem imagens externas, sem CDN): o arquivo é totalmente autocontido e abre por duplo clique.
+A ilustração de fundo é a arte `caverna-processos.png` (sem CDN); todo o CSS e JS são inline no `index.html`, que abre por duplo clique.
 
 ## Como usar
 
