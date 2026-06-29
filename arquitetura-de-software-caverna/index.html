@@ -63,25 +63,6 @@
     }
     header .tese strong { color: var(--dourado); }
 
-    /* ---------- Antes vs Depois ---------- */
-    .antes-depois {
-      padding-top: 18px; padding-bottom: 6px;
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;
-    }
-    .card-tese { border-radius: 14px; padding: 18px 20px; }
-    .card-tese.antes { background: #1d140c; border: 1px solid var(--borda); }
-    .card-tese.depois { background: #221a0e; border: 1px solid var(--borda-2); box-shadow: 0 0 0 1px rgba(240,210,154,.06); }
-    .card-tese .rotulo {
-      font-family: var(--font-display); font-size: 13px; letter-spacing: 0.16em;
-      text-transform: uppercase; margin-bottom: 8px;
-    }
-    .card-tese.antes .rotulo { color: #8a6f43; }
-    .card-tese.depois .rotulo { color: var(--dourado-2); }
-    .card-tese p { font-size: 14.5px; line-height: 1.62; }
-    .card-tese.antes p { color: #c9b89a; }
-    .card-tese.depois p { color: #ecdcb8; }
-    .card-tese.depois strong { color: var(--dourado); }
-
     /* ---------- Barra de controles ---------- */
     .figura-topo {
       display: flex; align-items: center; justify-content: space-between;
@@ -300,20 +281,8 @@
     <p class="tese">Da <em>coleção de objetos soltos</em> para a <strong>figura que ensina por inteiro</strong>. A própria ilustração vira a interface — cada região da caverna é um conceito vivo, no seu lugar dentro do sistema.</p>
   </header>
 
-  <!-- ===================== ANTES vs DEPOIS ===================== -->
-  <section class="wrap antes-depois">
-    <div class="card-tese antes">
-      <div class="rotulo">Antes · objetos sozinhos</div>
-      <p>12 caixinhas SVG abstratas, lado a lado. O aluno decora 12 fatos <em>isolados</em> — sem ver como convivem no mesmo sistema, quem fica perto de quem, o que vira dívida no canto.</p>
-    </div>
-    <div class="card-tese depois">
-      <div class="rotulo">Depois · conhecimento integrado</div>
-      <p>Uma <strong>cena única</strong>. A escalabilidade na entrada, a segurança no portão, a dívida acumulando no fundo. O cérebro aprende por <em>espaço e história</em> — a figura carrega proximidade, fluxo e escala que caixas soltas nunca contam.</p>
-    </div>
-  </section>
-
   <!-- ===================== FIGURA INTERATIVA ===================== -->
-  <section class="wrap" style="padding-top:14px">
+  <section class="wrap" style="padding-top:18px">
     <div class="figura-topo">
       <p class="figura-dica">Passe o mouse e clique em qualquer setor da caverna — a história inteira mora numa imagem só.</p>
       <div class="controles">
