@@ -10,6 +10,7 @@ Repositório de objetos educacionais interativos no formato **mapa-metáfora** p
 | A Caverna Arquitetada | Arquitetura de Software (Escalabilidade, Segurança, DevOps/CI-CD, Cloud, Redundância, C4, Observabilidade, Refatoração, Conformidade, Dívida Técnica) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`arquitetura-de-software-caverna/`](./arquitetura-de-software-caverna/) |
 | A Aldeia Arquitetada | Arquitetura de Software (Escalabilidade, Segurança, DevOps/CI-CD, Cloud, Redundância, C4, Observabilidade, Refatoração, Leis, Criptografia, Conformidade, Dívida Técnica) | Aldeia agrícola (corte transversal) | Devs juniores | [`arquitetura-software-aldeia/`](./arquitetura-software-aldeia/) |
 | O Acampamento Arquitetado | Arquitetura de Software (Escalabilidade, Segurança, DevOps/CI-CD, Cloud, Redundância, C4, Observabilidade, Refatoração, Leis, Criptografia, Conformidade, Dívida Técnica) | Acampamento nômade / caravana no deserto (corte transversal) | Devs juniores | [`arquitetura-de-software-acampamento-nomade/`](./arquitetura-de-software-acampamento-nomade/) |
+| A Caverna das APIs | Design de API (Métodos HTTP, Nomeação de Recursos, Anti-Patterns, Observabilidade, Open Banking, Versionamento, Rate Limiting, Segurança, Plugins, Hooks, Ciclo de Vida, Respostas Claras) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`design-de-api-caverna/`](./design-de-api-caverna/) |
 
 ## Como usar
 
