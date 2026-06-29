@@ -8,6 +8,7 @@ Repositório de objetos educacionais interativos no formato **mapa-metáfora** p
 |---|---|---|---|---|
 | Sala de Controle de Observabilidade | Observabilidade (Logs, Métricas, Traces, Alertas, Dashboards, SLOs) | Sala de controle / mission control | Devs juniores | [`observabilidade-sala-de-controle/`](./observabilidade-sala-de-controle/) |
 | A Caverna Arquitetada | Arquitetura de Software (Escalabilidade, Segurança, DevOps/CI-CD, Cloud, Redundância, C4, Observabilidade, Refatoração, Conformidade, Dívida Técnica) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`arquitetura-de-software-caverna/`](./arquitetura-de-software-caverna/) |
+| A Aldeia Arquitetada | Arquitetura de Software (Escalabilidade, Segurança, DevOps/CI-CD, Cloud, Redundância, C4, Observabilidade, Refatoração, Leis, Criptografia, Conformidade, Dívida Técnica) | Aldeia agrícola (corte transversal) | Devs juniores | [`arquitetura-software-aldeia/`](./arquitetura-software-aldeia/) |
 
 ## Como usar
 
