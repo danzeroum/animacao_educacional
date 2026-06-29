@@ -1,20 +1,17 @@
-# Sala de Controle — Observabilidade para Devs
+# Animação Educacional — Objetos Interativos para Devs
 
-Objeto educacional no formato **mapa-metáfora**: uma sala de controle interativa que ensina os pilares da observabilidade para devs juniores.
+Repositório de objetos educacionais interativos no formato **mapa-metáfora** para devs juniores. Cada objeto mapeia conceitos técnicos aos elementos de uma metáfora visual e animada, abrindo direto no navegador sem instalação.
+
+## Catálogo
+
+| Objeto | Tema | Metáfora | Público | Pasta |
+|---|---|---|---|---|
+| Sala de Controle de Observabilidade | Observabilidade (Logs, Métricas, Traces, Alertas, Dashboards, SLOs) | Sala de controle / mission control | Devs juniores | [`observabilidade-sala-de-controle/`](./observabilidade-sala-de-controle/) |
 
 ## Como usar
 
-Abra o arquivo `index.html` diretamente no seu navegador — sem instalação, sem servidor.
+Cada objeto é um arquivo `index.html` autocontido. Navegue até a pasta do objeto desejado e abra o `index.html` diretamente no navegador — sem servidor, sem instalação.
 
-## Conceitos cobertos
+## Como contribuir / criar um novo objeto
 
-| Estação na sala | Conceito |
-|---|---|
-| Telão principal | Dashboard |
-| Câmeras de segurança | Logs |
-| Sensores | Métricas |
-| Rastro no mapa | Traces |
-| Sirenes e alarmes | Alertas |
-| Quadro de contratos | SLIs / SLOs |
-
-Clique em qualquer estação ou use o **Tour Guiado** para uma visita automática.
+Veja [`CLAUDE.md`](./CLAUDE.md) para a convenção completa de nomenclatura, estrutura e padrões de acessibilidade.

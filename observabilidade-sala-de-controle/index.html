@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sala de Controle — Observabilidade para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: aprenda os pilares da observabilidade (Logs, Métricas, Traces, Alertas, Dashboards, SLOs) com a metáfora de uma sala de controle.">
+  <meta property="og:title" content="Sala de Controle — Observabilidade para Devs">
+  <meta property="og:description" content="Mapa-metáfora interativo sobre observabilidade para devs juniores. Clique em cada estação da sala de controle para aprender Logs, Métricas, Traces, Alertas, Dashboards e SLOs.">
+  <meta property="og:type" content="website">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cor-dashboard: #1a3a5c;
+      --cor-logs: #8bc34a;
+      --cor-metricas: #ff9800;
+      --cor-traces: #9c27b0;
+      --cor-alertas: #f44336;
+      --cor-slo: #00bcd4;
+      --fundo: #0d1b2a;
+      --texto: #f0f0f0;
+    }
+
+    body {
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 1rem 0.5rem;
+    }
+    header h1 {
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      letter-spacing: 0.05em;
+      color: #aed6f1;
+    }
+    header p {
+      font-size: 0.9rem;
+      color: #7fb3d3;
+      margin-top: 0.3rem;
+    }
+
+    #sala-wrapper {
+      width: 100%;
+      max-width: 960px;
+      padding: 0.5rem 0.5rem 0;
+    }
+
+    #sala {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .estacao {
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    .estacao:hover,
+    .estacao:focus-visible {
+      filter: drop-shadow(0 0 10px currentColor) brightness(1.2);
+    }
+    .estacao:focus-visible {
+      outline: 3px solid #aed6f1;
+      outline-offset: 4px;
+    }
+    .estacao:focus:not(:focus-visible) {
+      outline: none;
+    }
+    .estacao.ativo {
+      filter: drop-shadow(0 0 16px currentColor) brightness(1.4);
+    }
+
+    /* Animações idle */
+    @keyframes blink-alarm {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+    .alarme-luz { animation: blink-alarm 1.2s ease-in-out infinite; }
+
+    @keyframes scroll-log {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-48px); }
+    }
+    .log-scroll { animation: scroll-log 4s linear infinite; }
+
+    @keyframes pulse-bar {
+      0%, 100% { transform: scaleY(1); }
+      50%       { transform: scaleY(0.6); }
+    }
+    .bar1 { animation: pulse-bar 2.8s ease-in-out infinite; transform-origin: bottom; }
+    .bar2 { animation: pulse-bar 2.8s ease-in-out 0.4s infinite; transform-origin: bottom; }
+    .bar3 { animation: pulse-bar 2.8s ease-in-out 0.8s infinite; transform-origin: bottom; }
+    .bar4 { animation: pulse-bar 2.8s ease-in-out 1.2s infinite; transform-origin: bottom; }
+    .bar5 { animation: pulse-bar 2.8s ease-in-out 1.6s infinite; transform-origin: bottom; }
+
+    @keyframes draw-trace {
+      from { stroke-dashoffset: 300; }
+      to   { stroke-dashoffset: 0; }
+    }
+    .trace-line {
+      stroke-dasharray: 300;
+      stroke-dashoffset: 300;
+      animation: draw-trace 5s linear infinite;
+    }
+
+    @keyframes gauge-swing {
+      0%, 100% { transform: rotate(-20deg); }
+      50%       { transform: rotate(15deg); }
+    }
+    .gauge-needle {
+      animation: gauge-swing 6s ease-in-out infinite;
+      transform-origin: 615px 553px;
+    }
+
+    /* Controles */
+    #controles {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      padding: 0.8rem;
+    }
+    .btn {
+      background: #1e3a5f;
+      color: #aed6f1;
+      border: 1px solid #2e5f9f;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #2e5f9f; }
+
+    /* Modal */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    #modal-overlay.aberto { display: flex; }
+
+    #modal-card {
+      background: #f5f5f5;
+      color: #1a1a1a;
+      border-radius: 12px;
+      padding: 1.8rem;
+      max-width: 500px;
+      width: 100%;
+      border-top: 6px solid #ccc;
+      animation: slide-in 0.25s ease;
+      position: relative;
+    }
+    @keyframes slide-in {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);   opacity: 1; }
+    }
+
+    #modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    #modal-icone { font-size: 2rem; }
+    #modal-titulo { font-size: 1.2rem; font-weight: 700; }
+    #modal-metafora {
+      font-style: italic;
+      color: #444;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      border-left: 3px solid #ccc;
+      padding-left: 0.7rem;
+    }
+    #modal-bullets {
+      list-style: disc;
+      padding-left: 1.4rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+    #modal-dica {
+      background: #e8f4fd;
+      border-left: 4px solid #2196f3;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+      color: #1a3a5c;
+    }
+    #modal-dica strong { display: block; margin-bottom: 0.2rem; color: #0d47a1; }
+    #btn-fechar {
+      background: #1a3a5c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      float: right;
+    }
+    #btn-fechar:hover { background: #2e5f9f; }
+
+    /* Rodapé dos princípios */
+    #principios {
+      max-width: 960px;
+      width: 100%;
+      padding: 0 1rem 2rem;
+    }
+    #principios details {
+      background: #112233;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+    }
+    #principios summary {
+      cursor: pointer;
+      color: #7fb3d3;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    #principios ul {
+      margin-top: 0.7rem;
+      padding-left: 1.4rem;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: #c8dff0;
+    }
+
+    /* Tour progress */
+    #tour-progress {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      min-height: 2.4rem;
+      padding: 0.2rem 0;
+    }
+    #tour-label {
+      font-size: 0.8rem;
+      color: #7fb3d3;
+    }
+    #tour-bar {
+      width: 200px;
+      height: 6px;
+      border-radius: 3px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      background: #1e3a5f;
+    }
+    #tour-bar::-webkit-progress-bar  { background: #1e3a5f; border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: #aed6f1; border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: #aed6f1; border-radius: 3px; }
+
+    /* Links no modal */
+    #modal-ferramentas { margin-bottom: 0.8rem; }
+    #modal-ferramentas span { font-size: 0.82rem; color: #555; margin-right: 0.3rem; }
+    #modal-ferramentas a {
+      display: inline-block;
+      font-size: 0.78rem;
+      color: #1565c0;
+      border: 1px solid #90caf9;
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      margin: 0.15rem 0.2rem 0.15rem 0;
+      text-decoration: none;
+      background: #e3f2fd;
+    }
+    #modal-ferramentas a:hover { background: #bbdefb; }
+
+    /* Botão fullscreen */
+    #btn-fullscreen { font-size: 1rem; padding: 0.5rem 0.9rem; }
+
+    /* prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎛️ Sala de Controle de Observabilidade</h1>
+  <p>Clique em cada estação para entender os pilares da observabilidade</p>
+</header>
+
+<div id="sala-wrapper">
+  <svg id="sala" viewBox="0 0 900 620" role="img" aria-label="Mapa-metáfora: sala de controle de observabilidade">
+    <defs>
+      <linearGradient id="fundo-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0d1b2a"/>
+        <stop offset="100%" stop-color="#112233"/>
+      </linearGradient>
+      <radialGradient id="luz-teto" cx="50%" cy="0%" r="60%">
+        <stop offset="0%" stop-color="#1e3a5f" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#0d1b2a" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="clip-logs">
+        <rect x="30" y="220" width="170" height="80"/>
+      </clipPath>
+      <clipPath id="clip-telaobars">
+        <rect x="200" y="50" width="500" height="130"/>
+      </clipPath>
+    </defs>
+
+    <!-- Fundo da sala -->
+    <rect width="900" height="620" fill="url(#fundo-grad)"/>
+
+    <!-- Luz de teto -->
+    <ellipse cx="450" cy="0" rx="500" ry="200" fill="url(#luz-teto)"/>
+
+    <!-- Parede de fundo (perspectiva) -->
+    <polygon points="80,10 820,10 820,200 80,200" fill="#0a1520" stroke="#1e3a5f" stroke-width="1"/>
+
+    <!-- Linha do chão -->
+    <line x1="0" y1="580" x2="900" y2="580" stroke="#1e3a5f" stroke-width="1"/>
+    <!-- Linhas de perspectiva do chão -->
+    <line x1="450" y1="580" x2="80"  y2="200" stroke="#1e3a5f" stroke-width="0.5" stroke-opacity="0.4"/>
+    <line x1="450" y1="580" x2="820" y2="200" stroke="#1e3a5f" stroke-width="0.5" stroke-opacity="0.4"/>
+    <line x1="450" y1="580" x2="450" y2="200" stroke="#1e3a5f" stroke-width="0.5" stroke-opacity="0.3"/>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ESTAÇÃO 1: TELÃO PRINCIPAL (Dashboard)         -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <g class="estacao" data-conceito="dashboard"
+       tabindex="0" role="button" aria-label="Dashboard — Telão Principal"
+       style="color: #1a3a5c;">
+      <rect x="200" y="20" width="500" height="160" rx="6" fill="#0e2236" stroke="#2e6aad" stroke-width="2"/>
+      <rect x="210" y="30" width="480" height="140" rx="4" fill="#091825"/>
+      <!-- Gráfico de barras animado -->
+      <g clip-path="url(#clip-telaobars)">
+        <rect class="bar1" x="240" y="100" width="40" height="60" fill="#2196f3" opacity="0.8"/>
+        <rect class="bar2" x="300" y="80"  width="40" height="80" fill="#2196f3" opacity="0.8"/>
+        <rect class="bar3" x="360" y="90"  width="40" height="70" fill="#42a5f5" opacity="0.8"/>
+        <rect class="bar4" x="420" y="60"  width="40" height="100" fill="#2196f3" opacity="0.8"/>
+        <rect class="bar5" x="480" y="75"  width="40" height="85" fill="#42a5f5" opacity="0.8"/>
+        <rect x="540" y="95" width="40" height="65" fill="#2196f3" opacity="0.5"/>
+        <rect x="600" y="85" width="40" height="75" fill="#42a5f5" opacity="0.5"/>
+        <!-- Linha de status -->
+        <polyline points="240,120 300,100 360,110 420,80 480,95 540,115 600,105 650,90"
+                  fill="none" stroke="#00e5ff" stroke-width="2" opacity="0.7"/>
+      </g>
+      <!-- Label -->
+      <text x="450" y="178" text-anchor="middle" font-size="13" fill="#aed6f1" font-weight="bold">📊 TELÃO PRINCIPAL — Dashboard</text>
+      <!-- Indicadores de status -->
+      <circle cx="710" cy="40" r="6" fill="#4caf50" opacity="0.9"/>
+      <circle cx="730" cy="40" r="6" fill="#4caf50" opacity="0.9"/>
+      <circle cx="750" cy="40" r="6" fill="#ffeb3b" opacity="0.9"/>
+      <circle cx="770" cy="40" r="6" fill="#4caf50" opacity="0.9"/>
+    </g>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ESTAÇÃO 2: CÂMERAS (Logs)                      -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <g class="estacao" data-conceito="logs"
+       tabindex="0" role="button" aria-label="Logs — Câmeras de Segurança"
+       style="color: #8bc34a;">
+      <rect x="20" y="200" width="195" height="180" rx="6" fill="#0e2012" stroke="#558b2f" stroke-width="2"/>
+      <!-- Câmera ícone -->
+      <rect x="35" y="210" width="50" height="35" rx="4" fill="#1b3a0d" stroke="#8bc34a" stroke-width="1.5"/>
+      <circle cx="60"  cy="227" r="10" fill="#2e7d32" stroke="#8bc34a" stroke-width="1"/>
+      <circle cx="60"  cy="227" r="5"  fill="#1b5e20"/>
+      <polygon points="85,215 100,224 85,233" fill="#8bc34a"/>
+      <!-- Texto de log animado -->
+      <rect x="30" y="250" width="175" height="80" rx="3" fill="#071a03"/>
+      <g clip-path="url(#clip-logs)">
+        <g class="log-scroll">
+          <text x="35" y="262" font-size="8" fill="#8bc34a" font-family="monospace">INFO  [12:01:03] GET /api/users 200 45ms</text>
+          <text x="35" y="274" font-size="8" fill="#8bc34a" font-family="monospace">WARN  [12:01:04] DB pool 85% usado</text>
+          <text x="35" y="286" font-size="8" fill="#4caf50" font-family="monospace">INFO  [12:01:05] POST /auth 201 12ms</text>
+          <text x="35" y="298" font-size="8" fill="#f44336" font-family="monospace">ERROR [12:01:06] Timeout conectando Redis</text>
+          <text x="35" y="310" font-size="8" fill="#8bc34a" font-family="monospace">INFO  [12:01:07] GET /health 200 2ms</text>
+          <text x="35" y="322" font-size="8" fill="#8bc34a" font-family="monospace">INFO  [12:01:08] Cache hit ratio: 94%</text>
+          <text x="35" y="334" font-size="8" fill="#ffb300" font-family="monospace">WARN  [12:01:09] Retry 1/3 payment svc</text>
+          <text x="35" y="346" font-size="8" fill="#8bc34a" font-family="monospace">INFO  [12:01:10] GET /api/orders 200</text>
+        </g>
+      </g>
+      <text x="110" y="345" text-anchor="middle" font-size="11" fill="#aed9a0" font-weight="bold">📷 CÂMERAS — Logs</text>
+    </g>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ESTAÇÃO 3: SENSORES (Métricas)                 -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <g class="estacao" data-conceito="metricas"
+       tabindex="0" role="button" aria-label="Métricas — Sensores"
+       style="color: #ff9800;">
+      <rect x="20" y="395" width="195" height="185" rx="6" fill="#1a0e00" stroke="#e65100" stroke-width="2"/>
+      <!-- Gauge CPU -->
+      <text x="110" y="420" text-anchor="middle" font-size="10" fill="#ff9800">CPU</text>
+      <path d="M 65 460 A 45 45 0 0 1 155 460" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/>
+      <path d="M 65 460 A 45 45 0 0 1 135 425" fill="none" stroke="#ff9800" stroke-width="8" stroke-linecap="round"/>
+      <line x1="110" y1="460" x2="110" y2="420" stroke="#ffcc80" stroke-width="2"/>
+      <text x="70"  y="475" font-size="9"  fill="#ff9800">0</text>
+      <text x="144" y="475" font-size="9"  fill="#ff9800">100</text>
+      <text x="110" y="488" text-anchor="middle" font-size="11" fill="#ffcc80" font-weight="bold">72%</text>
+      <!-- Gauge Memória -->
+      <text x="110" y="508" text-anchor="middle" font-size="9" fill="#ff9800">Memória: 5.2 GB / 8 GB</text>
+      <rect x="40" y="515" width="130" height="10" rx="5" fill="#333"/>
+      <rect x="40" y="515" width="84"  height="10" rx="5" fill="#ff9800"/>
+      <!-- Req/s -->
+      <text x="110" y="542" text-anchor="middle" font-size="9"  fill="#ffcc80">Req/s: 1.240</text>
+      <text x="110" y="560" text-anchor="middle" font-size="9"  fill="#4caf50">Latência p99: 180ms</text>
+      <text x="110" y="578" text-anchor="middle" font-size="11" fill="#ffcc80" font-weight="bold">🌡️ SENSORES — Métricas</text>
+    </g>
+
+    <!-- Mesa central (decorativa) -->
+    <ellipse cx="450" cy="500" rx="160" ry="60" fill="#091825" stroke="#1e3a5f" stroke-width="1.5"/>
+    <!-- Operadores (silhuetas) -->
+    <circle cx="390" cy="475" r="12" fill="#1e3a5f"/>
+    <rect   cx="390" cy="487" x="380" y="487" width="20" height="25" rx="4" fill="#1e3a5f"/>
+    <circle cx="450" cy="468" r="12" fill="#1e3a5f"/>
+    <rect   x="440" y="480" width="20" height="25" rx="4" fill="#1e3a5f"/>
+    <circle cx="510" cy="475" r="12" fill="#1e3a5f"/>
+    <rect   x="500" y="487" width="20" height="25" rx="4" fill="#1e3a5f"/>
+    <!-- Telas na mesa -->
+    <rect x="370" y="455" width="35" height="22" rx="2" fill="#091825" stroke="#2196f3" stroke-width="1"/>
+    <rect x="430" y="447" width="40" height="24" rx="2" fill="#091825" stroke="#2196f3" stroke-width="1"/>
+    <rect x="490" y="455" width="35" height="22" rx="2" fill="#091825" stroke="#2196f3" stroke-width="1"/>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ESTAÇÃO 4: MAPA/RASTRO (Traces)               -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <g class="estacao" data-conceito="traces"
+       tabindex="0" role="button" aria-label="Traces — Rastro do Incidente"
+       style="color: #9c27b0;">
+      <rect x="685" y="200" width="195" height="180" rx="6" fill="#130820" stroke="#6a1b9a" stroke-width="2"/>
+      <!-- Grid de mapa -->
+      <line x1="695" y1="220" x2="870" y2="220" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="695" y1="240" x2="870" y2="240" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="695" y1="260" x2="870" y2="260" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="695" y1="280" x2="870" y2="280" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="695" y1="300" x2="870" y2="300" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="720" y1="210" x2="720" y2="370" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="760" y1="210" x2="760" y2="370" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="800" y1="210" x2="800" y2="370" stroke="#2d0a40" stroke-width="1"/>
+      <line x1="840" y1="210" x2="840" y2="370" stroke="#2d0a40" stroke-width="1"/>
+      <!-- Nós de serviço -->
+      <circle cx="720" cy="220" r="8" fill="#4a148c" stroke="#ce93d8" stroke-width="1.5"/>
+      <circle cx="760" cy="250" r="8" fill="#4a148c" stroke="#ce93d8" stroke-width="1.5"/>
+      <circle cx="800" cy="270" r="8" fill="#6a1b9a" stroke="#ce93d8" stroke-width="1.5"/>
+      <circle cx="840" cy="300" r="8" fill="#4a148c" stroke="#ce93d8" stroke-width="1.5"/>
+      <circle cx="760" cy="320" r="8" fill="#4a148c" stroke="#ce93d8" stroke-width="1.5"/>
+      <!-- Labels dos serviços -->
+      <text x="720" y="215" text-anchor="middle" font-size="7" fill="#ce93d8">API</text>
+      <text x="760" y="245" text-anchor="middle" font-size="7" fill="#ce93d8">Auth</text>
+      <text x="800" y="265" text-anchor="middle" font-size="7" fill="#e040fb">DB</text>
+      <text x="840" y="295" text-anchor="middle" font-size="7" fill="#ce93d8">Cache</text>
+      <text x="760" y="315" text-anchor="middle" font-size="7" fill="#ce93d8">Queue</text>
+      <!-- Linha de trace animada -->
+      <polyline class="trace-line"
+                points="720,220 760,250 800,270 840,300 760,320"
+                fill="none" stroke="#e040fb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Spans -->
+      <rect x="700" y="335" width="160" height="8"  rx="2" fill="#4a148c" stroke="#7b1fa2" stroke-width="0.5"/>
+      <rect x="720" y="347" width="100" height="6"  rx="2" fill="#6a1b9a"/>
+      <rect x="730" y="357" width="60"  height="5"  rx="2" fill="#7b1fa2"/>
+      <rect x="740" y="366" width="30"  height="4"  rx="2" fill="#9c27b0"/>
+      <text x="780" y="382" text-anchor="middle" font-size="11" fill="#ce93d8" font-weight="bold">🗺️ RASTRO — Traces</text>
+    </g>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ESTAÇÃO 5: PAINEL ALARME (Alertas)            -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <g class="estacao" data-conceito="alertas"
+       tabindex="0" role="button" aria-label="Alertas — Painel de Alarmes"
+       style="color: #f44336;">
+      <rect x="685" y="395" width="195" height="185" rx="6" fill="#1a0000" stroke="#b71c1c" stroke-width="2"/>
+      <!-- Luz piscante -->
+      <circle class="alarme-luz" cx="720" cy="420" r="14" fill="#f44336"/>
+      <circle cx="720" cy="420" r="7"  fill="#ff8a80"/>
+      <!-- Painel de alertas -->
+      <rect x="745" y="408" width="125" height="22" rx="3" fill="#2d0000" stroke="#ef9a9a" stroke-width="0.5"/>
+      <text x="752" y="422" font-size="9" fill="#ef9a9a">🔴 CRÍTICO: latência p99 > 2s</text>
+      <rect x="695" y="438" width="175" height="18" rx="3" fill="#1a0a00" stroke="#ffcc02" stroke-width="0.5"/>
+      <text x="700" y="450" font-size="9" fill="#ffcc02">⚠️ WARN: error rate &gt; 1%</text>
+      <rect x="695" y="460" width="175" height="18" rx="3" fill="#001a0a" stroke="#4caf50" stroke-width="0.5"/>
+      <text x="700" y="472" font-size="9" fill="#4caf50">✅ OK: DB connections normal</text>
+      <rect x="695" y="482" width="175" height="18" rx="3" fill="#1a0a00" stroke="#ffcc02" stroke-width="0.5"/>
+      <text x="700" y="494" font-size="9" fill="#ffcc02">⚠️ WARN: disk usage 78%</text>
+      <!-- Ícone sirene -->
+      <text x="735" y="420" font-size="18">🚨</text>
+      <!-- Canal de notificação -->
+      <text x="782" y="520" text-anchor="middle" font-size="9"  fill="#ef9a9a">→ Slack #incidents + PagerDuty</text>
+      <text x="782" y="540" text-anchor="middle" font-size="9"  fill="#ef9a9a">On-call: @time-sre</text>
+      <text x="782" y="572" text-anchor="middle" font-size="11" fill="#ef9a9a" font-weight="bold">🚨 SIRENES — Alertas</text>
+    </g>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ESTAÇÃO 6: PAINEL SLI/SLO                     -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <g class="estacao" data-conceito="slo"
+       tabindex="0" role="button" aria-label="SLIs e SLOs — Contrato da Missão"
+       style="color: #00bcd4;">
+      <rect x="220" y="395" width="450" height="185" rx="6" fill="#001a1f" stroke="#00838f" stroke-width="2"/>
+      <!-- Título do painel -->
+      <text x="445" y="418" text-anchor="middle" font-size="12" fill="#00bcd4" font-weight="bold">📋 CONTRATO DA MISSÃO — SLIs &amp; SLOs</text>
+      <!-- Tabela -->
+      <rect x="230" y="425" width="430" height="30" rx="2" fill="#002f3a"/>
+      <text x="280" y="444" font-size="10" fill="#80deea" font-weight="bold">Serviço</text>
+      <text x="390" y="444" font-size="10" fill="#80deea" font-weight="bold">SLI (medido)</text>
+      <text x="510" y="444" font-size="10" fill="#80deea" font-weight="bold">SLO (meta)</text>
+      <text x="620" y="444" font-size="10" fill="#80deea" font-weight="bold">Budget</text>
+
+      <rect x="230" y="455" width="430" height="22" rx="1" fill="#001f28"/>
+      <text x="280" y="470" font-size="9" fill="#e0f7fa">API Principal</text>
+      <text x="390" y="470" font-size="9" fill="#4dd0e1">99.92% disponível</text>
+      <text x="510" y="470" font-size="9" fill="#4caf50">99.9%</text>
+      <text x="620" y="470" font-size="9" fill="#4caf50">✓ 34min</text>
+
+      <rect x="230" y="477" width="430" height="22" rx="1" fill="#001a22"/>
+      <text x="280" y="492" font-size="9" fill="#e0f7fa">Checkout</text>
+      <text x="390" y="492" font-size="9" fill="#4dd0e1">p99 latência 420ms</text>
+      <text x="510" y="492" font-size="9" fill="#ffb300">≤ 400ms</text>
+      <text x="620" y="492" font-size="9" fill="#f44336">✗ Esgotando</text>
+
+      <rect x="230" y="499" width="430" height="22" rx="1" fill="#001f28"/>
+      <text x="280" y="514" font-size="9" fill="#e0f7fa">Pagamentos</text>
+      <text x="390" y="514" font-size="9" fill="#4dd0e1">99.98% sucesso</text>
+      <text x="510" y="514" font-size="9" fill="#4caf50">99.95%</text>
+      <text x="620" y="514" font-size="9" fill="#4caf50">✓ 13min</text>
+
+      <!-- Gauge de error budget -->
+      <text x="320" y="545" text-anchor="middle" font-size="9"  fill="#80deea">Error Budget Total</text>
+      <rect x="230" y="550" width="180" height="10" rx="5" fill="#002f3a"/>
+      <rect x="230" y="550" width="120" height="10" rx="5" fill="#00bcd4"/>
+      <text x="320" y="573" text-anchor="middle" font-size="8"  fill="#80deea">67% restante</text>
+      <!-- Gauge needle animado -->
+      <g class="gauge-needle">
+        <line x1="615" y1="553" x2="615" y2="535" stroke="#00e5ff" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <path d="M 580 555 A 35 35 0 0 1 650 555" fill="none" stroke="#004d5c" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 580 555 A 35 35 0 0 1 615 520" fill="none" stroke="#00bcd4" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="615" cy="553" r="4" fill="#00e5ff"/>
+      <text x="615" y="580" text-anchor="middle" font-size="8" fill="#80deea">SLO</text>
+    </g>
+
+    <!-- Legenda de interação (canto superior direito) -->
+    <text x="880" y="195" text-anchor="end" font-size="9" fill="#4a6fa5">👆 clique para aprender</text>
+  </svg>
+</div>
+
+<div id="tour-progress" aria-live="polite" aria-atomic="true">
+  <span id="tour-label"></span>
+  <progress id="tour-bar" max="6" value="0" style="display:none"></progress>
+</div>
+<div id="controles">
+  <button class="btn" id="btn-tour">▶ Tour Guiado</button>
+  <button class="btn" id="btn-parar" style="display:none">⏹ Parar Tour</button>
+  <button class="btn" id="btn-fullscreen" title="Tela cheia (F11)">⛶ Tela cheia</button>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+  <div id="modal-card">
+    <div id="modal-header">
+      <span id="modal-icone"></span>
+      <h2 id="modal-titulo" aria-live="polite"></h2>
+    </div>
+    <p id="modal-metafora"></p>
+    <ul id="modal-bullets"></ul>
+    <div id="modal-ferramentas"></div>
+    <div id="modal-dica">
+      <strong id="modal-dica-titulo">💡 Dica DevOps</strong>
+      <span id="modal-dica-texto"></span>
+    </div>
+    <button id="btn-fechar">✕ Fechar</button>
+  </div>
+</div>
+
+<!-- Princípios -->
+<div id="principios">
+  <details>
+    <summary>📖 Os três pilares da observabilidade (clique para expandir)</summary>
+    <ul>
+      <li><strong>Logs, Métricas e Traces</strong> formam o triângulo de ouro da observabilidade — popularizado pelo livro Google SRE Workbook.</li>
+      <li><strong>Shift-left on observability:</strong> instrumentar o código desde o início do desenvolvimento, não como pós-pensamento.</li>
+      <li><strong>Correlation ID:</strong> passe um identificador único por todas as camadas — isso une logs, métricas e traces de uma mesma requisição.</li>
+      <li><strong>OpenTelemetry</strong> é o padrão aberto para coletar os três tipos de dados sem lock-in de vendor.</li>
+      <li><strong>A observabilidade não é só para produção:</strong> use em staging e dev para pegar problemas cedo.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+  const CONCEITOS = {
+    dashboard: {
+      titulo: 'Dashboard — O Telão Principal',
+      icone: '📊',
+      cor: '#1a3a5c',
+      metafora: 'Na sala de controle, o telão principal mostra o estado geral da missão em tempo real. No seu sistema, o Dashboard faz exatamente isso: reúne tudo em um só lugar.',
+      bullets: [
+        'Reúne métricas, logs e traces em painéis visuais para facilitar o entendimento rápido.',
+        'Permite identificar tendências antes de virarem incidentes.',
+        'Os melhores dashboards respondem perguntas específicas — evite o "painel de tudo".'
+      ],
+      ferramentas: [
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Datadog', url: 'https://www.datadoghq.com' },
+        { nome: 'CloudWatch', url: 'https://aws.amazon.com/cloudwatch/' },
+        { nome: 'New Relic', url: 'https://newrelic.com' }
+      ],
+      dica: 'Comece com os 4 Golden Signals: Latência, Tráfego (req/s), Erros (%) e Saturação (uso de recurso). São o mínimo para qualquer serviço.'
+    },
+    logs: {
+      titulo: 'Logs — As Câmeras de Segurança',
+      icone: '📷',
+      cor: '#558b2f',
+      metafora: 'Câmeras registram tudo que acontece nos corredores, 24h por dia. Os logs fazem o mesmo: gravam cada evento do seu sistema com hora e contexto.',
+      bullets: [
+        'São registros textuais de eventos: erros, requisições, ações do usuário, mudanças de estado.',
+        'Estruturar logs em JSON (log estruturado) facilita muito a busca e análise automática.',
+        'Use um Correlation ID único por requisição para rastrear o mesmo evento em múltiplos logs.'
+      ],
+      ferramentas: [
+        { nome: 'Elastic (ELK)', url: 'https://www.elastic.co/elastic-stack' },
+        { nome: 'Grafana Loki', url: 'https://grafana.com/oss/loki/' },
+        { nome: 'CloudWatch Logs', url: 'https://aws.amazon.com/cloudwatch/' }
+      ],
+      dica: 'Nunca logue dados sensíveis (senhas, tokens, CPFs). Use níveis corretamente: DEBUG para dev, INFO para fluxo normal, WARN para situações inesperadas mas recuperáveis, ERROR para falhas que precisam de atenção.'
+    },
+    metricas: {
+      titulo: 'Métricas — Os Sensores da Sala',
+      icone: '🌡️',
+      cor: '#e65100',
+      metafora: 'Sensores medem temperatura, pressão e tensão continuamente. Métricas fazem o mesmo para o seu sistema: CPU, memória, requisições por segundo, latência.',
+      bullets: [
+        'São números coletados ao longo do tempo (séries temporais) — permitem ver tendências.',
+        'Possibilitam criar alertas automáticos quando passam de um limiar crítico.',
+        'Tipos: contadores (sempre crescem), gauges (sobem e descem), histogramas (distribuições).'
+      ],
+      ferramentas: [
+        { nome: 'Prometheus', url: 'https://prometheus.io' },
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Datadog', url: 'https://www.datadoghq.com' },
+        { nome: 'InfluxDB', url: 'https://www.influxdata.com' }
+      ],
+      dica: 'Além de métricas de infra (CPU, RAM), priorize métricas de negócio: pedidos por minuto, conversões, receita. Elas refletem o impacto real no usuário.'
+    },
+    traces: {
+      titulo: 'Traces — O Rastro do Incidente',
+      icone: '🗺️',
+      cor: '#6a1b9a',
+      metafora: 'Na investigação de um incidente, você segue um rastro no mapa para entender o caminho percorrido. Traces mostram o caminho completo de uma requisição por todos os serviços do sistema.',
+      bullets: [
+        'Um trace é composto por spans — cada serviço que a requisição tocou é um span com duração e contexto.',
+        'Essencial em microsserviços para entender gargalos e onde o tempo é gasto.',
+        'Distributed tracing conecta o que aconteceu em cada serviço em uma visão única e cronológica.'
+      ],
+      ferramentas: [
+        { nome: 'OpenTelemetry', url: 'https://opentelemetry.io' },
+        { nome: 'Jaeger', url: 'https://www.jaegertracing.io' },
+        { nome: 'Zipkin', url: 'https://zipkin.io' },
+        { nome: 'AWS X-Ray', url: 'https://aws.amazon.com/xray/' }
+      ],
+      dica: 'Use OpenTelemetry (OTel) como padrão de instrumentação — é open source, vendor-neutral, e compatível com todos os backends principais. Evita reescrever código ao trocar de ferramenta.'
+    },
+    alertas: {
+      titulo: 'Alertas — As Sirenes da Sala',
+      icone: '🚨',
+      cor: '#b71c1c',
+      metafora: 'Quando algo crítico acontece, as sirenes disparam e acendem luzes vermelhas para chamar atenção imediata. Alertas funcionam igual: notificam a equipe quando uma situação crítica ocorre.',
+      bullets: [
+        'Alertas devem ser acionáveis: se não requer uma ação, não deve ser um alerta.',
+        'Evite alert fatigue (fadiga de alertas): muitos alertas falsos fazem a equipe ignorar todos.',
+        'Defina runbooks (passos de resposta) para cada alerta — reduz tempo de resolução.'
+      ],
+      ferramentas: [
+        { nome: 'PagerDuty', url: 'https://www.pagerduty.com' },
+        { nome: 'Alertmanager', url: 'https://prometheus.io/docs/alerting/latest/alertmanager/' },
+        { nome: 'OpsGenie', url: 'https://www.atlassian.com/software/opsgenie' },
+        { nome: 'Grafana OnCall', url: 'https://grafana.com/products/oncall/' }
+      ],
+      dica: 'Baseie alertas em SLOs, não em limiares arbitrários de CPU (ex: "CPU > 80%"). Um alerta baseado em "error rate do usuário > 1%" é muito mais significativo e acionável.'
+    },
+    slo: {
+      titulo: 'SLIs e SLOs — O Contrato da Missão',
+      icone: '📋',
+      cor: '#006064',
+      metafora: 'Toda missão tem uma definição clara de sucesso. SLIs são as medidas reais; SLOs são as metas acordadas. Juntos, definem o que "funcionando bem" significa para o seu sistema.',
+      bullets: [
+        'SLI (Service Level Indicator): a métrica real medida, ex: % de requisições com sucesso em 30 dias.',
+        'SLO (Service Level Objective): a meta acordada, ex: 99,9% de disponibilidade.',
+        'Error Budget: quanto você pode "errar" antes de quebrar o SLO — guia decisões de quando priorizar confiabilidade vs. novas features.'
+      ],
+      ferramentas: [
+        { nome: 'Google SRE Workbook', url: 'https://sre.google/workbook/implementing-slos/' },
+        { nome: 'OpenSLO', url: 'https://openslo.com' },
+        { nome: 'Sloth (Prometheus)', url: 'https://sloth.dev' }
+      ],
+      dica: 'Defina SLOs junto com o time de produto, não só engenharia. Eles devem refletir a expectativa real do usuário — não o que é tecnicamente fácil de atingir.'
+    }
+  };
+
+  const overlay       = document.getElementById('modal-overlay');
+  const card          = document.getElementById('modal-card');
+  const icone         = document.getElementById('modal-icone');
+  const titulo        = document.getElementById('modal-titulo');
+  const metafora      = document.getElementById('modal-metafora');
+  const bullets       = document.getElementById('modal-bullets');
+  const ferramentasEl = document.getElementById('modal-ferramentas');
+  const dicaTxt       = document.getElementById('modal-dica-texto');
+  const tourLabel     = document.getElementById('tour-label');
+  const tourBar       = document.getElementById('tour-bar');
+  const btnTour       = document.getElementById('btn-tour');
+  const btnParar      = document.getElementById('btn-parar');
+
+  let ultimaEstacaoId = null;
+
+  function abrirConceito(id) {
+    const c = CONCEITOS[id];
+    icone.textContent    = c.icone;
+    titulo.textContent   = c.titulo;
+    metafora.textContent = c.metafora;
+    bullets.innerHTML    = c.bullets.map(b => `<li>${b}</li>`).join('');
+    dicaTxt.textContent  = c.dica;
+    card.style.borderTopColor = c.cor;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+
+    if (c.ferramentas && c.ferramentas.length) {
+      ferramentasEl.innerHTML = '<span>Ferramentas:</span>' +
+        c.ferramentas.map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+    } else {
+      ferramentasEl.innerHTML = '';
+    }
+
+    overlay.classList.add('aberto');
+    document.getElementById('btn-fechar').focus();
+    document.querySelectorAll('.estacao').forEach(el => el.classList.remove('ativo'));
+    const el = document.querySelector(`[data-conceito="${id}"]`);
+    if (el) el.classList.add('ativo');
+    ultimaEstacaoId = id;
+  }
+
+  function fecharModal() {
+    overlay.classList.remove('aberto');
+    // mantém destaque da última estação visitada para orientação espacial
+    document.querySelectorAll('.estacao').forEach(el => {
+      if (el.dataset.conceito !== ultimaEstacaoId) el.classList.remove('ativo');
+    });
+  }
+
+  document.getElementById('btn-fechar').addEventListener('click', fecharModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fecharModal(); });
+
+  // Teclado: Escape fecha; setas direcionais navegam entre estações
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fecharModal(); return; }
+
+    const estacoes = [...document.querySelectorAll('.estacao')];
+    const atual = document.activeElement;
+    const idx   = estacoes.indexOf(atual);
+    if (idx === -1) return;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      estacoes[(idx + 1) % estacoes.length].focus();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      estacoes[(idx - 1 + estacoes.length) % estacoes.length].focus();
+    }
+  });
+
+  document.querySelectorAll('.estacao').forEach(el => {
+    el.addEventListener('click', () => abrirConceito(el.dataset.conceito));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        abrirConceito(el.dataset.conceito);
+      }
+    });
+  });
+
+  // Fullscreen
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  const ORDEM_TOUR = ['dashboard', 'logs', 'metricas', 'traces', 'alertas', 'slo'];
+  const NOMES_TOUR = ['Dashboard', 'Logs', 'Métricas', 'Traces', 'Alertas', 'SLIs/SLOs'];
+  let tourTimer = null;
+  let tourAtivo = false;
+
+  function pararTour() {
+    clearTimeout(tourTimer);
+    tourAtivo = false;
+    btnTour.style.display  = 'inline-block';
+    btnParar.style.display = 'none';
+    tourLabel.textContent  = '';
+    tourBar.style.display  = 'none';
+    tourBar.value          = 0;
+  }
+
+  btnParar.addEventListener('click', pararTour);
+
+  btnTour.addEventListener('click', () => {
+    pararTour();
+    tourAtivo = true;
+    btnTour.style.display  = 'none';
+    btnParar.style.display = 'inline-block';
+    tourBar.style.display  = 'block';
+    let i = 0;
+
+    function passo() {
+      if (!tourAtivo || i >= ORDEM_TOUR.length) {
+        pararTour();
+        return;
+      }
+      tourLabel.textContent = `Tour: ${i + 1} de ${ORDEM_TOUR.length} — ${NOMES_TOUR[i]}`;
+      tourBar.value = i + 1;
+      abrirConceito(ORDEM_TOUR[i]);
+      i++;
+      tourTimer = setTimeout(passo, 4500);
+    }
+    passo();
+  });
+</script>
+</body>
+</html>
