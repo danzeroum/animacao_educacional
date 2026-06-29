@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sala de Controle — Observabilidade para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: aprenda os pilares da observabilidade (Logs, Métricas, Traces, Alertas, Dashboards, SLOs) com a metáfora de uma sala de controle.">
+  <meta property="og:title" content="Sala de Controle — Observabilidade para Devs">
+  <meta property="og:description" content="Mapa-metáfora interativo sobre observabilidade para devs juniores. Clique em cada estação da sala de controle para aprender Logs, Métricas, Traces, Alertas, Dashboards e SLOs.">
+  <meta property="og:type" content="website">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -60,9 +64,15 @@
       transition: filter 0.2s;
     }
     .estacao:hover,
-    .estacao:focus {
-      outline: none;
+    .estacao:focus-visible {
       filter: drop-shadow(0 0 10px currentColor) brightness(1.2);
+    }
+    .estacao:focus-visible {
+      outline: 3px solid #aed6f1;
+      outline-offset: 4px;
+    }
+    .estacao:focus:not(:focus-visible) {
+      outline: none;
     }
     .estacao.ativo {
       filter: drop-shadow(0 0 16px currentColor) brightness(1.4);
@@ -230,11 +240,56 @@
 
     /* Tour progress */
     #tour-progress {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      min-height: 2.4rem;
+      padding: 0.2rem 0;
+    }
+    #tour-label {
       font-size: 0.8rem;
       color: #7fb3d3;
-      text-align: center;
-      height: 1.2em;
-      margin-bottom: 0.2rem;
+    }
+    #tour-bar {
+      width: 200px;
+      height: 6px;
+      border-radius: 3px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      background: #1e3a5f;
+    }
+    #tour-bar::-webkit-progress-bar  { background: #1e3a5f; border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: #aed6f1; border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: #aed6f1; border-radius: 3px; }
+
+    /* Links no modal */
+    #modal-ferramentas { margin-bottom: 0.8rem; }
+    #modal-ferramentas span { font-size: 0.82rem; color: #555; margin-right: 0.3rem; }
+    #modal-ferramentas a {
+      display: inline-block;
+      font-size: 0.78rem;
+      color: #1565c0;
+      border: 1px solid #90caf9;
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      margin: 0.15rem 0.2rem 0.15rem 0;
+      text-decoration: none;
+      background: #e3f2fd;
+    }
+    #modal-ferramentas a:hover { background: #bbdefb; }
+
+    /* Botão fullscreen */
+    #btn-fullscreen { font-size: 1rem; padding: 0.5rem 0.9rem; }
+
+    /* prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
@@ -500,10 +555,14 @@
   </svg>
 </div>
 
-<div id="tour-progress"></div>
+<div id="tour-progress" aria-live="polite" aria-atomic="true">
+  <span id="tour-label"></span>
+  <progress id="tour-bar" max="6" value="0" style="display:none"></progress>
+</div>
 <div id="controles">
   <button class="btn" id="btn-tour">▶ Tour Guiado</button>
   <button class="btn" id="btn-parar" style="display:none">⏹ Parar Tour</button>
+  <button class="btn" id="btn-fullscreen" title="Tela cheia (F11)">⛶ Tela cheia</button>
 </div>
 
 <!-- Modal -->
@@ -511,10 +570,11 @@
   <div id="modal-card">
     <div id="modal-header">
       <span id="modal-icone"></span>
-      <h2 id="modal-titulo"></h2>
+      <h2 id="modal-titulo" aria-live="polite"></h2>
     </div>
     <p id="modal-metafora"></p>
     <ul id="modal-bullets"></ul>
+    <div id="modal-ferramentas"></div>
     <div id="modal-dica">
       <strong id="modal-dica-titulo">💡 Dica DevOps</strong>
       <span id="modal-dica-texto"></span>
@@ -547,7 +607,13 @@
       bullets: [
         'Reúne métricas, logs e traces em painéis visuais para facilitar o entendimento rápido.',
         'Permite identificar tendências antes de virarem incidentes.',
-        'Ferramentas comuns: Grafana, Datadog, AWS CloudWatch Dashboards, New Relic.'
+        'Os melhores dashboards respondem perguntas específicas — evite o "painel de tudo".'
+      ],
+      ferramentas: [
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Datadog', url: 'https://www.datadoghq.com' },
+        { nome: 'CloudWatch', url: 'https://aws.amazon.com/cloudwatch/' },
+        { nome: 'New Relic', url: 'https://newrelic.com' }
       ],
       dica: 'Comece com os 4 Golden Signals: Latência, Tráfego (req/s), Erros (%) e Saturação (uso de recurso). São o mínimo para qualquer serviço.'
     },
@@ -559,7 +625,12 @@
       bullets: [
         'São registros textuais de eventos: erros, requisições, ações do usuário, mudanças de estado.',
         'Estruturar logs em JSON (log estruturado) facilita muito a busca e análise automática.',
-        'Ferramentas comuns: ELK Stack (Elasticsearch + Logstash + Kibana), Grafana Loki, AWS CloudWatch Logs.'
+        'Use um Correlation ID único por requisição para rastrear o mesmo evento em múltiplos logs.'
+      ],
+      ferramentas: [
+        { nome: 'Elastic (ELK)', url: 'https://www.elastic.co/elastic-stack' },
+        { nome: 'Grafana Loki', url: 'https://grafana.com/oss/loki/' },
+        { nome: 'CloudWatch Logs', url: 'https://aws.amazon.com/cloudwatch/' }
       ],
       dica: 'Nunca logue dados sensíveis (senhas, tokens, CPFs). Use níveis corretamente: DEBUG para dev, INFO para fluxo normal, WARN para situações inesperadas mas recuperáveis, ERROR para falhas que precisam de atenção.'
     },
@@ -571,7 +642,13 @@
       bullets: [
         'São números coletados ao longo do tempo (séries temporais) — permitem ver tendências.',
         'Possibilitam criar alertas automáticos quando passam de um limiar crítico.',
-        'Ferramentas comuns: Prometheus + Grafana, AWS CloudWatch Metrics, Datadog, InfluxDB.'
+        'Tipos: contadores (sempre crescem), gauges (sobem e descem), histogramas (distribuições).'
+      ],
+      ferramentas: [
+        { nome: 'Prometheus', url: 'https://prometheus.io' },
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Datadog', url: 'https://www.datadoghq.com' },
+        { nome: 'InfluxDB', url: 'https://www.influxdata.com' }
       ],
       dica: 'Além de métricas de infra (CPU, RAM), priorize métricas de negócio: pedidos por minuto, conversões, receita. Elas refletem o impacto real no usuário.'
     },
@@ -583,7 +660,13 @@
       bullets: [
         'Um trace é composto por spans — cada serviço que a requisição tocou é um span com duração e contexto.',
         'Essencial em microsserviços para entender gargalos e onde o tempo é gasto.',
-        'Ferramentas comuns: Jaeger, Zipkin, AWS X-Ray, Honeycomb, Grafana Tempo.'
+        'Distributed tracing conecta o que aconteceu em cada serviço em uma visão única e cronológica.'
+      ],
+      ferramentas: [
+        { nome: 'OpenTelemetry', url: 'https://opentelemetry.io' },
+        { nome: 'Jaeger', url: 'https://www.jaegertracing.io' },
+        { nome: 'Zipkin', url: 'https://zipkin.io' },
+        { nome: 'AWS X-Ray', url: 'https://aws.amazon.com/xray/' }
       ],
       dica: 'Use OpenTelemetry (OTel) como padrão de instrumentação — é open source, vendor-neutral, e compatível com todos os backends principais. Evita reescrever código ao trocar de ferramenta.'
     },
@@ -595,7 +678,13 @@
       bullets: [
         'Alertas devem ser acionáveis: se não requer uma ação, não deve ser um alerta.',
         'Evite alert fatigue (fadiga de alertas): muitos alertas falsos fazem a equipe ignorar todos.',
-        'Ferramentas comuns: PagerDuty, Alertmanager (do Prometheus), OpsGenie, Grafana OnCall.'
+        'Defina runbooks (passos de resposta) para cada alerta — reduz tempo de resolução.'
+      ],
+      ferramentas: [
+        { nome: 'PagerDuty', url: 'https://www.pagerduty.com' },
+        { nome: 'Alertmanager', url: 'https://prometheus.io/docs/alerting/latest/alertmanager/' },
+        { nome: 'OpsGenie', url: 'https://www.atlassian.com/software/opsgenie' },
+        { nome: 'Grafana OnCall', url: 'https://grafana.com/products/oncall/' }
       ],
       dica: 'Baseie alertas em SLOs, não em limiares arbitrários de CPU (ex: "CPU > 80%"). Um alerta baseado em "error rate do usuário > 1%" é muito mais significativo e acionável.'
     },
@@ -605,24 +694,33 @@
       cor: '#006064',
       metafora: 'Toda missão tem uma definição clara de sucesso. SLIs são as medidas reais; SLOs são as metas acordadas. Juntos, definem o que "funcionando bem" significa para o seu sistema.',
       bullets: [
-        'SLI (Service Level Indicator): a métrica real medida, ex: porcentagem de requisições com sucesso em 30 dias.',
-        'SLO (Service Level Objective): a meta acordada, ex: 99,9% de disponibilidade. Violá-lo tem consequências.',
-        'Error Budget: quanto você pode "errar" antes de quebrar o SLO. Use para decidir quando priorizar confiabilidade vs. novas features.'
+        'SLI (Service Level Indicator): a métrica real medida, ex: % de requisições com sucesso em 30 dias.',
+        'SLO (Service Level Objective): a meta acordada, ex: 99,9% de disponibilidade.',
+        'Error Budget: quanto você pode "errar" antes de quebrar o SLO — guia decisões de quando priorizar confiabilidade vs. novas features.'
+      ],
+      ferramentas: [
+        { nome: 'Google SRE Workbook', url: 'https://sre.google/workbook/implementing-slos/' },
+        { nome: 'OpenSLO', url: 'https://openslo.com' },
+        { nome: 'Sloth (Prometheus)', url: 'https://sloth.dev' }
       ],
       dica: 'Defina SLOs junto com o time de produto, não só engenharia. Eles devem refletir a expectativa real do usuário — não o que é tecnicamente fácil de atingir.'
     }
   };
 
-  const overlay  = document.getElementById('modal-overlay');
-  const card     = document.getElementById('modal-card');
-  const icone    = document.getElementById('modal-icone');
-  const titulo   = document.getElementById('modal-titulo');
-  const metafora = document.getElementById('modal-metafora');
-  const bullets  = document.getElementById('modal-bullets');
-  const dicaTxt  = document.getElementById('modal-dica-texto');
-  const progress = document.getElementById('tour-progress');
-  const btnTour  = document.getElementById('btn-tour');
-  const btnParar = document.getElementById('btn-parar');
+  const overlay       = document.getElementById('modal-overlay');
+  const card          = document.getElementById('modal-card');
+  const icone         = document.getElementById('modal-icone');
+  const titulo        = document.getElementById('modal-titulo');
+  const metafora      = document.getElementById('modal-metafora');
+  const bullets       = document.getElementById('modal-bullets');
+  const ferramentasEl = document.getElementById('modal-ferramentas');
+  const dicaTxt       = document.getElementById('modal-dica-texto');
+  const tourLabel     = document.getElementById('tour-label');
+  const tourBar       = document.getElementById('tour-bar');
+  const btnTour       = document.getElementById('btn-tour');
+  const btnParar      = document.getElementById('btn-parar');
+
+  let ultimaEstacaoId = null;
 
   function abrirConceito(id) {
     const c = CONCEITOS[id];
@@ -633,21 +731,50 @@
     dicaTxt.textContent  = c.dica;
     card.style.borderTopColor = c.cor;
     document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+
+    if (c.ferramentas && c.ferramentas.length) {
+      ferramentasEl.innerHTML = '<span>Ferramentas:</span>' +
+        c.ferramentas.map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+    } else {
+      ferramentasEl.innerHTML = '';
+    }
+
     overlay.classList.add('aberto');
     document.getElementById('btn-fechar').focus();
     document.querySelectorAll('.estacao').forEach(el => el.classList.remove('ativo'));
     const el = document.querySelector(`[data-conceito="${id}"]`);
     if (el) el.classList.add('ativo');
+    ultimaEstacaoId = id;
   }
 
   function fecharModal() {
     overlay.classList.remove('aberto');
-    document.querySelectorAll('.estacao').forEach(el => el.classList.remove('ativo'));
+    // mantém destaque da última estação visitada para orientação espacial
+    document.querySelectorAll('.estacao').forEach(el => {
+      if (el.dataset.conceito !== ultimaEstacaoId) el.classList.remove('ativo');
+    });
   }
 
   document.getElementById('btn-fechar').addEventListener('click', fecharModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) fecharModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+
+  // Teclado: Escape fecha; setas direcionais navegam entre estações
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fecharModal(); return; }
+
+    const estacoes = [...document.querySelectorAll('.estacao')];
+    const atual = document.activeElement;
+    const idx   = estacoes.indexOf(atual);
+    if (idx === -1) return;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      estacoes[(idx + 1) % estacoes.length].focus();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      estacoes[(idx - 1 + estacoes.length) % estacoes.length].focus();
+    }
+  });
 
   document.querySelectorAll('.estacao').forEach(el => {
     el.addEventListener('click', () => abrirConceito(el.dataset.conceito));
@@ -657,6 +784,15 @@
         abrirConceito(el.dataset.conceito);
       }
     });
+  });
+
+  // Fullscreen
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
   });
 
   const ORDEM_TOUR = ['dashboard', 'logs', 'metricas', 'traces', 'alertas', 'slo'];
@@ -669,7 +805,9 @@
     tourAtivo = false;
     btnTour.style.display  = 'inline-block';
     btnParar.style.display = 'none';
-    progress.textContent   = '';
+    tourLabel.textContent  = '';
+    tourBar.style.display  = 'none';
+    tourBar.value          = 0;
   }
 
   btnParar.addEventListener('click', pararTour);
@@ -679,6 +817,7 @@
     tourAtivo = true;
     btnTour.style.display  = 'none';
     btnParar.style.display = 'inline-block';
+    tourBar.style.display  = 'block';
     let i = 0;
 
     function passo() {
@@ -686,7 +825,8 @@
         pararTour();
         return;
       }
-      progress.textContent = `Tour: ${i + 1}/${ORDEM_TOUR.length} — ${NOMES_TOUR[i]}`;
+      tourLabel.textContent = `Tour: ${i + 1} de ${ORDEM_TOUR.length} — ${NOMES_TOUR[i]}`;
+      tourBar.value = i + 1;
       abrirConceito(ORDEM_TOUR[i]);
       i++;
       tourTimer = setTimeout(passo, 4500);
