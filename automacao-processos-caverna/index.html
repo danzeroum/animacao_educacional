@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna dos Processos — Automação & Orquestração (BPM/BPMS) para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma caverna pré-histórica em corte transversal onde cada nicho é um conceito de automação de processos (BPMN, gateways, DMN, process mining, BPMS, low-code, subprocessos, mensageria, retry/fallback, bots/RPA, monitoramento e automação end-to-end).">
+  <meta property="og:title" content="A Caverna dos Processos — Automação & Orquestração (BPM/BPMS)">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna — a tribo macro (visão de processo) em cima, os componentes micro embaixo — para aprender BPM, BPMS, DMN, process mining, RPA e automação end-to-end.">
+  <meta property="og:type" content="website">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 780px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 1280 / 720;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura svg.cena {
+      position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 700px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes cvflame { 0%,100% { transform: scaleY(1); opacity: .92; } 50% { transform: scaleY(1.12); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Automação & Orquestração de Processos</div>
+    <h1>🏞️ A Caverna dos Processos</h1>
+    <p class="tese">A tribo aprendeu a <strong>desenhar, decidir, coordenar e automatizar</strong> o trabalho com pedra, corda e roldana. Cada nicho da caverna é um conceito de <strong>BPM / BPMS</strong> — a faixa de cima é a <em>visão macro do processo</em>; a de baixo, os <em>componentes e práticas micro</em>.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — os 12 conceitos moram numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <!-- ====== CENA: caverna em corte transversal (SVG inline, decorativo) ====== -->
+      <svg class="cena" viewBox="0 0 1280 720" role="img" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#b5754d"/>
+            <stop offset="0.5" stop-color="#9a5e3a"/>
+            <stop offset="1" stop-color="#6e3f28"/>
+          </linearGradient>
+          <radialGradient id="hole" cx="0.5" cy="0.4" r="0.75">
+            <stop offset="0" stop-color="#3a2415"/>
+            <stop offset="1" stop-color="#130c06"/>
+          </radialGradient>
+          <radialGradient id="flame" cx="0.5" cy="0.6" r="0.6">
+            <stop offset="0" stop-color="#ffe9a8"/>
+            <stop offset="0.45" stop-color="#ff9a2e"/>
+            <stop offset="0.8" stop-color="#ff7a18"/>
+            <stop offset="1" stop-color="#ff7a18" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="vinheta" cx="0.5" cy="0.45" r="0.75">
+            <stop offset="0.7" stop-color="#000" stop-opacity="0"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0.4"/>
+          </radialGradient>
+          <style>
+            .eng  { fill:none; stroke:#ecd6b4; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+            .eng2 { fill:none; stroke:#c79a6c; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+            .dk   { fill:#211408; }
+            .ocre { fill:#d9a441; }
+            .terra{ fill:#cf6b4a; }
+            .rk   { fill:#a8693f; }
+            .sand { fill:#cda06b; }
+            .grn  { fill:#7e9e54; }
+            .blu  { fill:none; stroke:#9fc6dd; stroke-width:4; stroke-linecap:round; }
+            .open { fill:url(#hole); stroke:#5e3a22; stroke-width:4; }
+            .flame { transform-box: fill-box; transform-origin: center bottom; animation: cvflame 1.6s ease-in-out infinite; }
+          </style>
+        </defs>
+
+        <!-- fundo de rocha -->
+        <rect width="1280" height="720" fill="url(#rock)"/>
+
+        <!-- estalactites no teto -->
+        <g fill="#7a4a2c">
+          <polygon points="40,0 60,0 50,46"/><polygon points="150,0 176,0 163,60"/>
+          <polygon points="300,0 318,0 309,40"/><polygon points="470,0 494,0 482,58"/>
+          <polygon points="640,0 660,0 650,44"/><polygon points="820,0 846,0 833,62"/>
+          <polygon points="980,0 998,0 989,40"/><polygon points="1150,0 1176,0 1163,58"/>
+        </g>
+
+        <!-- realces verticais dos pilares de rocha -->
+        <g stroke="#c98a5a" stroke-width="2" opacity="0.35">
+          <line x1="12" y1="30" x2="12" y2="690"/>
+          <line x1="265" y1="30" x2="265" y2="690"/><line x1="515" y1="30" x2="515" y2="690"/>
+          <line x1="765" y1="30" x2="765" y2="690"/><line x1="1015" y1="30" x2="1015" y2="690"/>
+          <line x1="1268" y1="30" x2="1268" y2="690"/>
+        </g>
+        <!-- faixa de rocha/terra separando as duas faixas -->
+        <rect x="0" y="330" width="1280" height="58" fill="#7a4a2c" opacity="0.55"/>
+        <line x1="0" y1="334" x2="1280" y2="334" stroke="#c98a5a" stroke-width="2" opacity="0.4"/>
+
+        <!-- ===================== FAIXA SUPERIOR (macro) ===================== -->
+
+        <!-- 1. BPMN -->
+        <g transform="translate(24,60)">
+          <rect class="open" width="232" height="250" rx="18"/>
+          <rect x="6" y="214" width="220" height="30" rx="8" class="sand"/>
+          <!-- tábua com swimlanes -->
+          <rect x="24" y="58" width="184" height="104" rx="10" fill="#241710" stroke="#7a5132" stroke-width="3"/>
+          <line x1="24" y1="100" x2="208" y2="100" class="eng2"/>
+          <line x1="24" y1="132" x2="208" y2="132" class="eng2"/>
+          <!-- fluxo: evento -> atividade -> gateway -> fim -->
+          <circle cx="46" cy="80" r="9" class="eng"/>
+          <line x1="55" y1="80" x2="78" y2="80" class="eng"/>
+          <rect x="78" y="69" width="34" height="22" rx="7" class="ocre" stroke="#7a5132" stroke-width="2"/>
+          <line x1="112" y1="80" x2="130" y2="80" class="eng"/>
+          <polygon points="146,64 164,80 146,96 128,80" class="terra" stroke="#ecd6b4" stroke-width="2"/>
+          <line x1="164" y1="80" x2="184" y2="80" class="eng"/>
+          <circle cx="194" cy="80" r="9" class="eng"/><circle cx="194" cy="80" r="5" class="eng2"/>
+          <!-- segunda raia -->
+          <rect x="58" y="112" width="30" height="20" rx="6" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <line x1="88" y1="122" x2="118" y2="122" class="eng"/>
+          <polygon points="134,110 148,122 134,134 120,122" class="ocre" stroke="#ecd6b4" stroke-width="2"/>
+          <line x1="148" y1="122" x2="176" y2="122" class="eng"/>
+          <rect x="176" y="112" width="26" height="20" rx="6" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- peça nova sendo encaixada -->
+          <rect x="92" y="176" width="34" height="22" rx="7" class="ocre" stroke="#7a5132" stroke-width="2" opacity="0.85"/>
+        </g>
+
+        <!-- 2. Gateways XOR/OR/AND -->
+        <g transform="translate(274,60)">
+          <rect class="open" width="232" height="250" rx="18"/>
+          <rect x="6" y="214" width="220" height="30" rx="8" class="sand"/>
+          <rect x="20" y="78" width="192" height="12" rx="4" class="rk"/>
+          <line x1="16" y1="186" x2="216" y2="186" class="eng2"/>
+          <!-- três passagens -->
+          <g class="eng">
+            <path d="M32 186 V112 Q32 92 58 92 Q84 92 84 112 V186"/>
+            <path d="M90 186 V112 Q90 92 116 92 Q142 92 142 112 V186"/>
+            <path d="M148 186 V112 Q148 92 174 92 Q200 92 200 112 V186"/>
+          </g>
+          <!-- XOR -->
+          <polygon points="58,110 76,134 58,158 40,134" class="eng"/>
+          <line x1="50" y1="126" x2="66" y2="142" class="eng"/><line x1="66" y1="126" x2="50" y2="142" class="eng"/>
+          <!-- OR -->
+          <polygon points="116,110 134,134 116,158 98,134" class="eng"/>
+          <circle cx="116" cy="134" r="8" class="eng"/>
+          <!-- AND -->
+          <polygon points="174,110 192,134 174,158 156,134" class="eng"/>
+          <line x1="174" y1="123" x2="174" y2="145" class="eng"/><line x1="163" y1="134" x2="185" y2="134" class="eng"/>
+        </g>
+
+        <!-- 3. DMN tabela de decisão -->
+        <g transform="translate(524,60)">
+          <rect class="open" width="232" height="250" rx="18"/>
+          <rect x="6" y="214" width="220" height="30" rx="8" class="sand"/>
+          <rect x="34" y="68" width="132" height="100" rx="8" fill="#241710" stroke="#7a5132" stroke-width="3"/>
+          <g class="eng2">
+            <line x1="67" y1="68" x2="67" y2="168"/><line x1="100" y1="68" x2="100" y2="168"/><line x1="133" y1="68" x2="133" y2="168"/>
+            <line x1="34" y1="93" x2="166" y2="93"/><line x1="34" y1="118" x2="166" y2="118"/><line x1="34" y1="143" x2="166" y2="143"/>
+          </g>
+          <circle cx="50" cy="80" r="6" class="terra"/><circle cx="83" cy="105" r="6" class="ocre"/>
+          <circle cx="116" cy="130" r="6" class="grn"/><circle cx="149" cy="155" r="6" class="terra"/>
+          <circle cx="116" cy="80" r="6" class="ocre"/><circle cx="50" cy="130" r="6" class="rk"/>
+          <!-- pedras-reserva (variáveis de entrada) -->
+          <g>
+            <circle cx="186" cy="92" r="7" class="terra"/><circle cx="186" cy="106" r="7" class="terra"/>
+            <circle cx="204" cy="92" r="7" class="ocre"/><circle cx="204" cy="106" r="7" class="ocre"/>
+            <circle cx="195" cy="124" r="7" class="grn"/>
+          </g>
+        </g>
+
+        <!-- 4. Process mining: real vs documentado -->
+        <g transform="translate(774,60)">
+          <rect class="open" width="232" height="250" rx="18"/>
+          <rect x="6" y="214" width="220" height="30" rx="8" class="sand"/>
+          <!-- caminho documentado (reto) -->
+          <g fill="#8a5a3a">
+            <ellipse cx="62" cy="70" rx="6" ry="9"/><ellipse cx="70" cy="92" rx="6" ry="9"/>
+            <ellipse cx="62" cy="114" rx="6" ry="9"/><ellipse cx="70" cy="136" rx="6" ry="9"/>
+            <ellipse cx="62" cy="158" rx="6" ry="9"/><ellipse cx="70" cy="180" rx="6" ry="9"/>
+          </g>
+          <!-- caminho real (tortuoso) -->
+          <g fill="#b07a4a">
+            <ellipse cx="150" cy="70" rx="6" ry="9"/><ellipse cx="170" cy="90" rx="6" ry="9"/>
+            <ellipse cx="148" cy="108" rx="6" ry="9"/><ellipse cx="174" cy="128" rx="6" ry="9"/>
+            <ellipse cx="150" cy="150" rx="6" ry="9"/><ellipse cx="172" cy="172" rx="6" ry="9"/>
+          </g>
+          <!-- ancião com bastão analisando -->
+          <circle cx="112" cy="150" r="9" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <polygon points="112,159 98,200 126,200" fill="#7a5132" stroke="#ecd6b4" stroke-width="2"/>
+          <line x1="130" y1="150" x2="136" y2="202" class="eng"/>
+        </g>
+
+        <!-- 5. BPMS orquestração (acento azul + laranja) -->
+        <g transform="translate(1024,60)">
+          <rect class="open" width="232" height="250" rx="18"/>
+          <rect x="6" y="214" width="220" height="30" rx="8" class="sand"/>
+          <!-- fumaça azul (única fonte de azul) -->
+          <path class="blu" d="M118 58 q 10 -16 -2 -30 q -10 -14 4 -28"/>
+          <path class="blu" d="M134 64 q 8 -12 -2 -22" opacity="0.7"/>
+          <!-- engrenagem central / tambor -->
+          <g class="eng2">
+            <line x1="110" y1="78" x2="110" y2="62"/><line x1="110" y1="146" x2="110" y2="162"/>
+            <line x1="76" y1="112" x2="60" y2="112"/><line x1="144" y1="112" x2="160" y2="112"/>
+            <line x1="86" y1="88" x2="74" y2="76"/><line x1="134" y1="136" x2="146" y2="148"/>
+            <line x1="134" y1="88" x2="146" y2="76"/><line x1="86" y1="136" x2="74" y2="148"/>
+          </g>
+          <circle cx="110" cy="112" r="26" class="rk" stroke="#ecd6b4" stroke-width="3"/>
+          <circle cx="110" cy="112" r="10" class="eng"/>
+          <!-- roldana + cordas -->
+          <circle cx="52" cy="84" r="11" class="eng"/>
+          <line x1="52" y1="95" x2="62" y2="150" class="eng2"/>
+          <line x1="136" y1="112" x2="176" y2="92" class="eng2"/>
+          <!-- cesta-buffer suspensa -->
+          <line x1="176" y1="92" x2="176" y2="120" class="eng2"/>
+          <path d="M164,120 L188,120 L184,142 L168,142 Z" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <line x1="62" y1="150" x2="62" y2="170" class="eng2"/>
+          <path d="M50,170 L74,170 L70,190 L54,190 Z" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- tocha (acento laranja) -->
+          <rect x="206" y="150" width="6" height="26" fill="#6b4a2e"/>
+          <ellipse class="flame" cx="209" cy="146" rx="9" ry="15" fill="url(#flame)"/>
+        </g>
+
+        <!-- ===================== FAIXA INFERIOR (micro) ===================== -->
+
+        <!-- 6. Low-code / peças modulares -->
+        <g transform="translate(24,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <rect x="20" y="172" width="124" height="16" rx="6" fill="#8a5a3a"/>
+          <!-- blocos LEGO com encaixes -->
+          <g stroke="#7a5132" stroke-width="2">
+            <rect x="32" y="142" width="46" height="30" rx="4" class="ocre"/>
+            <circle cx="44" cy="140" r="5" class="ocre"/><circle cx="62" cy="140" r="5" class="ocre"/>
+            <rect x="86" y="142" width="46" height="30" rx="4" class="terra"/>
+            <circle cx="98" cy="140" r="5" class="terra"/><circle cx="116" cy="140" r="5" class="terra"/>
+            <rect x="58" y="108" width="46" height="30" rx="4" class="rk"/>
+            <circle cx="70" cy="106" r="5" class="rk"/><circle cx="88" cy="106" r="5" class="rk"/>
+          </g>
+        </g>
+
+        <!-- 7. Subprocessos aninhados -->
+        <g transform="translate(202,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <rect x="26" y="62" width="112" height="124" rx="10" fill="#241710" stroke="#7a5132" stroke-width="3"/>
+          <!-- fluxo externo -->
+          <circle cx="44" cy="84" r="6" class="eng"/>
+          <line x1="50" y1="84" x2="64" y2="84" class="eng"/>
+          <rect x="64" y="75" width="22" height="16" rx="5" class="ocre" stroke="#7a5132" stroke-width="2"/>
+          <!-- mini-tábua (subprocesso) -->
+          <rect x="58" y="104" width="66" height="66" rx="8" fill="#1a110a" stroke="#c79a6c" stroke-width="2"/>
+          <circle cx="72" cy="120" r="4" class="eng2"/>
+          <line x1="76" y1="120" x2="90" y2="120" class="eng2"/>
+          <rect x="90" y="113" width="16" height="12" rx="4" class="terra"/>
+          <polygon points="78,144 98,144 88,158" class="eng2"/>
+          <!-- seta de chamada externa -> interna -->
+          <line x1="48" y1="100" x2="64" y2="116" class="eng"/>
+          <polygon points="64,116 56,112 60,122" fill="#ecd6b4"/>
+        </g>
+
+        <!-- 8. Acoplamento fraco: REST/mensageria -->
+        <g transform="translate(380,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <!-- penhascos separados por ravina -->
+          <path d="M10,120 L54,120 L54,200 L10,200 Z" class="rk" stroke="#5e3a22" stroke-width="2"/>
+          <path d="M110,120 L154,120 L154,200 L110,200 Z" class="rk" stroke="#5e3a22" stroke-width="2"/>
+          <!-- varal tensionado -->
+          <line x1="22" y1="96" x2="142" y2="96" class="eng"/>
+          <!-- cesta deslizante -->
+          <line x1="82" y1="96" x2="82" y2="106" class="eng2"/>
+          <path d="M72,106 L92,106 L88,124 L76,124 Z" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- mensagens idênticas (mesmo contrato) -->
+          <rect x="24" y="104" width="16" height="12" rx="3" class="ocre" stroke="#7a5132" stroke-width="2"/>
+          <rect x="120" y="104" width="16" height="12" rx="3" class="ocre" stroke="#7a5132" stroke-width="2"/>
+        </g>
+
+        <!-- 9. Tolerância a falhas: retry/fallback -->
+        <g transform="translate(558,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <rect x="30" y="56" width="104" height="10" rx="3" fill="#8a5a3a"/>
+          <circle cx="62" cy="62" r="6" class="eng"/><circle cx="104" cy="62" r="6" class="eng"/>
+          <!-- corda principal arrebentada -->
+          <line x1="62" y1="68" x2="62" y2="104" class="eng"/>
+          <line x1="62" y1="122" x2="62" y2="150" class="eng"/>
+          <line x1="58" y1="104" x2="66" y2="110" class="eng2"/><line x1="58" y1="122" x2="66" y2="116" class="eng2"/>
+          <!-- corda reserva (intacta) puxando contrapeso -->
+          <line x1="104" y1="68" x2="104" y2="156" class="eng"/>
+          <rect x="94" y="156" width="20" height="18" rx="3" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- troca automática -->
+          <path d="M64,134 L98,150" stroke="#ecd6b4" stroke-width="2" stroke-dasharray="4 4" fill="none"/>
+          <!-- troglodita observando -->
+          <circle cx="38" cy="150" r="6" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <line x1="38" y1="156" x2="38" y2="176" class="eng"/>
+        </g>
+
+        <!-- 10. Digital workers / bots -->
+        <g transform="translate(736,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <rect x="26" y="160" width="40" height="22" rx="3" fill="#8a5a3a"/>
+          <!-- braço articulado -->
+          <circle cx="46" cy="160" r="6" class="eng"/>
+          <line x1="46" y1="160" x2="78" y2="126" class="eng"/>
+          <circle cx="78" cy="126" r="5" class="eng"/>
+          <line x1="78" y1="126" x2="112" y2="142" class="eng"/>
+          <rect x="108" y="136" width="14" height="12" rx="3" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- mola -->
+          <polyline points="34,160 40,150 34,142 40,134 36,128" class="eng2"/>
+          <!-- pedra sendo polida -->
+          <ellipse cx="124" cy="156" rx="11" ry="7" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- ampulheta (cronômetro de areia) -->
+          <g class="eng2">
+            <line x1="30" y1="90" x2="54" y2="90"/><line x1="30" y1="120" x2="54" y2="120"/>
+            <polygon points="30,90 54,90 42,105" class="ocre"/><polygon points="30,120 54,120 42,105" fill="none" stroke="#c79a6c"/>
+          </g>
+        </g>
+
+        <!-- 11. Monitoramento e dashboards -->
+        <g transform="translate(914,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <rect x="30" y="62" width="104" height="104" rx="8" fill="#241710" stroke="#7a5132" stroke-width="3"/>
+          <line x1="40" y1="160" x2="124" y2="160" class="eng2"/>
+          <!-- canais inclinados com pedras (níveis/throughput) -->
+          <rect x="46" y="120" width="14" height="40" class="ocre" stroke="#7a5132" stroke-width="1"/>
+          <rect x="70" y="98"  width="14" height="62" class="terra" stroke="#7a5132" stroke-width="1"/>
+          <rect x="94" y="128" width="14" height="32" class="grn" stroke="#7a5132" stroke-width="1"/>
+          <rect x="118" y="86" width="14" height="74" class="ocre" stroke="#7a5132" stroke-width="1"/>
+          <circle cx="53" cy="120" r="6" class="dk"/><circle cx="77" cy="98" r="6" class="dk"/>
+          <circle cx="101" cy="128" r="6" class="dk"/><circle cx="125" cy="86" r="6" class="dk"/>
+        </g>
+
+        <!-- 12. Automação end-to-end -->
+        <g transform="translate(1092,400)">
+          <rect class="open" width="164" height="250" rx="18"/>
+          <rect x="6" y="214" width="152" height="30" rx="8" class="sand"/>
+          <!-- trilha contínua com rampas e portões -->
+          <polyline points="28,76 122,76 122,104 40,104 40,132 130,132 130,158"
+                    fill="none" stroke="#8a5a3a" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>
+          <polyline points="28,76 122,76 122,104 40,104 40,132 130,132 130,158" class="eng2"/>
+          <!-- portões temporizados -->
+          <line x1="80" y1="68" x2="80" y2="84" class="eng"/><line x1="80" y1="96" x2="80" y2="112" class="eng"/>
+          <line x1="86" y1="124" x2="86" y2="140" class="eng"/>
+          <!-- bola de pedra -->
+          <circle cx="40" cy="70" r="8" class="terra" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- cesta de destino -->
+          <path d="M120,158 L142,158 L138,178 L124,178 Z" class="rk" stroke="#ecd6b4" stroke-width="2"/>
+          <!-- símbolo infinito (ponta a ponta) -->
+          <circle cx="68" cy="192" r="9" class="eng"/><circle cx="86" cy="192" r="9" class="eng"/>
+        </g>
+
+        <!-- piso da caverna -->
+        <g stroke="#5e3a22" stroke-width="2" opacity="0.4">
+          <line x1="0" y1="678" x2="1280" y2="678"/><line x1="0" y1="700" x2="1280" y2="700"/>
+        </g>
+        <rect width="1280" height="720" fill="url(#vinheta)"/>
+      </svg>
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos nichos da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica DevOps/SRE</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"A tribo que desenha o caminho, decide com clareza e deixa a roldana trabalhar caça mais e erra menos." Da modelagem (BPMN) à orquestração (BPMS): cada conceito tem seu nicho dentro do processo.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const MACRO = 'Macro · A Tribo do Processo';
+  const MICRO = 'Micro · Componentes & Práticas';
+
+  const CONCEITOS = {
+    bpmn: { zona:MACRO, titulo:'BPMN — Modelagem Visual de Workflow', icone:'🪨', cor:'#d9a441', label:'BPMN',
+      metafora:'A grande tábua de pedra com raias (swimlanes) e peças geométricas encaixadas é o diagrama BPMN: a tribo desenha o fluxo do processo antes de executá-lo.',
+      bullets:['BPMN (Business Process Model and Notation) é a notação padrão (OMG/ISO 19510): círculo = evento, retângulo arredondado = atividade/tarefa, losango = gateway.','Swimlanes (raias) separam quem faz o quê — cada ator ou sistema na sua faixa, deixando explícitos responsabilidades e handoffs.','O mesmo diagrama serve para conversar com o negócio E como modelo executável que um motor BPMS roda — desenho e execução no mesmo artefato.'],
+      ferramentas:[{nome:'bpmn.io (bpmn-js)',url:'https://bpmn.io/'},{nome:'Camunda Modeler',url:'https://camunda.com/download/modeler/'},{nome:'BPMN Spec (OMG)',url:'https://www.omg.org/spec/BPMN/2.0/'}],
+      dica:'Versione os arquivos .bpmn no Git como código e revise os diagramas em pull request. Sempre marque um fluxo default nos gateways para não criar um processo que trava quando nenhuma condição casa.' },
+    gateways: { zona:MACRO, titulo:'Gateways — Lógica de Decisão (XOR/OR/AND)', icone:'🔀', cor:'#c97b3a', label:'Gateways XOR/OR/AND',
+      metafora:'O portal de rocha com três passagens é o gateway: a barreira que só abre um caminho (XOR), as portas independentes (OR) e as duas alavancas que precisam agir juntas (AND).',
+      bullets:['XOR (exclusivo): exatamente UM caminho é escolhido com base numa condição — só uma passagem abre por vez.','OR (inclusivo): um OU mais caminhos disparam ao mesmo tempo, conforme as condições verdadeiras.','AND (paralelo): TODOS os caminhos disparam juntos (fork) e precisam se reencontrar num join de sincronização — as duas alavancas acionadas juntas.'],
+      ferramentas:[{nome:'Camunda — Gateways',url:'https://docs.camunda.io/docs/components/modeler/bpmn/gateways/'},{nome:'BPMN Spec (OMG)',url:'https://www.omg.org/spec/BPMN/2.0/'},{nome:'Camunda BPMN ref',url:'https://camunda.com/bpmn/reference/'}],
+      dica:'Para cada fork AND garanta um join AND correspondente, senão a instância fica esperando para sempre. Em XOR/OR, defina o caminho default e cubra TODAS as condições — o "e se nenhuma valer?" é o bug mais comum.' },
+    dmn: { zona:MACRO, titulo:'DMN — Tabelas de Decisão', icone:'🧮', cor:'#cf6b4a', label:'DMN',
+      metafora:'A mesa-tabuleiro onde a tribo posiciona pedras coloridas em células de condição e resultado é uma tabela de decisão DMN: a regra sai do código e vira uma grade legível.',
+      bullets:['DMN (Decision Model and Notation) separa a LÓGICA DE DECISÃO do fluxo: cada linha é uma regra (condições de entrada → resultado de saída).','Hit policies (UNIQUE, FIRST, COLLECT, PRIORITY…) definem o que fazer quando mais de uma linha casa ao mesmo tempo.','Tira o "if/else gigante" de dentro do código e o coloca numa tabela que o time de negócio consegue ler — e até editar — sem deploy.'],
+      ferramentas:[{nome:'Camunda DMN',url:'https://docs.camunda.io/docs/components/modeler/dmn/'},{nome:'DMN Spec (OMG)',url:'https://www.omg.org/spec/DMN/'},{nome:'Drools',url:'https://www.drools.org/'}],
+      dica:'Use expressões FEEL e valide a tabela antes de publicar: cheque completude (toda combinação de entrada tem resultado) e ausência de regras sobrepostas/conflitantes. Versione a decisão separada do processo para evoluir uma sem quebrar a outra.' },
+    mining: { zona:MACRO, titulo:'Process Mining — Real vs. Documentado', icone:'👣', cor:'#b5894a', label:'Process Mining',
+      metafora:'As duas trilhas de pegadas — a reta documentada e a tortuosa real — são o que o process mining revela: o ancião compara o processo que você desenhou com o que de fato acontece nos logs.',
+      bullets:['Process mining reconstrói o processo real a partir de event logs (caso, atividade, timestamp) extraídos dos sistemas que a empresa já usa.','Conformance checking mede o desvio entre o modelo ideal e a execução real, expondo retrabalho, loops, gargalos e atalhos não previstos.','É a base de evidência para priorizar o que automatizar: você melhora o processo que realmente roda, não o que imaginou no diagrama.'],
+      ferramentas:[{nome:'Celonis',url:'https://www.celonis.com/'},{nome:'PM4Py',url:'https://pm4py.fit.fraunhofer.de/'},{nome:'Apromore',url:'https://apromore.com/'}],
+      dica:'Padronize um case_id estável e timestamps em UTC na instrumentação — sem isso o mining mente. Comece medindo o "caminho feliz" e o seu lead/cycle time antes de automatizar; assim você prova o ganho depois.' },
+    bpms: { zona:MACRO, titulo:'Orquestração BPMS — Automação Coordenada', icone:'⚙️', cor:'#6fa8c7', label:'Orquestração BPMS',
+      metafora:'O tambor central com cordas, roldanas e cestas-buffer que aciona cada trabalhador na ordem certa é o motor BPMS: um maestro que coordena tarefas, absorve atrasos e dispara contingências.',
+      bullets:['Orquestração: um motor central dispara cada tarefa na sequência correta, guarda o estado e sabe exatamente onde cada instância está.','Buffers (cestas suspensas) e filas absorvem picos e atrasos; timers e eventos disparam fallbacks de contingência quando algo demora demais.','Difere da coreografia (cada serviço reage sozinho a eventos): a orquestração centraliza o controle e dá visibilidade ponta a ponta.'],
+      ferramentas:[{nome:'Camunda 8 / Zeebe',url:'https://camunda.com/platform/'},{nome:'Temporal',url:'https://temporal.io/'},{nome:'Conductor',url:'https://conductor-oss.org/'}],
+      dica:'Torne cada tarefa idempotente e persista o estado da instância: assim o processo sobrevive a reinício de worker, retry e reentrega sem efeitos duplicados. Defina timeouts e caminhos de erro explícitos — orquestração sem timeout vira instância zumbi.' },
+    lowcode: { zona:MICRO, titulo:'Low-Code — Peças Modulares de Processo', icone:'🧱', cor:'#d49a4a', label:'Low-Code',
+      metafora:'As peças de pedra com encaixes universais (tipo LEGO) empilhadas livremente sobre a base de argila são os componentes low-code: você monta fluxos combinando blocos prontos, sem escrever tudo do zero.',
+      bullets:['Low-code monta processos arrastando blocos pré-prontos (conectores, formulários, regras) com pouca ou nenhuma codificação.','Acelera prototipagem e empodera "citizen developers", deixando o código só para as extensões realmente específicas.','O risco é governança: sem padrões e revisão, vira um emaranhado de apps-caixa-preta difíceis de manter e auditar.'],
+      ferramentas:[{nome:'Appian',url:'https://appian.com/'},{nome:'OutSystems',url:'https://www.outsystems.com/'},{nome:'n8n',url:'https://n8n.io/'}],
+      dica:'Trate artefatos low-code como código: versionamento, ambientes separados (dev/test/prod) e revisão antes de publicar. Não esconda lógica crítica numa caixa-preta que ninguém consegue testar nem rastrear.' },
+    subprocessos: { zona:MICRO, titulo:'Subprocessos Aninhados', icone:'🗂️', cor:'#c98a52', label:'Subprocessos',
+      metafora:'A tábua de pedra que guarda uma mini-tábua dentro de si é um subprocesso encapsulado: o troglodita aponta da tábua externa para a interna, mostrando a relação de chamada.',
+      bullets:['Subprocessos agrupam etapas reutilizáveis e reduzem a complexidade visual (call activity, que chama outro processo, vs. subprocesso embutido).','Permitem reuso: o mesmo subprocesso é chamado por vários processos pais, evitando copiar-colar a mesma lógica.','Dão escopo a eventos: erros, timers e compensações podem ser tratados DENTRO do subprocesso sem poluir o fluxo principal.'],
+      ferramentas:[{nome:'Camunda — Call Activity',url:'https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/'},{nome:'BPMN — Subprocess',url:'https://www.omg.org/spec/BPMN/2.0/'},{nome:'Flowable',url:'https://www.flowable.com/open-source'}],
+      dica:'Prefira call activities versionadas para reuso de verdade. Cuidado ao alterar um subprocesso usado por muitos pais em produção: versione e migre instâncias em andamento, ou você quebra processos que já estavam rodando.' },
+    mensageria: { zona:MICRO, titulo:'Acoplamento Fraco — REST API / Mensageria', icone:'🧺', cor:'#b08a3a', label:'REST / Mensageria',
+      metafora:'As cestas idênticas que deslizam no varal entre os dois grupos separados pela ravina são as mensagens trocadas por um contrato padronizado — o formato igual é o "contrato" entre os sistemas.',
+      bullets:['Acoplamento fraco: os sistemas se comunicam por interfaces estáveis (o contrato), não por dependência interna direta — cada lado evolui sozinho.','REST/HTTP é síncrono e simples; mensageria (filas/eventos) é assíncrona, desacopla no tempo e absorve picos de carga.','O "formato idêntico das cestas" é o contrato (OpenAPI/AsyncAPI, schema): mude com versionamento para não quebrar quem consome.'],
+      ferramentas:[{nome:'OpenAPI',url:'https://www.openapis.org/'},{nome:'RabbitMQ',url:'https://www.rabbitmq.com/'},{nome:'Apache Kafka',url:'https://kafka.apache.org/'}],
+      dica:'Para integrações críticas prefira mensageria assíncrona com retry e dead-letter queue. Documente o contrato e evolua de forma retrocompatível (adicione campos, não remova) — quebrar contrato em produção derruba todos os consumidores de uma vez.' },
+    retry: { zona:MICRO, titulo:'Tolerância a Falhas — Retry e Fallback', icone:'🪢', cor:'#cf7d3a', label:'Retry & Fallback',
+      metafora:'A corda principal que arrebenta e a reserva que automaticamente assume o contrapeso são o retry e o fallback: o troglodita só intervém à mão quando o automático não dá conta.',
+      bullets:['Retry reexecuta operações que falharam de forma transitória; use backoff exponencial + jitter e um limite de tentativas para não martelar o serviço caído.','Fallback oferece um caminho alternativo (cache, valor padrão, fila de espera) quando o principal falha de vez.','Circuit breaker corta chamadas a um serviço quebrado para não derrubar o sistema todo; idempotência evita que o retry cause efeitos duplicados.'],
+      ferramentas:[{nome:'Resilience4j',url:'https://resilience4j.readme.io/'},{nome:'Polly (.NET)',url:'https://www.pollydocs.org/'},{nome:'Temporal — Retries',url:'https://docs.temporal.io/encyclopedia/retry-policies'}],
+      dica:'Faça retry só para erros transitórios (timeout, 5xx, conexão), NUNCA para erros de negócio/validação (4xx) — repetir o que está logicamente errado só piora. O que esgota as tentativas vai para uma DLQ com alerta, nunca some no silêncio.' },
+    bots: { zona:MICRO, titulo:'Digital Workers / Bots Automatizados (RPA)', icone:'🤖', cor:'#be7a4a', label:'Bots / RPA',
+      metafora:'O braço articulado de madeira com mola, repetindo a tarefa no ritmo da ampulheta, é o bot/digital worker: automatiza trabalho repetitivo e baseado em regras, com cadência controlada.',
+      bullets:['RPA (Robotic Process Automation) imita ações humanas na interface (cliques, digitação) para automatizar tarefas repetitivas e regradas.','Bots brilham em sistemas legados sem API; mesmo assim, prefira APIs quando existirem — são bem mais robustas que "raspar" a tela.','Modos atendido (junto de um humano) e não atendido (agendado); um orquestrador distribui, agenda e monitora os bots.'],
+      ferramentas:[{nome:'UiPath',url:'https://www.uipath.com/'},{nome:'Robocorp',url:'https://robocorp.com/'},{nome:'Power Automate',url:'https://www.microsoft.com/power-platform/products/power-automate'}],
+      dica:'RPA baseado em UI é frágil: quebra quando a tela muda de layout. Monitore cada execução, trate exceções explicitamente e migre o que é crítico para APIs estáveis assim que possível — bot mudo que falha calado é incidente garantido.' },
+    monitoramento: { zona:MICRO, titulo:'Monitoramento e Dashboards', icone:'📊', cor:'#5f9e86', label:'Monitoramento',
+      metafora:'O painel de pedra onde pedras coloridas sobem por roldadas mostrando níveis e gargalos é o dashboard: o sábio observa atividade, throughput e onde o processo está engasgando.',
+      bullets:['KPIs de processo: throughput, lead/cycle time, taxa de erro, instâncias paradas e cumprimento de SLA por etapa.','Observabilidade de processo combina métricas + logs + traces para entender ONDE o fluxo trava e POR QUÊ.','Alertas proativos sobre SLA/incidente disparam ação antes de o cliente sentir — o painel serve para agir, não só para enfeitar.'],
+      ferramentas:[{nome:'Grafana',url:'https://grafana.com/'},{nome:'Prometheus',url:'https://prometheus.io/'},{nome:'Camunda Optimize',url:'https://docs.camunda.io/optimize/components/what-is-optimize/'}],
+      dica:'Defina SLOs por etapa do processo e alerte sobre TENDÊNCIA (a fila crescendo, o tempo subindo), não só sobre a falha já consumada. Um dashboard que ninguém olha não é monitoramento — amarre cada gráfico crítico a um alerta acionável.' },
+    e2e: { zona:MICRO, titulo:'Automação End-to-End', icone:'♾️', cor:'#ff7a18', label:'Automação End-to-End',
+      metafora:'A bola de pedra que percorre a trilha inteira — aciona alavancas, passa por portões temporizados e chega ao destino sem mão humana — é a automação ponta a ponta: o processo completo flui sozinho.',
+      bullets:['End-to-end (hiperautomação) conecta sistemas, pessoas e bots num fluxo contínuo do início ao fim, com intervenção humana mínima.','Combina BPMS + APIs + RPA + regras (DMN) + IA para automatizar o caso inteiro, não apenas uma etapa isolada.','Mantém "human-in-the-loop" só onde agrega valor (exceções, aprovações, julgamento); o resto do caminho corre automático.'],
+      ferramentas:[{nome:'Camunda',url:'https://camunda.com/'},{nome:'Temporal',url:'https://temporal.io/'},{nome:'n8n',url:'https://n8n.io/'}],
+      dica:'Comece automatizando o "caminho feliz" que o process mining mediu como mais frequente. Trate as exceções de forma explícita e observável desde o início — automação ponta a ponta que falha em silêncio é pior que processo manual.' }
+  };
+
+  // Geometria dos hotspots em % do container (casa com as aberturas do SVG)
+  const GEO = {
+    bpmn:        [1.875, 8.333, 18.125, 34.722],
+    gateways:    [21.406, 8.333, 18.125, 34.722],
+    dmn:         [40.938, 8.333, 18.125, 34.722],
+    mining:      [60.469, 8.333, 18.125, 34.722],
+    bpms:        [80.0, 8.333, 18.125, 34.722],
+    lowcode:     [1.875, 55.556, 12.813, 34.722],
+    subprocessos:[15.781, 55.556, 12.813, 34.722],
+    mensageria:  [29.688, 55.556, 12.813, 34.722],
+    retry:       [43.594, 55.556, 12.813, 34.722],
+    bots:        [57.5, 55.556, 12.813, 34.722],
+    monitoramento:[71.406, 55.556, 12.813, 34.722],
+    e2e:         [85.313, 55.556, 12.813, 34.722]
+  };
+
+  const ORDEM = ['bpmn','gateways','dmn','mining','bpms','lowcode','subprocessos','mensageria','retry','bots','monitoramento','e2e'];
+
+  // Laços que a figura torna visíveis (Macro ↔ Micro)
+  const RELACOES = {
+    bpmn:         { ids:['gateways','dmn','subprocessos','bpms'], nota:'A tábua só vira processo executável com gateways decidindo o caminho, DMN guardando as regras, subprocessos reaproveitados e o BPMS rodando tudo.' },
+    gateways:     { ids:['bpmn','dmn','e2e'], nota:'Os portais são parte do diagrama BPMN; decisões complexas saem do gateway e vão para uma tabela DMN, e é essa lógica que faz o fluxo ponta a ponta se ramificar sozinho.' },
+    dmn:          { ids:['bpmn','gateways','lowcode'], nota:'A tabela de decisão é chamada pelo BPMN, substitui ramos enormes de gateways e costuma ser editada em ferramentas low-code pelo time de negócio.' },
+    mining:       { ids:['monitoramento','bpms','e2e'], nota:'O mining lê os logs que o BPMS gera, alimenta os dashboards de monitoramento e mostra qual caminho vale a pena automatizar de ponta a ponta.' },
+    bpms:         { ids:['retry','mensageria','monitoramento','bots'], nota:'O motor central orquestra os bots, troca mensagens entre sistemas, aplica retry/fallback nas tarefas e expõe tudo para o monitoramento.' },
+    lowcode:      { ids:['bpmn','subprocessos','dmn'], nota:'Os blocos low-code montam diagramas BPMN, encapsulam subprocessos reutilizáveis e editam tabelas DMN sem precisar codar do zero.' },
+    subprocessos: { ids:['bpmn','lowcode','bpms'], nota:'A mini-tábua é um pedaço de BPMN reutilizável, fácil de montar em low-code e chamado pelo BPMS como uma unidade.' },
+    mensageria:   { ids:['bpms','retry','bots'], nota:'As cestas no varal são como o BPMS conversa com sistemas externos e bots; quando uma entrega falha, entram o retry e a fila de reserva.' },
+    retry:        { ids:['bpms','mensageria','monitoramento'], nota:'A corda reserva é acionada pelo BPMS, protege as trocas de mensagens e gera os sinais de incidente que o monitoramento observa.' },
+    bots:         { ids:['lowcode','mensageria','e2e'], nota:'Os bots são montados em low-code, recebem trabalho por mensageria e são peças-chave da automação ponta a ponta para tapar buracos sem API.' },
+    monitoramento:{ ids:['mining','bpms','retry'], nota:'O painel se alimenta dos dados do BPMS, complementa o process mining e revela quando os retries/fallbacks estão agindo demais.' },
+    e2e:          { ids:['bpms','bots','mining','lowcode'], nota:'Ponta a ponta é o BPMS coordenando bots e serviços, guiado pelo que o mining revelou e montado rapidamente com peças low-code.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {}; // id -> button
+  const legendEls  = {}; // id -> button
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  // Aplica halos/atenuação na figura e destaque na legenda
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {           // ação do usuário (hotspot, legenda ou chip)
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    // navegação por setas entre hotspots quando o foco está num deles (e sem modal aberto)
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
