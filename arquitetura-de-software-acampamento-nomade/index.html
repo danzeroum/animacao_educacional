@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>O Acampamento Arquitetado — Arquitetura de Software para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de um acampamento nômade de caravana no deserto onde cada nicho é um conceito de arquitetura de software (escalabilidade, segurança, DevOps, cloud, redundância, C4, observabilidade, refatoração, leis, criptografia, conformidade e dívida técnica).">
+  <meta property="og:title" content="O Acampamento Arquitetado — Arquitetura de Software para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho do acampamento (macro, ao ar livre) e da tenda do guia (micro) para aprender arquitetura de software. Ao abrir um conceito, a figura acende os relacionados.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="acampamento-nomade.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --texto:     #3a2a18;
+      --texto-2:   #6a5031;
+      --texto-3:   #5a432a;
+      --titulo:    #6e3b1e;
+      --dourado:   #a9762f;
+      --dourado-2: #8a5320;
+      --dourado-3: #76461a;
+      --borda:     #d6bd8a;
+      --borda-2:   #bd9450;
+      --madeira:   #5e3f22;
+      --madeira-2: #432c13;
+      --card:      #f3e7cb;
+      --card-2:    #f7efcf;
+      --pergaminho:   #f6eece;
+      --pergaminho-2: #f3e3c1;
+      /* Sem CDN: stack serif do sistema evocando Bitter/Spectral */
+      --font-display: "Bitter", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(125% 85% at 50% -5%, #f4e8ce 0%, #ecd2a6 52%, #ddb482 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--dourado); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--titulo); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 780px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado-3); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.06em;
+      background: var(--madeira); color: var(--pergaminho);
+      border: 1px solid var(--madeira-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #74522c; }
+    .btn:focus-visible { outline: 3px solid var(--dourado-2); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 2752 / 1536;
+      border-radius: 16px; overflow: hidden; border: 1px solid var(--borda-2);
+      box-shadow: 0 24px 60px -22px rgba(74,48,21,.55);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 16%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado-2); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: achalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .ac-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #fff;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(58,42,24,.5), 0 2px 8px rgba(0,0,0,.4);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .ac-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: acring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .ac-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .ac-ring,
+    .hotspot.is-related .ac-ring { display: none; }
+    .hotspot.is-dimmed .ac-num,
+    .hotspot.is-dimmed .ac-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.72; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado-2); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #fff;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado-2); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(40,26,10,.72); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(40,26,10,.6);
+      animation: acslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #9a784a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2f2414;
+    }
+    #btn-fechar {
+      background: #2f2414; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #4f3c20; }
+    #btn-fechar:focus-visible { outline: 3px solid #2f2414; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4430; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3f3120;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a784a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4815; border: 1px solid #cda968; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d1a3; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4815; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a543d; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2f2414;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2f2414; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.04em; color: #7a4d00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3b0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: var(--dourado); font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: #d8c39a;
+    }
+    #tour-bar::-webkit-progress-bar  { background: #d8c39a; border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado-2); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado-2); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes acring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes achalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes acslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .ac-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Arquitetura de Software</div>
+    <h1>O Acampamento Arquitetado</h1>
+    <p class="tese">Da <em>coleção de objetos soltos</em> para a <strong>figura que ensina por inteiro</strong>. A própria ilustração vira a interface — cada nicho do acampamento nômade é um conceito vivo, no seu lugar dentro do sistema.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho do acampamento — a história inteira mora numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="acampamento-nomade.png" alt="Acampamento de caravana nômade no deserto em corte transversal: na faixa superior (macro, ao ar livre) nômades montam novas tendas idênticas ligadas por passarelas, uma paliçada de madeira com vigias e armadilha de ossos, uma equipe desmontando e montando tendas com sacos de carga enfileirados num boi, uma constelação-guia com raios de luz azul ramificando para acampamentos distantes e dois poços gêmeos espelhados; na faixa inferior (micro, dentro da tenda do guia) pergaminhos de couro em camadas, um cordão de nós e trilha de pegadas com lanterna, um nômade reconstruindo ferramentas modulares, dois totens gravados, um baú trancado com chave de ossos, um ancião entregando um rolo de pergaminho a um jovem e um fardo pesado transbordando pedras e ferramentas quebradas.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone" aria-hidden="true"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Arquiteto</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma caravana forte não é a que carrega mais peso, mas a que sabe onde armar cada tenda." A figura faz isso pelo aluno: mostra onde cada conceito mora dentro do sistema.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    escalabilidade: { zona:'Macro · O Acampamento', titulo:'Escalabilidade — O Acampamento que Cresce em Tendas', icone:'⛺', cor:'#c98a3a', label:'Escalabilidade',
+      metafora:'Quando chega mais gente à caravana, os nômades não derrubam o acampamento inteiro: erguem novas tendas idênticas ao lado e as ligam por passarelas, com tendas-reserva já dobradas e prontas. Escalar é somar tendas iguais, não remontar tudo.',
+      bullets:['Escala horizontal = mais "tendas" (instâncias); escala vertical = trocar uma tenda por uma maior (mais CPU/RAM).','Sistemas sem estado (stateless) escalam horizontalmente com muito mais facilidade — guarde o estado em banco ou cache.','Projete para escalar quando a demanda pedir; escalar cedo demais é tenda armada à toa.'],
+      ferramentas:[{nome:'Kubernetes',url:'https://kubernetes.io'},{nome:'AWS Auto Scaling',url:'https://aws.amazon.com/autoscaling/'},{nome:'NGINX',url:'https://nginx.org'}],
+      dica:'Antes de comprar uma "tenda maior" (vertical), pergunte se dá para armar mais tendas iguais (horizontal). Horizontal costuma ser mais barato, resiliente e elástico.' },
+    seguranca: { zona:'Macro · O Acampamento', titulo:'Segurança — A Paliçada e os Vigias', icone:'🛡️', cor:'#a14b2c', label:'Segurança',
+      metafora:'O setor é cercado por uma paliçada de madeira com armadilha de ossos no portão, e dois vigias de turno conferem com a tocha a marca de quem entra. É a diferença entre saber QUEM entra (autenticação) e o que pode fazer (autorização).',
+      bullets:['Autenticação responde "quem é você?"; autorização responde "o que você pode fazer?". São coisas distintas.','Defesa em profundidade: várias cercas e vigias valem mais que um único portão "inquebrável".','Nunca confie em quem chega: valide e sanitize todo dado que vem de fora da paliçada.'],
+      ferramentas:[{nome:'OWASP Top 10',url:'https://owasp.org/www-project-top-ten/'},{nome:'OAuth 2.0',url:'https://oauth.net/2/'},{nome:'Keycloak',url:'https://www.keycloak.org'}],
+      dica:'Aplique o menor privilégio: cada membro recebe só a marca de que precisa. Portão "aberto para todo mundo" é a brecha que mais machuca.' },
+    devops: { zona:'Macro · O Acampamento', titulo:'DevOps & CI/CD — Montar e Desmontar Tendas', icone:'📦', cor:'#c1972f', label:'DevOps & CI/CD',
+      metafora:'De um lado a equipe desmonta a tenda antiga; do outro, monta a nova testando cada estaca e guarda as peças em sacos de carga idênticos e enfileirados no lombo do boi. CI/CD faz isso com o código — testa, aprova e empacota sempre do mesmo jeito.',
+      bullets:['CI: cada mudança roda testes automáticos antes de ser aceita — estaca frouxa volta pra bancada.','CD: o que passa é empacotado em "sacos" idênticos e entregue sempre do mesmo jeito.','Containers garantem que "funciona na minha tenda" funcione nas outras — mesmo saco, mesmo resultado.'],
+      ferramentas:[{nome:'GitHub Actions',url:'https://github.com/features/actions'},{nome:'Docker',url:'https://www.docker.com'},{nome:'GitLab CI',url:'https://docs.gitlab.com/ee/ci/'}],
+      dica:'Automatize o pipeline antes de ele doer. Um teste que roda a cada commit pega a estaca frouxa cedo — bem mais barato que descobrir já em produção.' },
+    cloud: { zona:'Macro · O Acampamento', titulo:'Cloud — A Constelação-Guia', icone:'🌟', cor:'#5b9bd5', label:'Cloud',
+      metafora:'Uma única constelação brilha no alto e manda linhas de luz que se ramificam apontando para acampamentos distantes no horizonte, sem cada caravana mapear seu próprio céu. A nuvem é isso: uma referência remota e compartilhada, sob demanda.',
+      bullets:['Você usa a terra e a água de outra pessoa, pagando pelo que consome.','Elasticidade: a luz alcança mais acampamentos nos picos e recolhe quando a demanda cai.','Modelos: IaaS (o terreno), PaaS (a tenda pronta), SaaS (a caravana entregue) — quanto mais alto, menos você gerencia.'],
+      ferramentas:[{nome:'AWS',url:'https://aws.amazon.com'},{nome:'Google Cloud',url:'https://cloud.google.com'},{nome:'Azure',url:'https://azure.microsoft.com'}],
+      dica:'Cuidado com vendor lock-in: seguir uma só constelação prende a caravana. Use padrões abertos (containers, Terraform) para poder trocar de céu.' },
+    redundancia: { zona:'Macro · O Acampamento', titulo:'Disponibilidade — Os Dois Poços Gêmeos', icone:'💧', cor:'#3f8f7a', label:'Disponibilidade & Redundância',
+      metafora:'O acampamento mantém dois poços idênticos e cheios em pontos separados: se um seca ou desaba, o outro segue dando água. Redundância é ter mais de um "poço" para que a perda de um não deixe a caravana com sede.',
+      bullets:['Elimine pontos únicos de falha (SPOF): um só poço deixa a caravana sem água no dia que ele secar.','Failover: quando o principal cai, a corda é jogada no poço reserva.','Disponibilidade é medida em "noves" (99,9%, 99,99%) — cada nove a mais custa muito mais trabalho.'],
+      ferramentas:[{nome:'Resiliency Patterns',url:'https://learn.microsoft.com/azure/architecture/patterns/category/resiliency'},{nome:'HAProxy',url:'https://www.haproxy.org'},{nome:'Google SRE Book',url:'https://sre.google/sre-book/table-of-contents/'}],
+      dica:'Redundância só vale se você testa o failover. Tampe o poço principal de propósito (chaos engineering) e veja se o reserva mata a sede de verdade.' },
+    c4: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Modelo C4 — Os Mapas em Camadas', icone:'🗺️', cor:'#8a6d3f', label:'Modelo C4',
+      metafora:'Pendurados na parede da tenda há quatro pergaminhos de couro sobrepostos: da rota migratória inteira ao detalhe de um único objeto dentro da tenda. O C4 documenta a arquitetura nesses quatro níveis de zoom.',
+      bullets:['Contexto → Container → Componente → Código: cada nível dá mais detalhe, como aproximar o olhar no mapa.','Você escolhe o nível certo para cada plateia: o viajante vê a rota; o artesão vê o objeto.','Mapas em camadas evitam o "diagrama de tudo" ilegível — cada pergaminho responde a uma pergunta.'],
+      ferramentas:[{nome:'C4 Model',url:'https://c4model.com'},{nome:'Structurizr',url:'https://structurizr.com'},{nome:'Mermaid',url:'https://mermaid.js.org'}],
+      dica:'Comece só pelos dois primeiros níveis (Contexto e Container). Eles cabem num pergaminho e já dão 80% do que um dev novo precisa para se localizar.' },
+    observabilidade: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Observabilidade — Pegadas, Cordão de Nós e Lanterna', icone:'🏮', cor:'#5ba36a', label:'Observabilidade',
+      metafora:'No chão de areia há uma trilha de pegadas (o que aconteceu), um cordão de couro com nós coloridos serpenteando (o caminho da caravana por cada trecho) e uma lanterna que muda de cor conforme o ritmo (verde = ok, vermelho = problema). São logging, tracing e monitoramento.',
+      bullets:['Logging = pegadas: o registro do que aconteceu, com hora e contexto.','Tracing = cordão de nós: o caminho completo de uma requisição passando por cada trecho/serviço.','Monitoramento = lanterna que muda de cor: o sinal visível de que algo saiu do esperado.'],
+      ferramentas:[{nome:'OpenTelemetry',url:'https://opentelemetry.io'},{nome:'Grafana',url:'https://grafana.com'},{nome:'Prometheus',url:'https://prometheus.io'}],
+      dica:'Passe um Correlation ID único em cada requisição: ele amarra pegadas, nós do cordão e cor da lanterna numa história só. Sem ele, você investiga incidentes às cegas.' },
+    refatoracao: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Refatoração — As Ferramentas que se Encaixam', icone:'🔧', cor:'#b56b39', label:'Refatoração',
+      metafora:'Sentado no chão, o nômade troca ferramentas pesadas e duplicadas por peças modulares: um cabo único com pontas trocáveis que servem a vários usos, testando cada encaixe. Refatorar é melhorar a estrutura interna sem mudar o que a ferramenta faz por fora.',
+      bullets:['Refatoração muda a forma, não o comportamento: a ferramenta serve igual, só fica mais fácil de manter.','Reduzir acoplamento (peças que encaixam, não emaranhadas) deixa cada parte trocável sem quebrar as outras.','Só refatore com testes cobrindo a peça — eles provam que ela ainda funciona depois de polida.'],
+      ferramentas:[{nome:'Refactoring (Fowler)',url:'https://refactoring.com'},{nome:'SonarQube',url:'https://www.sonarsource.com/products/sonarqube/'},{nome:'ESLint',url:'https://eslint.org'}],
+      dica:'Regra do escoteiro: deixe a ferramenta um pouco mais encaixada do que encontrou. Pequenas refatorações contínuas evitam a reconstrução dolorosa lá na frente.' },
+    leis: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Leis da Arquitetura — Os Totens Gravados', icone:'⚖️', cor:'#9a7bb0', label:'Leis da Arquitetura',
+      metafora:'Fincados ao centro, dois totens de madeira gravados guardam as verdades da caravana: uma pegada pesada na areia ("todo passo deixa marca e gasta energia") e uma montanha sob o sol ("olhe o terreno antes de seguir"). São as duas verdades centrais de qualquer arquitetura — trade-off e contexto.',
+      bullets:['Tudo é trade-off: ganhar de um lado custa do outro. A pergunta é "o que estou disposto a perder?".','Arquitetura depende do contexto: a melhor decisão para uma caravana pode ser péssima para outra.','"Depende" é resposta honesta de arquiteto — o trabalho é tornar explícito de QUÊ depende.'],
+      ferramentas:[{nome:'Fundamentals of SW Architecture',url:'https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/'},{nome:'ADR',url:'https://adr.github.io'},{nome:'Architectural Katas',url:'https://www.architecturalkatas.com'}],
+      dica:'Grave suas decisões em "totem" com ADRs: registre o que foi escolhido, o contexto e o trade-off aceito. A caravana do futuro vai querer saber por quê.' },
+    cofre: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Criptografia & Acesso Mínimo — O Baú de Relíquias', icone:'🔑', cor:'#7a8a4a', label:'Baú de Relíquias',
+      metafora:'As relíquias mais valiosas ficam num baú de madeira trancado com um símbolo tribal, e só quem tem a chave de ossos única o abre. É criptografia (proteger para quem não tem a chave) somada ao acesso mínimo (poucos podem abrir).',
+      bullets:['Criptografe dados sensíveis em repouso (no baú) e em trânsito (no caminho entre acampamentos).','Menor privilégio: só quem realmente precisa recebe a chave — nunca a chave-mestra "de tudo".','Nunca grave segredos (senhas, tokens) nos pergaminhos da parede (código/logs); guarde-os num baú próprio.'],
+      ferramentas:[{nome:'HashiCorp Vault',url:'https://www.vaultproject.io'},{nome:"Let's Encrypt",url:'https://letsencrypt.org'},{nome:'AWS KMS',url:'https://aws.amazon.com/kms/'}],
+      dica:'Rotacione as chaves periodicamente e revogue na hora quando um membro deixa a caravana. Chave que nunca muda é cadeado esperando para virar incidente.' },
+    tradicoes: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Conformidade & Tradições — O Pergaminho do Ancião', icone:'📜', cor:'#d2a93a', label:'Conformidade & Tradições',
+      metafora:'O ancião de túnica entrega ao jovem nômade um rolo de pergaminho com as tradições que toda a caravana deve seguir. No software são as leis externas — LGPD, GDPR — e os padrões herdados que ditam como você coleta, guarda e usa os dados das pessoas.',
+      bullets:['Conformidade é obrigação externa: não basta ser seguro, é preciso seguir a lei (LGPD, GDPR).','Princípios comuns: consentimento, minimização (colete só o necessário) e direito ao esquecimento.','Privacy by design: as tradições entram no projeto desde o começo, não como remendo depois do incidente.'],
+      ferramentas:[{nome:'LGPD',url:'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm'},{nome:'GDPR',url:'https://gdpr.eu'},{nome:'OWASP Privacy Risks',url:'https://owasp.org/www-project-top-10-privacy-risks/'}],
+      dica:'Mapeie quais dados pessoais a caravana coleta e por quê. Não dá para cumprir as tradições sobre dados que você nem sabe que está guardando.' },
+    divida: { zona:'Micro · Dentro da Tenda do Guia', titulo:'Dívida Técnica — O Fardo Pesado', icone:'🎒', cor:'#9a8466', label:'Dívida Técnica',
+      metafora:'A cada atalho apressado, a caravana enfia mais uma pedra inútil e ferramenta quebrada no fardo do canto. O guia cansado aponta: a dívida técnica é esse saco estufado que cresce e, sem aliviar, atrasa a marcha inteira.',
+      bullets:['Dívida técnica é o custo futuro de escolhas rápidas de hoje — às vezes vale contraí-la conscientemente.','Como dívida financeira, ela cobra "juros": cada mudança fica mais lenta e arriscada enquanto o fardo cresce.','O perigo é a dívida invisível: o que ninguém mede e ninguém paga é o que trava a caravana de repente.'],
+      ferramentas:[{nome:'Tech Debt (Fowler)',url:'https://martinfowler.com/bliki/TechnicalDebt.html'},{nome:'SonarQube',url:'https://www.sonarsource.com/products/sonarqube/'},{nome:'CodeScene',url:'https://codescene.com'}],
+      dica:'Torne o fardo visível: registre a dívida no backlog como qualquer tarefa e reserve uma fatia fixa de cada ciclo para esvaziar "pedras inúteis".' }
+  };
+
+  // Geometria dos hotspots em % do container (calibrar ao PNG real)
+  const GEO = {
+    escalabilidade:[0.5,8,15,46], seguranca:[20,12,18,42], devops:[39,8,22,50],
+    cloud:[63,3,18,30], redundancia:[82,28,17,28],
+    c4:[1,61,16,36], observabilidade:[16,62,15,37], refatoracao:[31,73,13,26],
+    leis:[44,60,13,39], cofre:[57,76,14,23], tradicoes:[71,61,17,38], divida:[88,68,11,31]
+  };
+
+  const ORDEM = ['escalabilidade','seguranca','devops','cloud','redundancia','c4','observabilidade','refatoracao','leis','cofre','tradicoes','divida'];
+
+  // Laços que a figura torna visíveis (Macro ↔ Micro)
+  const RELACOES = {
+    escalabilidade: { ids:['cloud','redundancia','devops'], nota:'Crescer somando tendas só funciona apoiado na constelação elástica, em poços redundantes e numa montagem contínua que entrega as novas peças.' },
+    seguranca:      { ids:['cofre','tradicoes','redundancia'], nota:'A paliçada lá na entrada é a mesma defesa que protege o baú de relíquias no fundo e cumpre o pergaminho das tradições.' },
+    devops:         { ids:['escalabilidade','observabilidade','cloud'], nota:'Montar e desmontar tendas entrega as instâncias que escalam, deixa pegadas para observar e empacota tudo em sacos para a constelação.' },
+    cloud:          { ids:['escalabilidade','redundancia','tradicoes'], nota:'As linhas de luz sustentam a escala, espalham os poços-reserva e levantam a questão de onde os dados moram (conformidade).' },
+    redundancia:    { ids:['escalabilidade','observabilidade','seguranca'], nota:'Os dois poços gêmeos só salvam a caravana se você os observa e protege — disponibilidade é segurança contra a sede.' },
+    c4:             { ids:['leis','observabilidade','refatoracao'], nota:'Os mapas em camadas registram os totens gravados, guiam o que observar e mostram onde as ferramentas precisam encaixar melhor.' },
+    observabilidade:{ ids:['devops','redundancia','divida'], nota:'Pegadas e cordão de nós revelam quando o poço reserva entrou em ação e onde o fardo de dívida está atrasando a marcha.' },
+    refatoracao:    { ids:['divida','leis','c4'], nota:'Trocar ferramentas pesadas por modulares é como a caravana esvazia o fardo de dívida, respeitando as leis de trade-off e atualizando os mapas.' },
+    leis:           { ids:['c4','refatoracao','divida'], nota:'Todo passo gasta energia: os totens explicam por que documentamos (C4), encaixamos melhor (refatoração) e contraímos dívida conscientemente.' },
+    cofre:          { ids:['seguranca','tradicoes'], nota:'O baú de relíquias é o braço mais fundo da paliçada e o que torna o pergaminho de tradições (LGPD/GDPR) realidade.' },
+    tradicoes:      { ids:['seguranca','cofre','cloud'], nota:'O pergaminho das tradições dita como a paliçada guarda o baú e até onde as linhas de luz podem levar os dados da caravana.' },
+    divida:         { ids:['refatoracao','observabilidade','leis'], nota:'O fardo pesado só encolhe com oficina constante, fica visível pela observação e nasce das leis de trade-off.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {}; // id -> button
+  const legendEls  = {}; // id -> button
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="ac-ring"></span><span class="ac-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    // Conecta-se com
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  // Aplica halos/atenuação na figura e destaque na legenda
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {           // ação do usuário (hotspot, legenda ou chip)
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    // navegação por setas entre hotspots quando o foco está num deles (e sem modal aberto)
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
