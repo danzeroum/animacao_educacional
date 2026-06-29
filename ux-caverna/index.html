@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna do UX — Experiência do Usuário para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde cada região é um conceito de UX no desenvolvimento de software (empatia, avaliação heurística, prototipação, arquitetura da informação, teste de usabilidade, aprender, eficiência, retenção, prevenção e recuperação de erros, satisfação e co-criação).">
+  <meta property="og:title" content="A Caverna do UX — Experiência do Usuário para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna-tribo (o processo de UX) e da parede de práticas (as heurísticas) para aprender UX no desenvolvimento de software. Ao abrir um conceito, a figura acende os relacionados.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="ux-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      /* Sem CDN: stack serif do sistema evocando Cinzel/Spectral */
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 1024 / 576;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+      background: linear-gradient(160deg, #3a2a1a, #1d130a);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · UX no Desenvolvimento de Software</div>
+    <h1>🫶 A Caverna do UX</h1>
+    <p class="tese">Da <em>lista de telas soltas</em> para a <strong>figura que ensina a experiência por inteiro</strong>. A própria ilustração vira a interface — cada nicho da caverna é uma etapa ou heurística de UX, no seu lugar dentro do fluxo de quem usa o produto.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — todo o processo de UX mora numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="ux-caverna.png" alt="Caverna pré-histórica em corte transversal: na faixa superior (o processo de UX) um troglodita observa outro usando uma ferramenta e registra emoções em argila, um conselho de anciãos avalia uma interface de pedra com ícones de heurística, um grupo esboça oito versões numa mesa de argila, um mural de cavernas aninhadas com trilhas de pegadas e fumaça-farol azul, e dois observadores anotam atrás de uma fenda enquanto um usuário busca uma ferramenta; na faixa inferior (as heurísticas) um jovem aprende uma ferramenta em três passos, dois trogloditas comparam um caminho direto e um labirinto, um troglodita repete uma tarefa com nuvem de memória, um mecanismo de encaixe exclusivo bloqueia a ferramenta errada, uma alavanca de reverter desfaz um erro ao lado de uma caixa de reparo, um troglodita sorri usando uma ferramenta ergonômica, e um círculo desenha e troca tábuas em co-criação.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos de UX — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de UX</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma boa interface não é a que tem mais botões, mas a que o usuário atravessa sem se perder." A figura faz isso pelo aluno: mostra onde cada decisão de UX mora dentro da jornada de quem usa.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    empatia: { zona:'Macro · O Processo de UX', titulo:'Empatia — Observando o Usuário', icone:'🫶', cor:'#d9a441', label:'Empatia',
+      metafora:'O troglodita não pergunta "o que EU acho bonito": ele observa outro membro usando a ferramenta e registra na argila os rostos — sorriso, testa franzida, surpresa. UX começa olhando o usuário real no seu contexto, não imaginando-o da sua caverna.',
+      bullets:['Pesquisa contextual: observe a pessoa usando o produto no ambiente dela, não num laboratório artificial — o "cotidiano da tribo" muda tudo.','Separe o que o usuário FAZ do que ele DIZ: a tábua de argila registra comportamento e emoção, que muitas vezes contradizem a opinião declarada.','Empatia gera os "problemas a resolver"; sem essa etapa, você projeta soluções elegantes para dores que ninguém tem.'],
+      ferramentas:[{nome:'Maze',url:'https://maze.co'},{nome:'Dovetail',url:'https://dovetail.com'},{nome:'Nielsen Norman Group',url:'https://www.nngroup.com/articles/'}],
+      dica:'Antes de desenhar qualquer tela, faça 5 entrevistas ou observações. É barato, rápido e quase sempre derruba alguma suposição que você tinha como certa.' },
+    heuristica: { zona:'Macro · O Processo de UX', titulo:'Avaliação Heurística — O Conselho de Anciãos', icone:'🔍', cor:'#c0563a', label:'Avaliação Heurística',
+      metafora:'Os anciãos circulam a interface de pedra, cada um segurando uma tábua com um princípio: lupa (fácil de aprender), ampulheta (eficiência), pedra-memória (retenção), alerta (prevenção de erros) e rosto sorridente (satisfação). Avaliação heurística é esse painel de especialistas julgando a interface contra regras conhecidas.',
+      bullets:['É uma inspeção sem usuários: especialistas comparam a interface com heurísticas consagradas (as 10 de Nielsen são o padrão).','Barata e rápida — pega ~75% dos problemas com 3 a 5 avaliadores, antes mesmo de gastar um teste com usuários reais.','Não substitui teste de usabilidade: o conselho prevê problemas prováveis; só o usuário real confirma quais doem de verdade.'],
+      ferramentas:[{nome:'10 Heurísticas de Nielsen',url:'https://www.nngroup.com/articles/ten-usability-heuristics/'},{nome:'Heurísticas de Gerhardt-Powals',url:'https://www.nngroup.com/articles/heuristic-evaluation-history/'},{nome:'Heuristic Evaluation (guia)',url:'https://www.nngroup.com/articles/how-to-conduct-a-heuristic-evaluation/'}],
+      dica:'Use a avaliação heurística como triagem: limpe os problemas óbvios com o "conselho de anciãos" primeiro, e leve ao teste com usuário só o que sobrou — assim você não queima sessões caras com bugs evidentes.' },
+    prototipacao: { zona:'Macro · O Processo de UX', titulo:'Prototipação Rápida — Os Oito Esboços', icone:'✏️', cor:'#6ba368', label:'Prototipação Rápida',
+      metafora:'Em vez de esculpir uma ferramenta perfeita de primeira, a tribo rabisca oito versões em tábuas separadas (o "Crazy 8s" pré-histórico) e testa as ideias enquanto a argila ainda está úmida. Protótipo é pensamento descartável: erre barato no rascunho, não caro na pedra final.',
+      bullets:['Baixa fidelidade primeiro: rabisco em papel/argila convida a crítica honesta; um mockup polido demais faz todo mundo achar que "já está pronto".','Quantidade gera qualidade: gerar muitas opções rápidas (divergir) antes de escolher uma (convergir) evita travar na primeira ideia.','Protótipo existe para ser testado e jogado fora — o valor está no que você aprende, não na tábua em si.'],
+      ferramentas:[{nome:'Figma',url:'https://www.figma.com'},{nome:'Excalidraw',url:'https://excalidraw.com'},{nome:'Crazy 8s (método)',url:'https://www.gv.com/sprint/'}],
+      dica:'Cronometre: 8 ideias em 8 minutos, uma por dobra do papel. A pressa é proposital — ela cala o crítico interno e libera as opções que o perfeccionismo esconderia.' },
+    arquiteturaInfo: { zona:'Macro · O Processo de UX', titulo:'Arquitetura da Informação — Cavernas Aninhadas', icone:'🗺️', cor:'#8fb8d6', label:'Arquitetura da Informação',
+      metafora:'O mural mostra cavernas dentro de cavernas (hierarquia), trilhas de pegadas em rotas claras (navegação) e símbolos gravados sobre cada entrada (rótulos). O troglodita segue o caminho sem hesitar. Arquitetura da informação é organizar o conteúdo para que a pessoa sempre saiba onde está e como chegar lá.',
+      bullets:['Hierarquia, navegação e rotulagem: como o conteúdo é agrupado, como se move entre grupos e que nomes as coisas recebem.','Organize pelo modelo mental do usuário, não pelo seu organograma interno — categorias que fazem sentido pra você podem confundir quem chega de fora.','Card sorting revela os agrupamentos naturais: deixe usuários reais agruparem os "símbolos sobre as entradas" antes de cravar o menu.'],
+      ferramentas:[{nome:'Optimal Workshop',url:'https://www.optimalworkshop.com'},{nome:'IA — Nielsen Norman',url:'https://www.nngroup.com/topic/information-architecture/'},{nome:'Card Sorting (guia)',url:'https://www.nngroup.com/articles/card-sorting-definition/'}],
+      dica:'Aplique o teste dos 3 cliques como sintoma, não como lei: se algo importante exige muitos passos e nenhuma pista pelo caminho, o problema raramente é a quantidade de cliques — é rótulo ambíguo ou hierarquia errada.' },
+    teste: { zona:'Macro · O Processo de UX', titulo:'Teste de Usabilidade — Observação Moderada', icone:'👀', cor:'#ff7a18', label:'Teste de Usabilidade',
+      metafora:'Um troglodita "usuário" tenta pegar uma ferramenta específica; dois observadores atrás da fenda anotam onde ele hesita e onde descobre o caminho. Teste de usabilidade é dar uma tarefa real a uma pessoa real e ficar calado observando — não explicando, não vendendo.',
+      bullets:['Tarefa, não opinião: peça "encontre e compre X", não "o que você acha desta tela?". Comportamento revela mais que gosto.','5 usuários já expõem a maioria dos problemas graves — você não precisa de uma multidão para começar a aprender.','Cale-se e observe: cada vez que você "ajuda" o usuário travado, apaga exatamente o problema que veio descobrir.'],
+      ferramentas:[{nome:'Maze',url:'https://maze.co'},{nome:'Lookback',url:'https://www.lookback.com'},{nome:'Por que 5 usuários bastam',url:'https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/'}],
+      dica:'Teste cedo e com frequência, mesmo num protótipo de papel. Uma rodada com 5 pessoas por sprint pega problemas enquanto consertá-los ainda é barato.' },
+
+    aprender: { zona:'Micro · Heurísticas & Práticas', titulo:'Facilidade de Aprender — Os Três Passos', icone:'🧑‍🏫', cor:'#d4915a', label:'Facilidade de Aprender',
+      metafora:'O jovem aprende a ferramenta seguindo um guia de pedra com três gestos progressivos, repetindo cada passo com confiança crescente. Learnability é o quão rápido alguém de primeira viagem consegue realizar tarefas básicas — a primeira impressão que define se a pessoa fica ou desiste.',
+      bullets:['Aproveite convenções e padrões: o usuário já "aprendeu" em outros produtos; reinventar ícones e fluxos custa esforço de aprendizado à toa.','Onboarding progressivo: revele a complexidade aos poucos (3 passos), em vez de despejar um tour de 20 telas de uma vez.','Affordances claras — um botão deve parecer clicável. Quanto mais óbvio o "como usar", menos manual a pessoa precisa.'],
+      ferramentas:[{nome:'Learnability (NN/g)',url:'https://www.nngroup.com/articles/learnability/'},{nome:'Material Design',url:'https://m3.material.io'},{nome:'Apple HIG',url:'https://developer.apple.com/design/human-interface-guidelines'}],
+      dica:'Meça a curva: cronometre a mesma tarefa básica na 1ª, 2ª e 3ª tentativa de um novato. Se o tempo não cai rápido, a interface é difícil de aprender — não é o usuário que é "lento".' },
+    eficiencia: { zona:'Micro · Heurísticas & Práticas', titulo:'Eficiência — O Caminho Ótimo', icone:'⚡', cor:'#5fc8a0', label:'Eficiência',
+      metafora:'Dois trogloditas partem do mesmo ponto: um segue a trilha direta e bem sinalizada e chega rápido; o outro se perde num labirinto cheio de obstáculos e chega ofegante. Eficiência é, depois de aprender, quão rápido a pessoa completa a tarefa — quantos passos, cliques e esperas o caminho exige.',
+      bullets:['Conte os passos do fluxo crítico e corte os que não agregam: cada tela extra é uma curva a mais no labirinto.','Para quem usa todo dia, ofereça atalhos (teclas, ações em massa, padrões salvos) sem poluir a tela do novato — "aceleradores".','Eficiência percebida importa: feedback imediato e skeletons fazem a espera parecer menor mesmo quando o tempo é o mesmo.'],
+      ferramentas:[{nome:'Eficiência (NN/g)',url:'https://www.nngroup.com/articles/efficiency-vs-learnability/'},{nome:'Tempos de resposta',url:'https://www.nngroup.com/articles/response-times-3-important-limits/'},{nome:'Lei de Hick',url:'https://lawsofux.com/hicks-law/'}],
+      dica:'Otimize o caminho mais percorrido, não o mais raro. Descubra qual tarefa a pessoa repete dezenas de vezes por dia e tire um clique dela — o ganho se multiplica.' },
+    retencao: { zona:'Micro · Heurísticas & Práticas', titulo:'Retenção — A Memória do Fluxo', icone:'🧠', cor:'#c9aa5c', label:'Retenção (Memorabilidade)',
+      metafora:'O troglodita volta dias depois e refaz a tarefa sem hesitar — uma nuvem de memória mostra o fluxo anterior em traços suaves. Memorabilidade é: depois de um tempo longe, a pessoa reaprende rápido ou começa do zero? Boas interfaces grudam na memória.',
+      bullets:['Consistência é o que gruda: se o mesmo botão fica sempre no mesmo lugar com o mesmo nome, a memória do usuário não precisa ser refeita.','Reconhecer é mais fácil que lembrar — mostre as opções na tela em vez de exigir que a pessoa decore comandos.','Padrões e localização estável criam "memória muscular": o usuário reencontra o caminho sem pensar, mesmo após semanas.'],
+      ferramentas:[{nome:'Memorabilidade (NN/g)',url:'https://www.nngroup.com/articles/usability-101-introduction-to-usability/'},{nome:'Reconhecer vs. lembrar',url:'https://www.nngroup.com/articles/recognition-and-recall/'},{nome:'Lei de Jakob',url:'https://lawsofux.com/jakobs-law/'}],
+      dica:'Não mude o que já está na memória muscular sem um bom motivo. Mover um botão "para melhorar" pode reaprender o usuário à força — e quem usava no automático sente como regressão.' },
+    prevencao: { zona:'Micro · Heurísticas & Práticas', titulo:'Prevenção de Erros — O Encaixe Exclusivo', icone:'🚫', cor:'#b08cc4', label:'Prevenção de Erros',
+      metafora:'O mecanismo só aceita a ferramenta com o formato certo na ranhura; a errada é fisicamente bloqueada. O troglodita observa satisfeito que errar ali é impossível. Prevenção de erros é desenhar para que o engano simplesmente não aconteça — melhor que uma boa mensagem de erro.',
+      bullets:['A melhor mensagem de erro é a que nunca precisa aparecer: restrinja entradas (datas em calendário, máscaras, opções válidas) em vez de só validar depois.','Confirme ações destrutivas e desabilite o que não se aplica no contexto — o "encaixe exclusivo" remove o caminho do engano.','Distinga deslizes (erros de execução) de enganos (erros de intenção): cada um pede um remédio diferente no design.'],
+      ferramentas:[{nome:'Prevenção de Erros (NN/g)',url:'https://www.nngroup.com/articles/slips/'},{nome:'Formulários à prova de erro',url:'https://www.nngroup.com/articles/errors-forms-design-guidelines/'},{nome:'Poka-yoke',url:'https://en.wikipedia.org/wiki/Poka-yoke'}],
+      dica:'Para cada erro recorrente no suporte, pergunte "como eu torno isso impossível?" antes de "como eu aviso melhor?". Prevenir na origem economiza mil mensagens de alerta.' },
+    recuperacao: { zona:'Micro · Heurísticas & Práticas', titulo:'Recuperação de Erros — A Alavanca de Reverter', icone:'↩️', cor:'#cdbd9a', label:'Recuperação de Erros',
+      metafora:'O troglodita derruba uma pedra no lugar errado e na hora aciona a alavanca de "reverter", que devolve tudo ao lugar; ao lado, uma caixa de reparo está sempre acessível. Quando o erro escapa, a interface precisa oferecer uma saída clara e barata — o usuário não pode ficar preso.',
+      bullets:['Ofereça desfazer (undo) generoso: saber que dá para voltar deixa a pessoa explorar sem medo — as "saídas de emergência" da heurística de Nielsen.','Mensagem de erro útil diz o que aconteceu, em linguagem humana, e como resolver — nunca um código críptico de pedra.','Preserve o trabalho: ao falhar, mantenha o que a pessoa já preencheu em vez de limpar o formulário e puni-la pelo erro.'],
+      ferramentas:[{nome:'Undo (NN/g)',url:'https://www.nngroup.com/articles/how-to-report-errors-in-forms/'},{nome:'Mensagens de erro',url:'https://www.nngroup.com/articles/error-message-guidelines/'},{nome:'Controle do usuário',url:'https://www.nngroup.com/articles/user-control-and-freedom/'}],
+      dica:'Prefira "desfazer" a "tem certeza?". Diálogos de confirmação viram ruído que todo mundo aceita no automático; um undo real protege de verdade sem interromper o fluxo.' },
+    satisfacao: { zona:'Micro · Heurísticas & Práticas', titulo:'Satisfação — A Ferramenta que Encaixa na Mão', icone:'😊', cor:'#e0c04a', label:'Satisfação & Delight',
+      metafora:'O troglodita usa uma ferramenta que encaixa perfeitamente na mão e sorri: funciona sem esforço, sem ruído, sem resistência. Satisfação é o quanto usar o produto é agradável — o "delight" que faz a pessoa voltar mesmo quando havia alternativas funcionais.',
+      bullets:['Funcional não basta: depois que a tarefa fica fácil, o prazer de uso (microinterações, ritmo, polimento) é o que diferencia e fideliza.','Delight tem que vir depois do básico — animação charmosa numa interface confusa é maquiagem em cima de fricção.','Meça com sinais reais: SUS, NPS e a taxa de retorno capturam satisfação melhor do que o seu próprio entusiasmo pela tela.'],
+      ferramentas:[{nome:'System Usability Scale',url:'https://www.nngroup.com/articles/measuring-perceived-usability/'},{nome:'Delight (NN/g)',url:'https://www.nngroup.com/articles/delight/'},{nome:'Modelo Kano',url:'https://en.wikipedia.org/wiki/Kano_model'}],
+      dica:'Cuide primeiro das fricções que irritam; só depois invista em encantar. Um delight memorável não compensa um fluxo que faz a pessoa bufar todo dia.' },
+    cocriacao: { zona:'Micro · Heurísticas & Práticas', titulo:'Co-criação — O Workshop Colaborativo', icone:'🤝', cor:'#9bb05c', label:'Co-criação',
+      metafora:'O círculo de trogloditas desenha simultaneamente em suas tábuas e depois as troca, apontando, sorrindo e aprovando — o consenso emerge da roda. Co-criação trata design como atividade social: usuários e time projetam juntos, não um "gênio solitário" entregando a verdade pronta.',
+      bullets:['Design não é esporte individual: dev, produto, design e usuário juntos numa sala produzem decisões mais robustas e com menos retrabalho.','Workshops (Design Sprint, Design Studio) alinham todos cedo — barato resolver divergência no rabisco, caro depois do código pronto.','Envolver o usuário no processo aumenta a adoção: gente que ajudou a desenhar defende e adota a solução.'],
+      ferramentas:[{nome:'FigJam',url:'https://www.figma.com/figjam/'},{nome:'Miro',url:'https://miro.com'},{nome:'Design Sprint (GV)',url:'https://www.gv.com/sprint/'}],
+      dica:'Como dev, entre cedo na roda de design. Apontar uma restrição técnica no rascunho evita a interface "impossível de construir" que vira atrito entre os times depois.' }
+  };
+
+  // Geometria dos hotspots em % do container (calibrada para a arte 1024×576)
+  const GEO = {
+    empatia:[0.6,14,18.5,33], heuristica:[19.5,12,18.5,36], prototipacao:[39,13,17,34],
+    arquiteturaInfo:[56.5,9,20.5,39], teste:[78,12,21.5,36],
+    aprender:[0.6,57,15,40], eficiencia:[16,56,13.5,42], retencao:[30,56,12.5,42],
+    prevencao:[43,56,13.5,42], recuperacao:[57,56,13.5,42], satisfacao:[71,56,12.5,42], cocriacao:[84,56,15.5,42]
+  };
+
+  const ORDEM = ['empatia','heuristica','prototipacao','arquiteturaInfo','teste','aprender','eficiencia','retencao','prevencao','recuperacao','satisfacao','cocriacao'];
+
+  // Laços que a figura torna visíveis (Processo ↔ Heurísticas)
+  const RELACOES = {
+    empatia:        { ids:['prototipacao','teste','cocriacao'], nota:'Observar o usuário gera as ideias que viram esboços, define o que será testado e traz a própria pessoa para a roda de co-criação.' },
+    heuristica:     { ids:['aprender','eficiencia','retencao','prevencao','satisfacao'], nota:'Cada tábua do conselho de anciãos é uma destas heurísticas do andar de baixo — aprender, eficiência, retenção, prevenção de erros e satisfação.' },
+    prototipacao:   { ids:['empatia','teste','cocriacao'], nota:'O esboço rápido nasce do que a empatia revelou, existe para ser testado e é desenhado em conjunto na roda.' },
+    arquiteturaInfo:{ ids:['aprender','eficiencia','retencao'], nota:'Organizar bem as "cavernas aninhadas" é o que torna a interface fácil de aprender, rápida de percorrer e simples de memorizar.' },
+    teste:          { ids:['empatia','prototipacao','recuperacao'], nota:'O teste confirma com gente real as dores que a empatia levantou, valida o protótipo e revela onde o usuário trava e precisa de uma saída.' },
+    aprender:       { ids:['arquiteturaInfo','retencao','heuristica'], nota:'A facilidade de aprender depende de uma boa arquitetura da informação, prepara a retenção e é uma das heurísticas que o conselho avalia.' },
+    eficiencia:     { ids:['arquiteturaInfo','retencao','heuristica'], nota:'O caminho ótimo é fruto de uma estrutura clara, se apoia na memória do usuário e é uma das tábuas do conselho de anciãos.' },
+    retencao:       { ids:['aprender','eficiencia','arquiteturaInfo'], nota:'A memória do fluxo cresce sobre o que foi fácil de aprender, sustenta a eficiência no retorno e reflete a consistência da arquitetura.' },
+    prevencao:      { ids:['recuperacao','teste','heuristica'], nota:'Prevenir o erro e recuperá-lo são as duas faces da mesma moeda; o teste mostra quais erros surgem e a heurística cobra ambos.' },
+    recuperacao:    { ids:['prevencao','teste','satisfacao'], nota:'Quando a prevenção falha, a alavanca de reverter salva a experiência — e errar sem castigo preserva a satisfação.' },
+    satisfacao:     { ids:['eficiencia','recuperacao','heuristica'], nota:'A satisfação se constrói sobre um fluxo eficiente e tolerante a erros; é a última tábua do conselho, o "rosto sorridente".' },
+    cocriacao:      { ids:['empatia','prototipacao','teste'], nota:'A roda de co-criação alimenta a empatia, acelera a prototipação coletiva e decide junto o que vale levar ao teste.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {}; // id -> button
+  const legendEls  = {}; // id -> button
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    // Conecta-se com
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  // Aplica halos/atenuação na figura e destaque na legenda
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {           // ação do usuário (hotspot, legenda ou chip)
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    // navegação por setas entre hotspots quando o foco está num deles (e sem modal aberto)
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
