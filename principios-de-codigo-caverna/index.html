@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna do Código — SOLID, Padrões e Boas Práticas para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde cada nicho é um princípio ou padrão de código (SOLID, padrões criacionais/estruturais/comportamentais, Big-O, Clean Code e 12-Factor App).">
+  <meta property="og:title" content="A Caverna do Código — SOLID, Padrões e Boas Práticas para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna-tribo (princípios e padrões) para aprender SOLID, design patterns, Big-O, Clean Code e 12-Factor. Ao abrir um conceito, a figura acende os relacionados.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="caverna-do-codigo.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      /* Sem CDN: stack serif do sistema evocando Cinzel/Spectral */
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Princípios &amp; Padrões de Código</div>
+    <h1>🛠️ A Caverna do Código</h1>
+    <p class="tese">Da <em>lista solta de regras decoradas</em> para a <strong>tribo que fabrica boas ferramentas</strong>. A própria ilustração vira a interface — cada nicho da caverna é um princípio ou padrão que mantém o código fácil de ler, testar e mudar.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — os 12 fundamentos do bom código moram numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="caverna-do-codigo.png" alt="Caverna pré-histórica em corte transversal com dois andares de nichos. No andar de cima (macro): um conselho de cinco anciãos com tábuas (SOLID), uma oficina de moldes e recipientes (padrões criacionais), um artesão encaixando peças com adaptador de osso (padrões estruturais), um grupo reagindo a uma tocha-sinal (padrões comportamentais) e dois trogloditas subindo por escada, rampa em espiral e elevador de contrapeso (Big-O). No andar de baixo (micro), sete nichos numerados de 6 a 12: uma ferramenta de função única (SRP), uma estrutura com módulos encaixáveis (OCP), a troca de uma peça A por B no mesmo slot (LSP), placas especializadas contra uma placa sobrecarregada (ISP), uma alavanca puxando um mecanismo oculto por corda (DIP), uma tábua de desenhos limpos sendo polida com um pano (Clean Code) e um cofre de ossos com chave ao lado de pedras coloridas empilhadas (12-Factor App).">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Para aprofundar</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Artesão</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma boa ferramenta não é a que tem mais peças, mas a que cada um da tribo consegue pegar, entender e melhorar." Princípios e padrões existem para isso: deixar o código fácil de mudar por quem chega depois.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    solid: { zona:'Macro · O Conselho da Tribo', titulo:'SOLID — Os Cinco Anciãos da Boa Ferramenta', icone:'🏛️', cor:'#d9a441', label:'SOLID',
+      metafora:'Cinco anciãos em volta da mesa de pedra, cada um guardando uma lei para fabricar boas ferramentas. SOLID são cinco princípios que, juntos, mantêm o código fácil de mudar sem quebrar o que já funciona.',
+      bullets:['SOLID é o acrônimo de cinco princípios: SRP, OCP, LSP, ISP e DIP — cada ancião segura uma das tábuas.','Não são regras rígidas, e sim guias para reduzir acoplamento e aumentar a coesão entre as peças.','Seguir SOLID deixa o sistema mais fácil de testar, estender e entender por quem chega depois.'],
+      ferramentas:[{nome:'SOLID (Wikipedia)',url:'https://en.wikipedia.org/wiki/SOLID'},{nome:'Uncle Bob — SOLID',url:'https://blog.cleancoder.com/uncle-bob/2020/10/18/Solid-Relevance.html'},{nome:'Refactoring Guru',url:'https://refactoring.guru'}],
+      dica:'Não decore as cinco letras: aprenda o "cheiro ruim" que cada uma combate. Quando o código ficar difícil de mudar, pergunte qual ancião foi ignorado.' },
+    creational: { zona:'Macro · A Oficina de Criação', titulo:'Padrões Criacionais — A Oficina de Moldes', icone:'🏺', cor:'#c98a3e', label:'Padrões Criacionais',
+      metafora:'Na oficina, moldes de pedra produzem ferramentas específicas, um recipiente sagrado é único para toda a tribo e um construtor monta a peça passo a passo. São os padrões que controlam COMO os objetos nascem.',
+      bullets:['Factory: um molde decide qual ferramenta criar, isolando o resto do código do "new" concreto.','Singleton: um único recipiente compartilhado por todos — use com cuidado, pois vira estado global difícil de testar.','Builder: monta um objeto complexo em etapas, em vez de um construtor gigante cheio de parâmetros.'],
+      ferramentas:[{nome:'Factory Method',url:'https://refactoring.guru/design-patterns/factory-method'},{nome:'Singleton',url:'https://refactoring.guru/design-patterns/singleton'},{nome:'Builder',url:'https://refactoring.guru/design-patterns/builder'}],
+      dica:'Prefira Factory/Builder a espalhar "new" por todo lado. E pense duas vezes antes de um Singleton: ele facilita hoje e dificulta o teste amanhã.' },
+    structural: { zona:'Macro · A Oficina de Encaixes', titulo:'Padrões Estruturais — Encaixar e Compor', icone:'🧩', cor:'#6ba368', label:'Padrões Estruturais',
+      metafora:'Um adaptador de osso conecta duas ferramentas incompatíveis, camadas de couro incrementam uma lança sem alterá-la, e uma alavanca simples esconde um mecanismo de roldanas. São padrões que organizam como as peças se compõem.',
+      bullets:['Adapter: traduz a interface de uma peça para outra encaixar, sem mudar nenhuma das duas.','Decorator: adiciona comportamento em camadas, sem tocar na classe original.','Facade: oferece uma porta simples para um subsistema complexo escondido atrás.'],
+      ferramentas:[{nome:'Adapter',url:'https://refactoring.guru/design-patterns/adapter'},{nome:'Decorator',url:'https://refactoring.guru/design-patterns/decorator'},{nome:'Facade',url:'https://refactoring.guru/design-patterns/facade'}],
+      dica:'Ao integrar uma biblioteca externa, embrulhe-a num Adapter/Facade seu. No dia de trocá-la, só o embrulho muda — não a tribo inteira.' },
+    behavioral: { zona:'Macro · A Oficina do Comportamento', titulo:'Padrões Comportamentais — Quem Faz e Como', icone:'🔥', cor:'#c0563a', label:'Padrões Comportamentais',
+      metafora:'Um estrategista troca cartões de instrução que mudam a tática, uma tocha-sinal faz vários reagirem ao mesmo tempo, e um mestre segue um roteiro com lacunas a preencher. São padrões sobre como os objetos colaboram e se comunicam.',
+      bullets:['Strategy: troca o algoritmo em tempo de execução, como quem troca o cartão de tática.','Observer: quando algo muda, todos os inscritos são avisados e reagem — a base de sistemas de eventos.','Template Method: define o esqueleto fixo de um processo e deixa passos para as subclasses preencherem.'],
+      ferramentas:[{nome:'Strategy',url:'https://refactoring.guru/design-patterns/strategy'},{nome:'Observer',url:'https://refactoring.guru/design-patterns/observer'},{nome:'Template Method',url:'https://refactoring.guru/design-patterns/template-method'}],
+      dica:'Viu um if/switch gigante escolhendo comportamento? Provavelmente é um Strategy esperando para nascer — cada ramo vira uma tática trocável.' },
+    bigo: { zona:'Macro · O Caminho até a Presa', titulo:'Complexidade Big-O — A Eficiência do Caminho', icone:'⏳', cor:'#8fb8d6', label:'Complexidade Big-O',
+      metafora:'Dois trogloditas vão ao mesmo destino: um sobe uma escada degrau a degrau, outro corta por uma rampa em espiral e um elevador de contrapeso chega na hora. Big-O mede como o custo cresce conforme a entrada aumenta.',
+      bullets:['Big-O descreve o crescimento no pior caso, não o tempo exato em segundos.','Constante (acesso direto) cresce nada; logarítmico cresce devagar; linear é proporcional; quadrático dobra de custo rápido demais.','Escolha a estrutura de dados pelo acesso: um índice/hash costuma vencer varrer a lista inteira.'],
+      ferramentas:[{nome:'Big-O Cheat Sheet',url:'https://www.bigocheatsheet.com'},{nome:'VisuAlgo',url:'https://visualgo.net'},{nome:'Khan Academy — Algoritmos',url:'https://www.khanacademy.org/computing/computer-science/algorithms'}],
+      dica:'Não otimize às cegas: meça primeiro. Mas saiba reconhecer o loop dentro de loop (quadrático) — ele parece ok com 10 itens e trava com 10 mil.' },
+    srp: { zona:'Micro · A Oficina das Ferramentas', titulo:'SRP — Responsabilidade Única', icone:'🔨', cor:'#d4915a', label:'Responsabilidade Única (SRP)',
+      metafora:'Uma ferramenta com formato inequívoco: serve só para uma tarefa, e nenhuma outra. Single Responsibility Principle — cada módulo deve ter um, e apenas um, motivo para mudar.',
+      bullets:['Uma classe ou função deve fazer uma coisa bem feita — não virar canivete suíço confuso.','"Um motivo para mudar": se duas razões diferentes mexem na mesma classe, separe-as.','Responsabilidade única facilita testar, nomear e reaproveitar cada peça isoladamente.'],
+      ferramentas:[{nome:'SRP (Uncle Bob)',url:'https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html'},{nome:'Code Smells',url:'https://refactoring.guru/refactoring/smells'},{nome:'Martin Fowler',url:'https://martinfowler.com/bliki/'}],
+      dica:'Se você precisa da palavra "e" para descrever o que uma função faz ("valida E salva E envia e-mail"), ela provavelmente tem responsabilidades demais.' },
+    ocp: { zona:'Micro · A Oficina das Ferramentas', titulo:'OCP — Aberto/Fechado', icone:'🧱', cor:'#b08a4f', label:'Aberto/Fechado (OCP)',
+      metafora:'Uma estrutura central com ranhuras padronizadas aceita módulos novos sem quebrar o núcleo. Open/Closed Principle — aberto para extensão, fechado para modificação.',
+      bullets:['Adicione comportamento novo criando código novo, não alterando o que já funciona e está testado.','Abstrações (interfaces) são as ranhuras: novos módulos encaixam sem mexer no centro.','Menos edição do código antigo significa menos risco de quebrar o que já estava de pé.'],
+      ferramentas:[{nome:'OCP (Uncle Bob)',url:'https://blog.cleancoder.com/uncle-bob/2014/05/12/TheOpenClosedPrinciple.html'},{nome:'Strategy Pattern',url:'https://refactoring.guru/design-patterns/strategy'},{nome:'Refactoring Guru',url:'https://refactoring.guru'}],
+      dica:'Quando um requisito novo te obriga a abrir um switch antigo e adicionar mais um case, considere trocar por polimorfismo: o novo caso vira uma classe nova.' },
+    lsp: { zona:'Micro · A Oficina das Ferramentas', titulo:'LSP — Substituição de Liskov', icone:'🔄', cor:'#5fc8a0', label:'Substituição de Liskov (LSP)',
+      metafora:'A peça B substitui a peça A no mesmo slot e o mecanismo funciona idêntico, sem ajuste. Liskov Substitution Principle — um subtipo deve poder substituir o tipo base sem surpresas.',
+      bullets:['Se algo espera a classe pai, qualquer filha deve funcionar no lugar sem quebrar o contrato.','A filha não pode exigir mais nem entregar menos do que a base prometeu.','O anti-exemplo clássico: Quadrado herdando de Retângulo quebra quem mexe em largura e altura.'],
+      ferramentas:[{nome:'LSP (Uncle Bob)',url:'https://blog.cleancoder.com/uncle-bob/2014/05/11/LiskovSubstitutionPrinciple.html'},{nome:'Wikipedia',url:'https://en.wikipedia.org/wiki/Liskov_substitution_principle'},{nome:'Refactoring Guru',url:'https://refactoring.guru'}],
+      dica:'Se uma subclasse precisa lançar um "não suportado" num método herdado, a herança provavelmente está errada — talvez seja caso de composição, não de herança.' },
+    isp: { zona:'Micro · A Oficina das Ferramentas', titulo:'ISP — Segregação de Interface', icone:'🎛️', cor:'#c9a25c', label:'Segregação de Interface (ISP)',
+      metafora:'Em vez de uma placa enorme cheia de encaixes confusos, três placas pequenas e especializadas onde cada um acha exatamente o que precisa. Interface Segregation — nenhum cliente deve depender de métodos que não usa.',
+      bullets:['Prefira várias interfaces pequenas e focadas a uma interface "gorda" que obriga a implementar o que não importa.','Interfaces enxutas reduzem acoplamento: quem implementa só carrega o que de fato usa.','É o SRP aplicado a contratos: cada interface fala de um único papel.'],
+      ferramentas:[{nome:'ISP (Wikipedia)',url:'https://en.wikipedia.org/wiki/Interface_segregation_principle'},{nome:'Role Interface (Fowler)',url:'https://martinfowler.com/bliki/RoleInterface.html'},{nome:'Refactoring Guru',url:'https://refactoring.guru'}],
+      dica:'Quando implementar uma interface te obriga a escrever vários métodos vazios ou que lançam erro, ela está grande demais. Quebre-a em papéis menores.' },
+    dip: { zona:'Micro · A Oficina das Ferramentas', titulo:'DIP — Inversão de Dependência', icone:'🪢', cor:'#b08cc4', label:'Inversão de Dependência (DIP)',
+      metafora:'O operador puxa uma corda (a interface) e o mecanismo escondido obedece; trocar o mecanismo atrás da parede não muda o gesto dele. Dependency Inversion — dependa de abstrações, não de implementações concretas.',
+      bullets:['Módulos de alto nível não devem depender de detalhes; ambos dependem de uma abstração comum.','A corda/alavanca é a interface: o código fala com ela, não com a engrenagem concreta.','Inversão de Controle e injeção de dependência são as ferramentas práticas para aplicar o DIP.'],
+      ferramentas:[{nome:'DIP (Wikipedia)',url:'https://en.wikipedia.org/wiki/Dependency_inversion_principle'},{nome:'Fowler — Injection',url:'https://martinfowler.com/articles/injection.html'},{nome:'Refactoring Guru',url:'https://refactoring.guru'}],
+      dica:'Programe para uma interface, não para uma implementação. Assim você troca o banco, o gateway ou o serviço externo mudando só a fiação, não a lógica.' },
+    cleancode: { zona:'Micro · A Parede Limpa', titulo:'Clean Code — Clareza e Organização', icone:'🧼', cor:'#6cc0d0', label:'Clean Code',
+      metafora:'Uma tábua com desenhos minimalistas, espaçados e sem duplicação; o troglodita apaga o que é redundante com um pano. Código limpo é código que outra pessoa lê e entende sem sofrer.',
+      bullets:['Nomes descritivos valem mais que comentários: o código deve explicar a si mesmo.','Funções curtas que fazem uma coisa só são mais fáceis de ler, testar e reaproveitar.','DRY — Don\'t Repeat Yourself: elimine duplicação, cada conhecimento mora num único lugar.'],
+      ferramentas:[{nome:'Clean Code (livro)',url:'https://www.oreilly.com/library/view/clean-code-a/9780136083238/'},{nome:'Refactoring (Fowler)',url:'https://refactoring.com'},{nome:'ESLint',url:'https://eslint.org'}],
+      dica:'Escreva pensando em quem vai ler o código às 2h da manhã durante um incidente — provavelmente você mesmo. Clareza ganha de esperteza.' },
+    '12factor': { zona:'Micro · O Cofre e o Mural', titulo:'12-Factor App — Configuração e Logs', icone:'🔐', cor:'#e0c04a', label:'12-Factor App',
+      metafora:'O cofre de ossos com chave guarda a configuração separada do mural, as pedras coloridas empilhadas em ordem são os logs como eventos, e a tábua de origem única é a base de código rastreável. São práticas para apps modernos e portáveis.',
+      bullets:['Config no ambiente: senhas e chaves ficam em variáveis de ambiente, nunca no código.','Logs como fluxo de eventos: a aplicação só escreve na saída padrão; quem coleta e guarda é a infraestrutura.','Uma base de código única, versionada em Git, gerando muitos deploys idênticos.'],
+      ferramentas:[{nome:'The Twelve-Factor App',url:'https://12factor.net'},{nome:'12-Factor (PT-BR)',url:'https://12factor.net/pt_br/'},{nome:'dotenv',url:'https://github.com/motdotla/dotenv'}],
+      dica:'Se um segredo está commitado no repositório, ele já vazou. Tire-o do código, mande para variáveis de ambiente e rotacione a chave antiga.' }
+  };
+
+  // Geometria dos hotspots em % do container (calibrada para a arte 16:9 de dois andares)
+  const GEO = {
+    solid:[1.5,5,21,45], creational:[24.5,5,17.5,45], structural:[43.5,5,16.5,45],
+    behavioral:[61,5,18,45], bigo:[80.5,5,18,45],
+    srp:[1,61,13,36], ocp:[15,61,13,36], lsp:[29,61,14,36],
+    isp:[44,61,13,36], dip:[58,61,13,36], cleancode:[72,61,13,36], '12factor':[86,61,13,36]
+  };
+
+  const ORDEM = ['solid','creational','structural','behavioral','bigo','srp','ocp','lsp','isp','dip','cleancode','12factor'];
+
+  // Laços que a figura torna visíveis (Macro ↔ Micro)
+  const RELACOES = {
+    solid:      { ids:['srp','ocp','lsp','isp','dip'], nota:'O conselho dos cinco anciãos é exatamente o acrônimo: cada princípio detalhado lá embaixo é uma das cinco leis que SOLID resume.' },
+    creational: { ids:['dip','ocp','structural'], nota:'Fábricas e builders escondem o "new" concreto (DIP), permitem novos tipos sem alterar o núcleo (OCP) e costumam andar junto com os padrões estruturais.' },
+    structural: { ids:['creational','behavioral','ocp'], nota:'Compor e encaixar peças complementa criá-las (criacionais) e coordená-las (comportamentais), sempre estendendo sem quebrar o núcleo (OCP).' },
+    behavioral: { ids:['structural','dip','ocp'], nota:'Strategy e Observer trocam comportamento dependendo de abstrações (DIP), encaixam na composição estrutural e abrem o sistema para extensão (OCP).' },
+    bigo:       { ids:['cleancode','srp','isp'], nota:'Escolher o caminho eficiente combina com código limpo e com peças pequenas e focadas — clareza e desempenho crescem juntos quando cada parte faz pouco.' },
+    srp:        { ids:['solid','isp','cleancode'], nota:'Responsabilidade única é o primeiro ancião do SOLID, é o ISP aplicado a classes e o coração do código limpo: cada peça com um só propósito.' },
+    ocp:        { ids:['solid','lsp','dip'], nota:'Estender sem modificar depende de substituir subtipos com segurança (LSP) e de programar para abstrações (DIP) — tudo sob o guarda-chuva SOLID.' },
+    lsp:        { ids:['solid','ocp','isp'], nota:'Substituir A por B sem ajustes é o que torna a extensão (OCP) segura, e contratos enxutos (ISP) ajudam a manter a promessa do tipo base.' },
+    isp:        { ids:['solid','srp','dip'], nota:'Interfaces pequenas são o SRP dos contratos e o que torna a inversão de dependência (DIP) limpa — o cliente depende só do papel que usa.' },
+    dip:        { ids:['solid','ocp','12factor'], nota:'Depender da corda (abstração) e não da engrenagem é o que permite trocar o mecanismo — o mesmo espírito do 12-Factor ao separar config concreta do código.' },
+    cleancode:  { ids:['srp','bigo','12factor'], nota:'Clareza nasce de peças com responsabilidade única, caminhos eficientes e config/logs bem separados — limpar é tirar o que confunde.' },
+    '12factor': { ids:['dip','cleancode','behavioral'], nota:'Separar config do código é inversão de dependência aplicada ao ambiente; logs como eventos lembram o Observer; e tudo isso mantém o app limpo e portável.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {}; // id -> button
+  const legendEls  = {}; // id -> button
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    // Conecta-se com
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  // Aplica halos/atenuação na figura e destaque na legenda
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {           // ação do usuário (hotspot, legenda ou chip)
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    // navegação por setas entre hotspots quando o foco está num deles (e sem modal aberto)
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
