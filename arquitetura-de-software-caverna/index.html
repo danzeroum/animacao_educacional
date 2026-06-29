@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna Arquitetada — Arquitetura de Software para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: o homem das cavernas entende software. Aprenda arquitetura (escalabilidade, segurança, DevOps, cloud, C4, observabilidade, refatoração, conformidade e dívida técnica) com a metáfora de uma caverna pré-histórica.">
+  <meta property="og:title" content="A Caverna Arquitetada — Arquitetura de Software para Devs">
+  <meta property="og:description" content="Mapa-metáfora interativo: clique em cada setor da caverna-tribo e em cada pintura rupestre para entender arquitetura de software. Até na Idade da Pedra existia arquitetura — só que com outros nomes.">
+  <meta property="og:type" content="website">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cor-escalabilidade: #d9a441;
+      --cor-seguranca:      #c0563a;
+      --cor-devops:         #6ba368;
+      --cor-cloud:          #8fb8d6;
+      --cor-redundancia:    #ff7a18;
+      --cor-c4:             #d4915a;
+      --cor-observabilidade:#5fc8a0;
+      --cor-refatoracao:    #c9aa5c;
+      --cor-leis:           #b08cc4;
+      --cor-cofre:          #cdbd9a;
+      --cor-conformidade:   #e0c04a;
+      --cor-divida:         #9aa0a6;
+      --fundo:  #1a120b;
+      --texto:  #f0e6d2;
+    }
+
+    body {
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 1rem 0.5rem;
+    }
+    header h1 {
+      font-size: clamp(1.2rem, 3vw, 1.9rem);
+      letter-spacing: 0.04em;
+      color: #e8c98f;
+    }
+    header p {
+      font-size: 0.9rem;
+      color: #c9a368;
+      margin-top: 0.3rem;
+    }
+
+    #caverna-wrapper {
+      width: 100%;
+      max-width: 980px;
+      padding: 0.5rem 0.5rem 0;
+    }
+
+    #caverna {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .estacao {
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    .estacao:hover,
+    .estacao:focus-visible {
+      filter: drop-shadow(0 0 10px currentColor) brightness(1.18);
+    }
+    .estacao:focus-visible {
+      outline: 3px solid #e8c98f;
+      outline-offset: 4px;
+    }
+    .estacao:focus:not(:focus-visible) {
+      outline: none;
+    }
+    .estacao.ativo {
+      filter: drop-shadow(0 0 16px currentColor) brightness(1.35);
+    }
+
+    .zona-label {
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      fill: #b9925a;
+    }
+
+    /* Animações idle */
+    @keyframes flicker {
+      0%, 100% { opacity: 1;   transform: scaleY(1); }
+      50%      { opacity: 0.7; transform: scaleY(0.85); }
+    }
+    .chama {
+      animation: flicker 1.4s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: bottom center;
+    }
+    .chama-b { animation-delay: 0.5s; }
+
+    @keyframes subir-fumaca {
+      from { transform: translateY(0);     opacity: 0.75; }
+      to   { transform: translateY(-42px); opacity: 0; }
+    }
+    .fumaca {
+      animation: subir-fumaca 3.2s ease-out infinite;
+      transform-box: fill-box;
+    }
+    .fumaca-2 { animation-delay: 1.0s; }
+    .fumaca-3 { animation-delay: 2.0s; }
+
+    @keyframes pulse-pegada {
+      0%, 100% { opacity: 0.25; }
+      50%      { opacity: 1; }
+    }
+    .pegada { animation: pulse-pegada 2.4s ease-in-out infinite; }
+    .pegada-2 { animation-delay: 0.4s; }
+    .pegada-3 { animation-delay: 0.8s; }
+    .pegada-4 { animation-delay: 1.2s; }
+    .pegada-5 { animation-delay: 1.6s; }
+
+    @keyframes troca-cor {
+      0%, 49%   { fill: #4fc3f7; }
+      50%, 100% { fill: #ef5350; }
+    }
+    .monitor-fogo { animation: troca-cor 3s steps(1, end) infinite; }
+
+    /* Controles */
+    #controles {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      padding: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #3a2c1e;
+      color: #e8c98f;
+      border: 1px solid #6d5b47;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+
+    /* Modal */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    #modal-overlay.aberto { display: flex; }
+
+    #modal-card {
+      background: #f4ecde;
+      color: #2a2018;
+      border-radius: 12px;
+      padding: 1.8rem;
+      max-width: 520px;
+      width: 100%;
+      border-top: 6px solid #ccc;
+      animation: slide-in 0.25s ease;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes slide-in {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);   opacity: 1; }
+    }
+
+    #modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    #modal-icone { font-size: 2rem; }
+    #modal-titulo { font-size: 1.2rem; font-weight: 700; }
+    #modal-metafora {
+      font-style: italic;
+      color: #5a4633;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      border-left: 3px solid #ccc;
+      padding-left: 0.7rem;
+    }
+    #modal-bullets {
+      list-style: disc;
+      padding-left: 1.4rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+    #modal-dica {
+      background: #f3e4c4;
+      border-left: 4px solid #b8860b;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+      color: #5a3d0a;
+    }
+    #modal-dica strong { display: block; margin-bottom: 0.2rem; color: #7a4f00; }
+    #btn-fechar {
+      background: #3a2c1e;
+      color: #f4ecde;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      float: right;
+    }
+    #btn-fechar:hover { background: #57442e; }
+
+    /* Rodapé dos princípios */
+    #principios {
+      max-width: 980px;
+      width: 100%;
+      padding: 0 1rem 2rem;
+    }
+    #principios details {
+      background: #261a10;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+    }
+    #principios summary {
+      cursor: pointer;
+      color: #c9a368;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    #principios ul {
+      margin-top: 0.7rem;
+      padding-left: 1.4rem;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: #e3d3b6;
+    }
+
+    /* Tour progress */
+    #tour-progress {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      min-height: 2.4rem;
+      padding: 0.2rem 0;
+    }
+    #tour-label {
+      font-size: 0.8rem;
+      color: #c9a368;
+    }
+    #tour-bar {
+      width: 220px;
+      height: 6px;
+      border-radius: 3px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      background: #3a2c1e;
+    }
+    #tour-bar::-webkit-progress-bar  { background: #3a2c1e; border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: #e8c98f; border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: #e8c98f; border-radius: 3px; }
+
+    /* Links no modal */
+    #modal-ferramentas { margin-bottom: 0.8rem; }
+    #modal-ferramentas span { font-size: 0.82rem; color: #6a5640; margin-right: 0.3rem; }
+    #modal-ferramentas a {
+      display: inline-block;
+      font-size: 0.78rem;
+      color: #6b4a17;
+      border: 1px solid #cdab6b;
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      margin: 0.15rem 0.2rem 0.15rem 0;
+      text-decoration: none;
+      background: #f3e4c4;
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+
+    /* Botão fullscreen */
+    #btn-fullscreen { font-size: 1rem; padding: 0.5rem 0.9rem; }
+
+    /* prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🪨 A Caverna Arquitetada</h1>
+  <p>O homem das cavernas entende software — clique em cada setor da tribo e em cada pintura rupestre</p>
+</header>
+
+<div id="caverna-wrapper">
+  <svg id="caverna" viewBox="0 0 980 900" role="img" aria-label="Mapa-metáfora: uma caverna pré-histórica em corte transversal onde cada elemento da Idade da Pedra representa um conceito de arquitetura de software">
+    <defs>
+      <linearGradient id="grad-caverna" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#241810"/>
+        <stop offset="100%" stop-color="#140d07"/>
+      </linearGradient>
+      <linearGradient id="grad-parede" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#3a2c1e"/>
+        <stop offset="100%" stop-color="#2b1f14"/>
+      </linearGradient>
+      <radialGradient id="luz-tocha" cx="50%" cy="10%" r="70%">
+        <stop offset="0%"  stop-color="#6d4a1f" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#140d07" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Fundo da caverna -->
+    <rect width="980" height="900" fill="url(#grad-caverna)"/>
+    <ellipse cx="490" cy="40" rx="560" ry="260" fill="url(#luz-tocha)"/>
+
+    <!-- Teto rochoso com estalactites -->
+    <path d="M0,0 L980,0 L980,46
+             L930,46 L912,78 L894,46
+             L820,46 L800,90 L780,46
+             L700,46 L686,72 L672,46
+             L560,46 L540,96 L520,46
+             L420,46 L404,80 L388,46
+             L300,46 L282,100 L264,46
+             L170,46 L154,76 L138,46
+             L70,46 L52,88 L34,46 L0,46 Z"
+          fill="#0e0905"/>
+
+    <!-- ════════════════ ZONA MACRO ════════════════ -->
+    <text x="20" y="78" class="zona-label">MACRO — A CAVERNA-TRIBO</text>
+    <line x1="300" y1="73" x2="960" y2="73" stroke="#5a4226" stroke-width="1" stroke-opacity="0.5"/>
+
+    <!-- ESTAÇÃO 1: ESCALABILIDADE — abrigo de pedra com lajes encaixáveis -->
+    <g class="estacao" data-conceito="escalabilidade"
+       tabindex="0" role="button" aria-label="Escalabilidade — Abrigo de pedra com lajes encaixáveis"
+       style="color: #d9a441;">
+      <rect x="15" y="92" width="180" height="258" rx="10" fill="#2c2014" stroke="#a87f33" stroke-width="2"/>
+      <!-- abrigo com lajes empilhadas -->
+      <rect x="50"  y="250" width="100" height="26" rx="3" fill="#6d5b47" stroke="#caa15a" stroke-width="1"/>
+      <rect x="55"  y="222" width="90"  height="26" rx="3" fill="#7a6650" stroke="#caa15a" stroke-width="1"/>
+      <rect x="60"  y="194" width="80"  height="26" rx="3" fill="#6d5b47" stroke="#caa15a" stroke-width="1"/>
+      <!-- laje nova sendo encaixada -->
+      <rect x="120" y="160" width="70"  height="24" rx="3" fill="#caa15a" stroke="#f0d29a" stroke-width="1.5" opacity="0.95"/>
+      <text x="155" y="152" text-anchor="middle" font-size="14">➕</text>
+      <text x="100" y="138" text-anchor="middle" font-size="40">🏠</text>
+      <text x="105" y="330" text-anchor="middle" font-size="13" fill="#f0d29a" font-weight="bold">🪨 Escalabilidade</text>
+    </g>
+
+    <!-- ESTAÇÃO 2: SEGURANÇA — muralha + armadilha de ossos + crachá -->
+    <g class="estacao" data-conceito="seguranca"
+       tabindex="0" role="button" aria-label="Segurança — Muralha de pedras, armadilha de ossos e crachá-pedra"
+       style="color: #c0563a;">
+      <rect x="205" y="92" width="180" height="258" rx="10" fill="#2c1813" stroke="#c0563a" stroke-width="2"/>
+      <!-- muralha de pedras gigantes -->
+      <circle cx="240" cy="250" r="22" fill="#5e4a3a" stroke="#d98a72" stroke-width="1"/>
+      <circle cx="290" cy="258" r="26" fill="#6d5645" stroke="#d98a72" stroke-width="1"/>
+      <circle cx="345" cy="250" r="22" fill="#5e4a3a" stroke="#d98a72" stroke-width="1"/>
+      <circle cx="262" cy="212" r="20" fill="#6d5645" stroke="#d98a72" stroke-width="1"/>
+      <circle cx="320" cy="212" r="20" fill="#5e4a3a" stroke="#d98a72" stroke-width="1"/>
+      <!-- portão / passagem -->
+      <rect x="278" y="232" width="34" height="50" rx="4" fill="#1a0f0a"/>
+      <!-- crachá-pedra com marca -->
+      <rect x="320" y="300" width="46" height="34" rx="5" fill="#e9d9b8" stroke="#c0563a" stroke-width="1.5"/>
+      <path d="M332 318 L340 326 L356 308" fill="none" stroke="#c0563a" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="240" y="320" font-size="20">🦴</text>
+      <text x="295" y="150" text-anchor="middle" font-size="40">🛡️</text>
+      <text x="282" y="330" text-anchor="middle" font-size="13" fill="#e8a48f" font-weight="bold">Segurança</text>
+    </g>
+
+    <!-- ESTAÇÃO 3: DEVOPS / CAÇA AUTOMATIZADA -->
+    <g class="estacao" data-conceito="devops"
+       tabindex="0" role="button" aria-label="DevOps e CI/CD — Armadilha de caça automática com teste e containers de argila"
+       style="color: #6ba368;">
+      <rect x="395" y="92" width="180" height="258" rx="10" fill="#16210f" stroke="#6ba368" stroke-width="2"/>
+      <!-- armadilha / esteira -->
+      <line x1="410" y1="250" x2="560" y2="250" stroke="#4d6b3f" stroke-width="3"/>
+      <!-- teste verde (graveto OK) -->
+      <text x="430" y="200" font-size="22">🌿</text>
+      <path d="M428 210 L436 218 L452 200" fill="none" stroke="#7fd36a" stroke-width="3" stroke-linecap="round"/>
+      <!-- containers de argila padronizados -->
+      <path d="M470 222 q18 -6 36 0 l-4 26 q-14 5 -28 0 Z" fill="#8a5a36" stroke="#caa15a" stroke-width="1"/>
+      <path d="M512 222 q18 -6 36 0 l-4 26 q-14 5 -28 0 Z" fill="#8a5a36" stroke="#caa15a" stroke-width="1"/>
+      <text x="412" y="290" font-size="11" fill="#a9d99a">✔️ presa boa → carne</text>
+      <text x="412" y="308" font-size="11" fill="#d98a72">✖️ ruim → volta pro mato</text>
+      <text x="485" y="150" text-anchor="middle" font-size="40">🏹</text>
+      <text x="485" y="332" text-anchor="middle" font-size="12" fill="#a9d99a" font-weight="bold">DevOps &amp; CI/CD</text>
+    </g>
+
+    <!-- ESTAÇÃO 4: CLOUD — fogueira de sinais de fumaça -->
+    <g class="estacao" data-conceito="cloud"
+       tabindex="0" role="button" aria-label="Cloud — Fogueira que envia sinais de fumaça para coordenar outras cavernas"
+       style="color: #8fb8d6;">
+      <rect x="585" y="92" width="180" height="258" rx="10" fill="#141d24" stroke="#8fb8d6" stroke-width="2"/>
+      <!-- nuvem -->
+      <ellipse cx="675" cy="150" rx="58" ry="26" fill="#3d5460" opacity="0.85"/>
+      <ellipse cx="645" cy="158" rx="30" ry="20" fill="#3d5460" opacity="0.85"/>
+      <ellipse cx="708" cy="158" rx="30" ry="20" fill="#3d5460" opacity="0.85"/>
+      <text x="675" y="158" text-anchor="middle" font-size="26">☁️</text>
+      <!-- fumaça subindo -->
+      <circle class="fumaca"   cx="660" cy="250" r="9"  fill="#9aa6ad"/>
+      <circle class="fumaca fumaca-2" cx="675" cy="250" r="11" fill="#aab4ba"/>
+      <circle class="fumaca fumaca-3" cx="690" cy="250" r="9"  fill="#9aa6ad"/>
+      <!-- fogueira base -->
+      <path class="chama" d="M662 300 q13 -34 26 0 q-13 16 -26 0 Z" fill="#ff8a3d"/>
+      <rect x="650" y="300" width="50" height="10" rx="3" fill="#6d4a2a"/>
+      <text x="675" y="332" text-anchor="middle" font-size="13" fill="#b9d6ea" font-weight="bold">Cloud</text>
+    </g>
+
+    <!-- ESTAÇÃO 5: REDUNDÂNCIA — duas fogueiras idênticas -->
+    <g class="estacao" data-conceito="redundancia"
+       tabindex="0" role="button" aria-label="Disponibilidade e redundância — Duas fogueiras idênticas; se uma apaga, a outra mantém o calor"
+       style="color: #ff7a18;">
+      <rect x="775" y="92" width="180" height="258" rx="10" fill="#241308" stroke="#ff7a18" stroke-width="2"/>
+      <!-- fogueira A -->
+      <path class="chama" d="M812 240 q15 -46 30 0 q-15 20 -30 0 Z" fill="#ff8a3d"/>
+      <path class="chama" d="M820 240 q7 -26 14 0 q-7 12 -14 0 Z" fill="#ffd24d"/>
+      <rect x="800" y="240" width="54" height="12" rx="3" fill="#6d4a2a"/>
+      <!-- fogueira B (idêntica) -->
+      <path class="chama chama-b" d="M888 240 q15 -46 30 0 q-15 20 -30 0 Z" fill="#ff8a3d"/>
+      <path class="chama chama-b" d="M896 240 q7 -26 14 0 q-7 12 -14 0 Z" fill="#ffd24d"/>
+      <rect x="876" y="240" width="54" height="12" rx="3" fill="#6d4a2a"/>
+      <text x="865" y="290" text-anchor="middle" font-size="13" fill="#ffcc99">se uma apaga,</text>
+      <text x="865" y="308" text-anchor="middle" font-size="13" fill="#ffcc99">a outra aquece</text>
+      <text x="865" y="332" text-anchor="middle" font-size="12" fill="#ffb380" font-weight="bold">🔥 Disponibilidade</text>
+    </g>
+
+    <!-- Divisória de zonas -->
+    <line x1="0" y1="378" x2="980" y2="378" stroke="#5a4226" stroke-width="2" stroke-opacity="0.6"/>
+
+    <!-- ════════════════ ZONA MICRO ════════════════ -->
+    <rect x="8" y="392" width="964" height="496" rx="12" fill="url(#grad-parede)" stroke="#5a4226" stroke-width="1.5"/>
+    <text x="22" y="418" class="zona-label">MICRO — A PAREDE DE PINTURAS (CENTRO DE CONTROLE)</text>
+
+    <!-- ESTAÇÃO 6: MODELO C4 — quatro painéis rupestres sobrepostos -->
+    <g class="estacao" data-conceito="c4"
+       tabindex="0" role="button" aria-label="Modelo C4 — Quatro painéis rupestres sobrepostos: contexto, container, componente e código"
+       style="color: #d4915a;">
+      <rect x="18" y="434" width="222" height="206" rx="8" fill="#2c2014" stroke="#d4915a" stroke-width="2"/>
+      <rect x="40"  y="470" width="150" height="120" rx="4" fill="#5e4533" stroke="#e0a96b" stroke-width="1"/>
+      <rect x="55"  y="486" width="150" height="120" rx="4" fill="#6b4f3a" stroke="#e0a96b" stroke-width="1"/>
+      <rect x="70"  y="502" width="150" height="120" rx="4" fill="#7a5a42" stroke="#e0a96b" stroke-width="1"/>
+      <text x="62"  y="492" font-size="11" fill="#f0d29a">1 Território</text>
+      <text x="77"  y="524" font-size="11" fill="#f0d29a">2 Cavernas</text>
+      <text x="92"  y="556" font-size="11" fill="#f0d29a">3 Ferramentas</text>
+      <text x="100" y="600" font-size="13">🎨 4 Código gravado</text>
+      <text x="129" y="632" text-anchor="middle" font-size="13" fill="#f0c193" font-weight="bold">Modelo C4</text>
+    </g>
+
+    <!-- ESTAÇÃO 7: OBSERVABILIDADE — pegadas, corda de nós, fogueira que muda de cor -->
+    <g class="estacao" data-conceito="observabilidade"
+       tabindex="0" role="button" aria-label="Observabilidade — Trilha de pegadas (logging), corda de nós (tracing) e fogueira que muda de cor (monitoramento)"
+       style="color: #5fc8a0;">
+      <rect x="251" y="434" width="222" height="206" rx="8" fill="#102019" stroke="#5fc8a0" stroke-width="2"/>
+      <!-- pegadas (logging) -->
+      <ellipse class="pegada"   cx="280" cy="600" rx="6" ry="10" fill="#7fe0bb"/>
+      <ellipse class="pegada pegada-2" cx="305" cy="580" rx="6" ry="10" fill="#7fe0bb"/>
+      <ellipse class="pegada pegada-3" cx="330" cy="560" rx="6" ry="10" fill="#7fe0bb"/>
+      <ellipse class="pegada pegada-4" cx="355" cy="540" rx="6" ry="10" fill="#7fe0bb"/>
+      <ellipse class="pegada pegada-5" cx="380" cy="520" rx="6" ry="10" fill="#7fe0bb"/>
+      <!-- corda com nós (tracing) -->
+      <polyline points="290,500 320,492 350,500 380,492 410,500 440,492"
+                fill="none" stroke="#caa15a" stroke-width="2"/>
+      <circle cx="320" cy="492" r="4" fill="#e0c04a"/>
+      <circle cx="380" cy="492" r="4" fill="#e0c04a"/>
+      <circle cx="440" cy="492" r="4" fill="#e0c04a"/>
+      <!-- fogueira de monitoramento que muda de cor -->
+      <path class="monitor-fogo" d="M408 600 q14 -36 28 0 q-14 16 -28 0 Z"/>
+      <rect x="398" y="600" width="48" height="10" rx="3" fill="#6d4a2a"/>
+      <text x="362" y="470" text-anchor="middle" font-size="22">👣</text>
+      <text x="362" y="632" text-anchor="middle" font-size="12" fill="#8fe6c4" font-weight="bold">Observabilidade</text>
+    </g>
+
+    <!-- ESTAÇÃO 8: REFATORAÇÃO — desmontar e remontar a ferramenta -->
+    <g class="estacao" data-conceito="refatoracao"
+       tabindex="0" role="button" aria-label="Refatoração — Troglodita desmonta a ferramenta emaranhada e remonta com pedras polidas que encaixam"
+       style="color: #c9aa5c;">
+      <rect x="484" y="434" width="222" height="206" rx="8" fill="#241d10" stroke="#c9aa5c" stroke-width="2"/>
+      <!-- emaranhado (antes) -->
+      <path d="M510 480 q30 -20 50 10 q-40 0 -20 40 q40 -10 30 30"
+            fill="none" stroke="#8a7350" stroke-width="2.5"/>
+      <text x="535" y="470" text-anchor="middle" font-size="11" fill="#c79b62">emaranhado</text>
+      <!-- seta -->
+      <text x="600" y="540" text-anchor="middle" font-size="22">🔨</text>
+      <!-- pedras polidas que encaixam (depois) -->
+      <rect x="630" y="500" width="30" height="30" rx="4" fill="#caa15a" stroke="#f0d29a" stroke-width="1"/>
+      <rect x="662" y="500" width="30" height="30" rx="4" fill="#b8924d" stroke="#f0d29a" stroke-width="1"/>
+      <rect x="646" y="532" width="30" height="30" rx="4" fill="#d6ad5d" stroke="#f0d29a" stroke-width="1"/>
+      <text x="660" y="588" text-anchor="middle" font-size="11" fill="#f0d29a">peças que encaixam</text>
+      <text x="595" y="632" text-anchor="middle" font-size="13" fill="#f0d29a" font-weight="bold">Refatoração</text>
+    </g>
+
+    <!-- ESTAÇÃO 9: LEIS DA ARQUITETURA — duas pedras gravadas -->
+    <g class="estacao" data-conceito="leis"
+       tabindex="0" role="button" aria-label="Leis da Arquitetura — Duas pedras gravadas: toda escolha gasta energia, e olhe o clima antes de caçar"
+       style="color: #b08cc4;">
+      <rect x="717" y="434" width="246" height="206" rx="8" fill="#1f1626" stroke="#b08cc4" stroke-width="2"/>
+      <!-- pedra 1: músculo (trade-off custa energia) -->
+      <path d="M745 480 q40 -14 80 0 l-6 90 q-34 12 -68 0 Z" fill="#5a4a66" stroke="#cbb0db" stroke-width="1.5"/>
+      <text x="785" y="520" text-anchor="middle" font-size="22">💪</text>
+      <text x="785" y="548" text-anchor="middle" font-size="9" fill="#e0d0ec">toda escolha</text>
+      <text x="785" y="560" text-anchor="middle" font-size="9" fill="#e0d0ec">gasta energia</text>
+      <!-- pedra 2: clima (contexto) -->
+      <path d="M860 480 q40 -14 80 0 l-6 90 q-34 12 -68 0 Z" fill="#5a4a66" stroke="#cbb0db" stroke-width="1.5"/>
+      <text x="900" y="520" text-anchor="middle" font-size="20">⛅</text>
+      <text x="900" y="548" text-anchor="middle" font-size="9" fill="#e0d0ec">olhe o clima</text>
+      <text x="900" y="560" text-anchor="middle" font-size="9" fill="#e0d0ec">antes de caçar</text>
+      <text x="840" y="610" text-anchor="middle" font-size="20">⚖️</text>
+      <text x="840" y="632" text-anchor="middle" font-size="12" fill="#d2bce0" font-weight="bold">Leis da Arquitetura</text>
+    </g>
+
+    <!-- ESTAÇÃO 10: COFRE DE OSSOS — criptografia + acesso mínimo -->
+    <g class="estacao" data-conceito="cofre"
+       tabindex="0" role="button" aria-label="Criptografia e acesso mínimo — Cofre de ossos com caveira; só o xamã com a chave-pedra abre"
+       style="color: #cdbd9a;">
+      <rect x="40" y="666" width="290" height="200" rx="8" fill="#2a2419" stroke="#cdbd9a" stroke-width="2"/>
+      <!-- caixa de ossos -->
+      <rect x="95" y="720" width="120" height="90" rx="6" fill="#5a4d39" stroke="#e2d4b3" stroke-width="1.5"/>
+      <line x1="95" y1="745" x2="215" y2="745" stroke="#3a3024" stroke-width="2"/>
+      <line x1="155" y1="720" x2="155" y2="810" stroke="#3a3024" stroke-width="2"/>
+      <text x="155" y="712" text-anchor="middle" font-size="26">🦴</text>
+      <!-- caveira (dados sensíveis) -->
+      <text x="155" y="784" text-anchor="middle" font-size="22">💀</text>
+      <!-- chave-pedra do xamã -->
+      <text x="255" y="760" font-size="22">🗝️</text>
+      <text x="248" y="792" font-size="11" fill="#e2d4b3">só o xamã abre</text>
+      <text x="185" y="852" text-anchor="middle" font-size="12" fill="#e2d4b3" font-weight="bold">Criptografia &amp; Acesso Mínimo</text>
+    </g>
+
+    <!-- ESTAÇÃO 11: CONFORMIDADE — ancião entrega tábua de regras -->
+    <g class="estacao" data-conceito="conformidade"
+       tabindex="0" role="button" aria-label="Conformidade — Ancião entregando uma tábua de regras para a tribo, como LGPD e GDPR"
+       style="color: #e0c04a;">
+      <rect x="345" y="666" width="290" height="200" rx="8" fill="#26200d" stroke="#e0c04a" stroke-width="2"/>
+      <!-- ancião -->
+      <circle cx="410" cy="730" r="18" fill="#6d5b47"/>
+      <rect x="392" y="748" width="36" height="56" rx="8" fill="#6d5b47"/>
+      <text x="410" y="736" text-anchor="middle" font-size="14">🧓</text>
+      <!-- tábua de regras -->
+      <rect x="450" y="744" width="60" height="78" rx="4" fill="#d8c07a" stroke="#f0e0a0" stroke-width="1.5"/>
+      <line x1="460" y1="760" x2="500" y2="760" stroke="#8a7330" stroke-width="2"/>
+      <line x1="460" y1="774" x2="500" y2="774" stroke="#8a7330" stroke-width="2"/>
+      <line x1="460" y1="788" x2="500" y2="788" stroke="#8a7330" stroke-width="2"/>
+      <line x1="460" y1="802" x2="488" y2="802" stroke="#8a7330" stroke-width="2"/>
+      <text x="540" y="744" font-size="26">📜</text>
+      <text x="560" y="790" text-anchor="middle" font-size="11" fill="#f0e0a0">LGPD / GDPR</text>
+      <text x="490" y="852" text-anchor="middle" font-size="13" fill="#f0e0a0" font-weight="bold">Conformidade</text>
+    </g>
+
+    <!-- ESTAÇÃO 12: DÍVIDA TÉCNICA — monte de ferramentas quebradas -->
+    <g class="estacao" data-conceito="divida"
+       tabindex="0" role="button" aria-label="Dívida técnica — Pilha de ferramentas quebradas e ossos velhos que acumulam com decisões ruins"
+       style="color: #9aa0a6;">
+      <rect x="650" y="666" width="290" height="200" rx="8" fill="#1f1f22" stroke="#9aa0a6" stroke-width="2"/>
+      <!-- pilha de ferramentas quebradas / ossos velhos -->
+      <path d="M700 810 L820 810 L800 760 L760 790 L730 758 Z" fill="#4a4a50" stroke="#9aa0a6" stroke-width="1"/>
+      <line x1="720" y1="800" x2="745" y2="765" stroke="#7a7a82" stroke-width="4"/>
+      <line x1="780" y1="802" x2="800" y2="770" stroke="#7a7a82" stroke-width="4"/>
+      <text x="740" y="790" font-size="18">🦴</text>
+      <text x="785" y="800" font-size="18">🔧</text>
+      <!-- sábio preocupado apontando -->
+      <text x="860" y="740" text-anchor="middle" font-size="24">🧔</text>
+      <text x="860" y="770" text-anchor="middle" font-size="18">😟</text>
+      <text x="755" y="740" text-anchor="middle" font-size="26">💀</text>
+      <text x="795" y="852" text-anchor="middle" font-size="13" fill="#c4c8cc" font-weight="bold">Dívida Técnica</text>
+    </g>
+
+    <!-- Sábio narrador (decorativo) + dica de interação -->
+    <text x="958" y="418" text-anchor="end" font-size="11" fill="#8a6f43">👆 clique para aprender</text>
+  </svg>
+</div>
+
+<div id="tour-progress" aria-live="polite" aria-atomic="true">
+  <span id="tour-label"></span>
+  <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+</div>
+<div id="controles">
+  <button class="btn" id="btn-tour">▶ Tour Guiado</button>
+  <button class="btn" id="btn-parar" style="display:none">⏹ Parar Tour</button>
+  <button class="btn" id="btn-fullscreen" title="Tela cheia (F11)">⛶ Tela cheia</button>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+  <div id="modal-card">
+    <div id="modal-header">
+      <span id="modal-icone"></span>
+      <h2 id="modal-titulo" aria-live="polite"></h2>
+    </div>
+    <p id="modal-metafora"></p>
+    <ul id="modal-bullets"></ul>
+    <div id="modal-ferramentas"></div>
+    <div id="modal-dica">
+      <strong id="modal-dica-titulo">💡 Dica de Arquiteto</strong>
+      <span id="modal-dica-texto"></span>
+    </div>
+    <button id="btn-fechar">✕ Fechar</button>
+  </div>
+</div>
+
+<!-- Princípios -->
+<div id="principios">
+  <details>
+    <summary>📖 As leis universais da caverna arquitetada (clique para expandir)</summary>
+    <ul>
+      <li><strong>Toda escolha gasta energia:</strong> não existe arquitetura "grátis" — cada decisão é um trade-off. A pergunta certa não é "qual é a melhor?", mas "qual é o melhor para o meu contexto?".</li>
+      <li><strong>Olhe o clima antes de caçar:</strong> arquitetura é sensível ao contexto. Carga, time, prazo e domínio mudam tudo — copiar a solução de outra tribo sem entender o ambiente costuma dar errado.</li>
+      <li><strong>MACRO e MICRO conversam:</strong> decisões de alto nível (escalabilidade, cloud, redundância) e de baixo nível (acoplamento, observabilidade) precisam estar alinhadas — uma boa pintura na parede só vale se reflete a tribo de verdade.</li>
+      <li><strong>Dívida técnica é como osso velho acumulando:</strong> um pouco é inevitável e até estratégico, mas sem pagar de volta a caverna trava. Torne a dívida visível e priorizável.</li>
+      <li><strong>Segurança e conformidade não são apêndices:</strong> o crachá na entrada, o cofre de ossos e as tábuas de regras fazem parte do projeto desde o início — não são pintados depois que a caverna já está pronta.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+  const CONCEITOS = {
+    escalabilidade: {
+      titulo: 'Escalabilidade — O Abrigo que Cresce',
+      icone: '🪨',
+      cor: '#d9a441',
+      metafora: 'Quando chegam mais membros à tribo, o troglodita não derruba a caverna inteira: ele encaixa novas lajes de pedra na estrutura. Escalabilidade é isso — crescer encaixando peças, não reconstruindo tudo.',
+      bullets: [
+        'Escala horizontal = adicionar mais "lajes" (instâncias/máquinas); escala vertical = trocar uma laje por uma maior (mais CPU/RAM).',
+        'Sistemas sem estado (stateless) escalam horizontalmente com muito mais facilidade — guarde o estado em banco ou cache, não na instância.',
+        'Projete para escalar quando os dados mostrarem necessidade; escalar cedo demais é energia (custo) gasta sem retorno.'
+      ],
+      ferramentas: [
+        { nome: 'Kubernetes', url: 'https://kubernetes.io' },
+        { nome: 'AWS Auto Scaling', url: 'https://aws.amazon.com/autoscaling/' },
+        { nome: 'NGINX (load balancer)', url: 'https://nginx.org' }
+      ],
+      dica: 'Antes de comprar uma "laje maior" (escala vertical), pergunte se dá para encaixar mais lajes iguais (escala horizontal). Horizontal costuma ser mais barato, resiliente e elástico.'
+    },
+    seguranca: {
+      titulo: 'Segurança — A Muralha e o Crachá-Pedra',
+      icone: '🛡️',
+      cor: '#c0563a',
+      metafora: 'A entrada da caverna tem muralha de pedras gigantes e uma armadilha de ossos que só libera quem mostra o crachá com sua marca. No software, é a diferença entre saber QUEM entra (autenticação) e o que essa pessoa PODE fazer (autorização).',
+      bullets: [
+        'Autenticação responde "quem é você?"; autorização responde "o que você pode fazer?". São coisas distintas.',
+        'Defesa em profundidade: várias camadas (muralha + armadilha + crachá) valem mais que um único portão "inquebrável".',
+        'Nunca confie na entrada: valide e sanitize todo dado que chega de fora antes de processá-lo.'
+      ],
+      ferramentas: [
+        { nome: 'OWASP Top 10', url: 'https://owasp.org/www-project-top-ten/' },
+        { nome: 'OAuth 2.0', url: 'https://oauth.net/2/' },
+        { nome: 'Keycloak', url: 'https://www.keycloak.org' }
+      ],
+      dica: 'Aplique o princípio do menor privilégio: cada membro da tribo recebe só o crachá que precisa. Acesso "de admin para todo mundo" é a armadilha que mais machuca.'
+    },
+    devops: {
+      titulo: 'DevOps & CI/CD — A Caça Automatizada',
+      icone: '🏹',
+      cor: '#6ba368',
+      metafora: 'A armadilha de caça testa a presa sozinha: se é boa (graveto verde ✔️), libera a carne em containers de argila padronizados; se não, devolve pro mato. CI/CD faz o mesmo com o seu código — testa, aprova e empacota automaticamente.',
+      bullets: [
+        'CI (Integração Contínua): cada mudança roda testes automáticos antes de ser aceita — presa ruim volta pro mato.',
+        'CD (Entrega/Implantação Contínua): o que passa é empacotado em "containers de argila" idênticos e entregue sempre do mesmo jeito.',
+        'Containers garantem que "funciona na minha caverna" também funcione nas outras — mesmo recipiente, mesmo resultado.'
+      ],
+      ferramentas: [
+        { nome: 'GitHub Actions', url: 'https://github.com/features/actions' },
+        { nome: 'Docker', url: 'https://www.docker.com' },
+        { nome: 'GitLab CI', url: 'https://docs.gitlab.com/ee/ci/' }
+      ],
+      dica: 'Automatize o pipeline antes de ele doer. Um teste que roda sozinho a cada commit pega a "presa ruim" cedo — muito mais barato que descobrir o problema já na boca da tribo (produção).'
+    },
+    cloud: {
+      titulo: 'Cloud — Os Sinais de Fumaça',
+      icone: '☁️',
+      cor: '#8fb8d6',
+      metafora: 'A fogueira especial manda sinais de fumaça coordenando todas as cavernas à distância, sem cada tribo precisar manter sua própria estrutura gigante. A nuvem é isso: recursos sob demanda, coordenados remotamente.',
+      bullets: [
+        'Você usa servidores, banco e armazenamento de outra pessoa, pagando pelo que consome — sem manter a "fogueira" você mesmo.',
+        'Elasticidade: a fumaça sobe mais forte quando precisa (picos) e diminui quando a demanda cai.',
+        'Modelos: IaaS (a lenha), PaaS (a fogueira pronta) e SaaS (a fumaça já mandada por você) — quanto mais alto, menos você gerencia.'
+      ],
+      ferramentas: [
+        { nome: 'AWS', url: 'https://aws.amazon.com' },
+        { nome: 'Google Cloud', url: 'https://cloud.google.com' },
+        { nome: 'Azure', url: 'https://azure.microsoft.com' }
+      ],
+      dica: 'Cuidado com vendor lock-in: depender de "uma única fogueira" pode prender sua tribo. Use padrões abertos (containers, Terraform) para manter a liberdade de trocar de céu.'
+    },
+    redundancia: {
+      titulo: 'Disponibilidade — As Duas Fogueiras',
+      icone: '🔥',
+      cor: '#ff7a18',
+      metafora: 'A tribo mantém duas fogueiras idênticas: se uma apaga, a outra continua aquecendo. Em software, redundância é ter mais de uma "fogueira" para que a falha de uma não deixe a tribo no frio.',
+      bullets: [
+        'Elimine pontos únicos de falha (SPOF): se existe só uma fogueira, o dia que ela apagar a tribo congela.',
+        'Failover: quando a fogueira principal cai, o tráfego é desviado automaticamente para a reserva.',
+        'Disponibilidade é medida em "noves" (99,9%, 99,99%) — cada nove a mais custa muito mais energia.'
+      ],
+      ferramentas: [
+        { nome: 'Patterns de resiliência', url: 'https://learn.microsoft.com/azure/architecture/patterns/category/resiliency' },
+        { nome: 'HAProxy', url: 'https://www.haproxy.org' },
+        { nome: 'Google SRE Book', url: 'https://sre.google/sre-book/table-of-contents/' }
+      ],
+      dica: 'Redundância só vale se você testa o failover. Apague a fogueira principal de propósito (chaos engineering) e veja se a reserva realmente aquece — antes que a vida real faça isso por você.'
+    },
+    c4: {
+      titulo: 'Modelo C4 — As Pinturas em Camadas',
+      icone: '🎨',
+      cor: '#d4915a',
+      metafora: 'A parede tem quatro pinturas sobrepostas: o mapa do território, depois cada caverna, depois as ferramentas dentro dela, e por fim o código gravado em símbolos. O modelo C4 documenta a arquitetura nesses mesmos quatro níveis de zoom.',
+      bullets: [
+        'Contexto → Container → Componente → Código: cada nível dá mais detalhe, como aproximar o olhar na parede.',
+        'Você escolhe o nível certo para cada plateia: a tribo inteira vê o mapa; o artesão vê o código.',
+        'Diagramas em camadas evitam o "diagrama de tudo" ilegível — cada pintura responde a uma pergunta.'
+      ],
+      ferramentas: [
+        { nome: 'C4 Model', url: 'https://c4model.com' },
+        { nome: 'Structurizr', url: 'https://structurizr.com' },
+        { nome: 'Mermaid', url: 'https://mermaid.js.org' }
+      ],
+      dica: 'Comece desenhando só os dois primeiros níveis (Contexto e Container). Eles cabem em uma pedra e já dão 80% do entendimento que um dev novo precisa para se localizar na tribo.'
+    },
+    observabilidade: {
+      titulo: 'Observabilidade — Pegadas, Corda e Fogueira',
+      icone: '👣',
+      cor: '#5fc8a0',
+      metafora: 'O mural mostra pegadas pintadas (o que aconteceu), uma corda de nós coloridos (o caminho da caça por cada caverna) e uma fogueira que muda de cor (azul = tudo bem, vermelho = problema). São logging, tracing e monitoramento.',
+      bullets: [
+        'Logging = pegadas: o registro do que aconteceu, com hora e contexto.',
+        'Tracing = corda de nós: o caminho completo de uma requisição passando por cada serviço.',
+        'Monitoramento = fogueira que muda de cor: o sinal visível de que algo saiu do esperado e precisa de atenção.'
+      ],
+      ferramentas: [
+        { nome: 'OpenTelemetry', url: 'https://opentelemetry.io' },
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Prometheus', url: 'https://prometheus.io' }
+      ],
+      dica: 'Passe um Correlation ID único em cada caça (requisição): ele amarra as pegadas, os nós da corda e a cor da fogueira numa história só — sem ele, você investiga incidentes às cegas.'
+    },
+    refatoracao: {
+      titulo: 'Refatoração — A Oficina de Pedras',
+      icone: '🔨',
+      cor: '#c9aa5c',
+      metafora: 'O troglodita desmonta uma ferramenta emaranhada de galhos e pedras soltas e a reconstrói com pedras polidas que encaixam perfeitamente — testando cada peça. Refatorar é melhorar a estrutura interna sem mudar o que a ferramenta faz por fora.',
+      bullets: [
+        'Refatoração muda a forma, não o comportamento: a lança continua caçando igual, só fica mais fácil de manter.',
+        'Reduzir acoplamento (peças que encaixam, não emaranhadas) deixa cada parte trocável sem quebrar as outras.',
+        'Só refatore com testes cobrindo a peça — eles são a forma de saber que ela ainda funciona depois de polida.'
+      ],
+      ferramentas: [
+        { nome: 'Refactoring (Fowler)', url: 'https://refactoring.com' },
+        { nome: 'SonarQube', url: 'https://www.sonarsource.com/products/sonarqube/' },
+        { nome: 'ESLint', url: 'https://eslint.org' }
+      ],
+      dica: 'Siga a regra do escoteiro: deixe a pedra um pouco mais polida do que encontrou. Pequenas refatorações contínuas evitam o emaranhado virar uma reconstrução dolorosa lá na frente.'
+    },
+    leis: {
+      titulo: 'Leis da Arquitetura — As Pedras Gravadas',
+      icone: '⚖️',
+      cor: '#b08cc4',
+      metafora: 'Duas pedras guardam as leis da tribo: "toda escolha gasta energia" (o músculo) e "olhe o clima antes de caçar" (o sol e a chuva). São as duas verdades centrais de qualquer arquitetura.',
+      bullets: [
+        'Tudo é trade-off: ganhar de um lado custa do outro. A pergunta certa é "o que estou disposto a perder?".',
+        'Arquitetura depende do contexto: a melhor decisão para uma tribo pode ser péssima para outra.',
+        '"Depende" é uma resposta honesta de arquiteto — o trabalho é tornar explícito de QUÊ depende.'
+      ],
+      ferramentas: [
+        { nome: 'Fundamentals of Software Architecture', url: 'https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/' },
+        { nome: 'Architecture Decision Records', url: 'https://adr.github.io' },
+        { nome: 'Architectural Katas', url: 'https://www.architecturalkatas.com' }
+      ],
+      dica: 'Grave suas decisões em "pedra" com ADRs (Architecture Decision Records): registre o que foi escolhido, o contexto e o trade-off aceito. A tribo do futuro vai querer saber por quê.'
+    },
+    cofre: {
+      titulo: 'Criptografia & Acesso Mínimo — O Cofre de Ossos',
+      icone: '🦴',
+      cor: '#cdbd9a',
+      metafora: 'Os dados mais sensíveis ficam num cofre de ossos entrelaçados, gravado com uma caveira, e só o xamã com a chave-pedra abre. É criptografia (embaralhar para quem não tem a chave) somada ao acesso mínimo (poucos podem abrir).',
+      bullets: [
+        'Criptografe dados sensíveis em repouso (no cofre) e em trânsito (no caminho entre cavernas).',
+        'Menor privilégio: só quem realmente precisa recebe a chave — e nunca a chave-mestra "de tudo".',
+        'Nunca grave segredos (senhas, tokens) nas pinturas da parede (código/logs); guarde-os em um cofre próprio.'
+      ],
+      ferramentas: [
+        { nome: 'HashiCorp Vault', url: 'https://www.vaultproject.io' },
+        { nome: "Let's Encrypt (TLS)", url: 'https://letsencrypt.org' },
+        { nome: 'AWS KMS', url: 'https://aws.amazon.com/kms/' }
+      ],
+      dica: 'Rotacione as chaves-pedra periodicamente e revogue na hora quando um membro deixa a tribo. Chave que nunca muda é caveira esperando para virar incidente.'
+    },
+    conformidade: {
+      titulo: 'Conformidade — As Tábuas de Regras',
+      icone: '📜',
+      cor: '#e0c04a',
+      metafora: 'O ancião entrega à tribo tábuas com as regras que todos devem seguir. No software, são as leis externas — LGPD, GDPR — que ditam como você pode coletar, guardar e usar os dados das pessoas.',
+      bullets: [
+        'Conformidade é obrigação externa: não basta ser seguro, é preciso seguir a lei (LGPD no Brasil, GDPR na UE).',
+        'Princípios comuns: consentimento, minimização (colete só o necessário) e direito ao esquecimento.',
+        'Privacy by design: as regras entram no projeto desde o começo, não como remendo depois do incidente.'
+      ],
+      ferramentas: [
+        { nome: 'LGPD (texto da lei)', url: 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm' },
+        { nome: 'GDPR oficial', url: 'https://gdpr.eu' },
+        { nome: 'OWASP Privacy Risks', url: 'https://owasp.org/www-project-top-10-privacy-risks/' }
+      ],
+      dica: 'Mapeie quais dados pessoais sua tribo coleta e por quê (data mapping). Não dá para cumprir as tábuas de regras sobre dados que você nem sabe que está guardando.'
+    },
+    divida: {
+      titulo: 'Dívida Técnica — O Monte de Ossos Velhos',
+      icone: '💀',
+      cor: '#9aa0a6',
+      metafora: 'A cada decisão apressada ou atalho, a tribo joga mais uma ferramenta quebrada na pilha. O sábio aponta preocupado: a dívida técnica é esse monte que cresce e, sem ser limpo, acaba travando toda a caverna.',
+      bullets: [
+        'Dívida técnica é o custo futuro de escolhas rápidas de hoje — às vezes vale a pena contraí-la conscientemente.',
+        'Como dívida financeira, ela cobra "juros": cada nova mudança fica mais lenta e arriscada enquanto a pilha cresce.',
+        'O perigo é a dívida invisível: o que ninguém mede e ninguém paga é o que trava a tribo de repente.'
+      ],
+      ferramentas: [
+        { nome: 'Tech Debt (Fowler)', url: 'https://martinfowler.com/bliki/TechnicalDebt.html' },
+        { nome: 'SonarQube', url: 'https://www.sonarsource.com/products/sonarqube/' },
+        { nome: 'CodeScene', url: 'https://codescene.com' }
+      ],
+      dica: 'Torne a pilha visível: registre a dívida no backlog como qualquer tarefa e reserve uma fatia fixa de cada ciclo para "limpar ossos velhos". Dívida medida é dívida que se paga.'
+    }
+  };
+
+  const overlay       = document.getElementById('modal-overlay');
+  const card          = document.getElementById('modal-card');
+  const icone         = document.getElementById('modal-icone');
+  const titulo        = document.getElementById('modal-titulo');
+  const metafora      = document.getElementById('modal-metafora');
+  const bullets       = document.getElementById('modal-bullets');
+  const ferramentasEl = document.getElementById('modal-ferramentas');
+  const dicaTxt       = document.getElementById('modal-dica-texto');
+  const tourLabel     = document.getElementById('tour-label');
+  const tourBar       = document.getElementById('tour-bar');
+  const btnTour       = document.getElementById('btn-tour');
+  const btnParar      = document.getElementById('btn-parar');
+
+  let ultimaEstacaoId = null;
+
+  function abrirConceito(id) {
+    const c = CONCEITOS[id];
+    icone.textContent    = c.icone;
+    titulo.textContent   = c.titulo;
+    metafora.textContent = c.metafora;
+    bullets.innerHTML    = c.bullets.map(b => `<li>${b}</li>`).join('');
+    dicaTxt.textContent  = c.dica;
+    card.style.borderTopColor = c.cor;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+
+    if (c.ferramentas && c.ferramentas.length) {
+      ferramentasEl.innerHTML = '<span>Ferramentas:</span>' +
+        c.ferramentas.map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+    } else {
+      ferramentasEl.innerHTML = '';
+    }
+
+    overlay.classList.add('aberto');
+    document.getElementById('btn-fechar').focus();
+    document.querySelectorAll('.estacao').forEach(el => el.classList.remove('ativo'));
+    const el = document.querySelector(`[data-conceito="${id}"]`);
+    if (el) el.classList.add('ativo');
+    ultimaEstacaoId = id;
+  }
+
+  function fecharModal() {
+    overlay.classList.remove('aberto');
+    // mantém destaque da última estação visitada para orientação espacial
+    document.querySelectorAll('.estacao').forEach(el => {
+      if (el.dataset.conceito !== ultimaEstacaoId) el.classList.remove('ativo');
+    });
+  }
+
+  document.getElementById('btn-fechar').addEventListener('click', fecharModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fecharModal(); });
+
+  // Teclado: Escape fecha; setas direcionais navegam entre estações
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fecharModal(); return; }
+
+    const estacoes = [...document.querySelectorAll('.estacao')];
+    const atual = document.activeElement;
+    const idx   = estacoes.indexOf(atual);
+    if (idx === -1) return;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      estacoes[(idx + 1) % estacoes.length].focus();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      estacoes[(idx - 1 + estacoes.length) % estacoes.length].focus();
+    }
+  });
+
+  document.querySelectorAll('.estacao').forEach(el => {
+    el.addEventListener('click', () => abrirConceito(el.dataset.conceito));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        abrirConceito(el.dataset.conceito);
+      }
+    });
+  });
+
+  // Fullscreen
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  const ORDEM_TOUR = ['escalabilidade', 'seguranca', 'devops', 'cloud', 'redundancia', 'c4',
+                      'observabilidade', 'refatoracao', 'leis', 'cofre', 'conformidade', 'divida'];
+  const NOMES_TOUR = ['Escalabilidade', 'Segurança', 'DevOps & CI/CD', 'Cloud', 'Disponibilidade',
+                      'Modelo C4', 'Observabilidade', 'Refatoração', 'Leis da Arquitetura',
+                      'Criptografia & Acesso', 'Conformidade', 'Dívida Técnica'];
+  let tourTimer = null;
+  let tourAtivo = false;
+
+  function pararTour() {
+    clearTimeout(tourTimer);
+    tourAtivo = false;
+    btnTour.style.display  = 'inline-block';
+    btnParar.style.display = 'none';
+    tourLabel.textContent  = '';
+    tourBar.style.display  = 'none';
+    tourBar.value          = 0;
+  }
+
+  btnParar.addEventListener('click', pararTour);
+
+  btnTour.addEventListener('click', () => {
+    pararTour();
+    tourAtivo = true;
+    btnTour.style.display  = 'none';
+    btnParar.style.display = 'inline-block';
+    tourBar.style.display  = 'block';
+    let i = 0;
+
+    function passo() {
+      if (!tourAtivo || i >= ORDEM_TOUR.length) {
+        pararTour();
+        return;
+      }
+      tourLabel.textContent = `Tour: ${i + 1} de ${ORDEM_TOUR.length} — ${NOMES_TOUR[i]}`;
+      tourBar.value = i + 1;
+      abrirConceito(ORDEM_TOUR[i]);
+      i++;
+      tourTimer = setTimeout(passo, 4500);
+    }
+    passo();
+  });
+</script>
+</body>
+</html>
