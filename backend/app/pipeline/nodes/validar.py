@@ -62,7 +62,10 @@ def _validar_sync(html_path: Path, slug: str, n: int) -> tuple[list[dict], list[
             "})")
         modal_abre = False
         if hotspots:
-            page.click("#figura [data-conceito]")
+            # clique via JS (el.click()) — testa o handler do modal sem esbarrar na
+            # sobreposição dos hotspots (que faz o page.click estrito dar timeout).
+            page.eval_on_selector("#figura [data-conceito]", "el => el.click()")
+            page.wait_for_timeout(150)  # deixa o handler abrir o modal
             modal_abre = page.eval_on_selector(
                 "#modal-overlay", "el => el.classList.contains('aberto') "
                 "|| getComputedStyle(el).display !== 'none'")
