@@ -5,7 +5,8 @@ import { Card } from '../components.jsx'
 const ROTULOS = {
   servidor: 'Servidor', eventos: 'Eventos', checkpointer: 'Checkpointer',
   aprovacao_humana: 'Aprovação humana', max_tentativas: 'Máx. tentativas',
-  padrao_branch: 'Padrão de branch', repo_root: 'Raiz do repositório',
+  padrao_branch: 'Padrão de branch', dry_run: 'Dry-run (sem publicar)',
+  repo_root: 'Raiz do repositório',
 }
 
 export default function Configuracoes() {

@@ -55,7 +55,8 @@ async def providers():
         "gemini": {"model": s.gemini_image_model, "configurado": s.has_gemini,
                    "imagens_hoje": 0, "cota_diaria": 500},
         "github": {"repo": s.github_repo, "base": s.github_base_branch,
-                   "acao": "create_pull_request (MCP)"},
+                   "token": s.has_github_token, "dry_run": s.dry_run,
+                   "acao": "git push + PR via REST"},
     }
 
 
@@ -69,5 +70,6 @@ async def config():
         "aprovacao_humana": "ATIVO",
         "max_tentativas": s.max_tentativas,
         "padrao_branch": "{slug}/objeto-educacional",
+        "dry_run": s.dry_run,
         "repo_root": str(s.repo_root),
     }

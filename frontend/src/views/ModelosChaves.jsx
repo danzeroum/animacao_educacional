@@ -29,6 +29,8 @@ export default function ModelosChaves() {
       <Card title="GitHub">
         <Linha k="Repo" v={p.github.repo} />
         <Linha k="Base" v={p.github.base} />
+        <Linha k="Token" v={p.github.token ? '•••• configurado' : 'ausente (push-only)'} />
+        <Linha k="Dry-run" v={p.github.dry_run ? 'ATIVO (não publica)' : 'desligado'} />
         <Linha k="Ação" v={p.github.acao} />
         <p className="muted" style={{ fontSize: 11.5, marginTop: 10 }}>
           Chaves vêm do <span className="mono">.env</span> — nunca commitadas.

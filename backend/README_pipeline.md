@@ -10,17 +10,28 @@ definir_slug → gerar_prompt(DeepSeek) → gerar_imagem(Gemini) → gerar_objet
    → [interrupt_before=deploy: aprovação humana] → deploy (abre PR)
 ```
 
-## Estado atual — Fase 1 (scaffolding)
+## Estado atual — pipeline completo
 
-Esqueleto **funcional ponta a ponta** com nós em modo *stub* (sem chamar as APIs
-ainda). Já valem de verdade: o grafo LangGraph, o roteamento condicional, o
-**loop de autocorreção**, o **gate HITL** (`interrupt_before=["deploy"]`), a
-persistência (`AsyncSqliteSaver`), os eventos **SSE** e a **injeção do JSON no
-template fixo** (correção A1). As correções A2 (marcadores-sentinela) e A3
-(seletor `[data-conceito]` em `#figura`) já estão preparadas no repositório.
+Todos os nós estão **reais**, com fallback seguro quando faltam chaves:
 
-Fases seguintes ligam as APIs reais (DeepSeek/Gemini), o Playwright e o deploy via
-GitHub MCP — ver o plano em `/root/.claude/plans`.
+- **gerar_prompt** — DeepSeek (`deepseek-chat`, OpenAI-compatible). Sem chave → stub.
+- **gerar_imagem** — Gemini `gemini-2.5-flash-image` (`generate_content` →
+  `inline_data.data` → Pillow). Sem chave → PNG placeholder. Retry + guardrail de cota.
+- **gerar_objeto (A1)** — DeepSeek em modo JSON emite **só o JSON**; valida o schema
+  e injeta no **template fixo** (`render.py`). Sem chave → stub.
+- **validar_objeto (A3)** — Playwright real conta `#figura [data-conceito]`, checa
+  acessibilidade/modal/tour/`:focus-visible`/`prefers-reduced-motion` e **zero
+  requisições externas**; erros realimentam o loop (máx. 3). Sem navegador → check estático.
+- **atualizar_atlas (A2)** — insere por **marcadores-sentinela** no `index.html` e
+  `README.md` raiz; idempotente.
+- **deploy** — git branch/commit/push + PR via **API REST** (`GITHUB_TOKEN`).
+  **`FORJA_DRY_RUN=true` (default)** apenas planeja, sem mexer no git nem abrir PR.
+
+Continua valendo a base: grafo LangGraph, roteamento condicional, **loop de
+autocorreção**, **gate HITL** (`interrupt_before=["deploy"]`), `AsyncSqliteSaver`, SSE.
+
+> Segurança: em dry-run nada é publicado. Para publicar de verdade (na sua máquina),
+> defina `FORJA_DRY_RUN=false` e um `GITHUB_TOKEN` no `.env`.
 
 ## Backend (FastAPI)
 

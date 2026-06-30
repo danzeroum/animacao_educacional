@@ -35,6 +35,9 @@ class Settings:
 
         self.github_repo = os.getenv("GITHUB_REPO", "danzeroum/animacao_educacional")
         self.github_base_branch = os.getenv("GITHUB_BASE_BRANCH", "main")
+        self.github_token = os.getenv("GITHUB_TOKEN", "")
+        # dry-run: NÃO faz git mutável nem abre PR (default seguro; produção local = "false")
+        self.dry_run = os.getenv("FORJA_DRY_RUN", "true").lower() not in ("0", "false", "no")
 
     @property
     def template_path(self) -> Path:
@@ -47,3 +50,7 @@ class Settings:
     @property
     def has_gemini(self) -> bool:
         return bool(self.gemini_api_key)
+
+    @property
+    def has_github_token(self) -> bool:
+        return bool(self.github_token)
