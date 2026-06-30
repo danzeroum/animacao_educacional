@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Métodos Ágeis na Caverna — Agilidade para Devs Juniores</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde cada nicho representa um conceito de métodos ágeis (Kanban, BDD, Burndown, WSJF, DoD, Backlog, Lead Time, Cycle Time, Throughput, Gargalos, Inception e mais).">
+  <meta property="og:title" content="Métodos Ágeis na Caverna — Agilidade para Devs Juniores">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna pré-histórica para aprender os 12 conceitos essenciais de métodos ágeis. Tour guiado, legenda numerada e navegação por teclado.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="metodos-ageis-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Métodos Ágeis</div>
+    <h1>🪨 Métodos Ágeis na Caverna</h1>
+    <p class="tese">Da <em>lista de práticas soltas</em> para a <strong>figura que ensina por inteiro</strong>. A caverna pré-histórica revela os 12 conceitos fundamentais da agilidade — cada nicho, um ritual que a tribo dominou para entregar valor mais rápido.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — Kanban, BDD, Burndown e 9 conceitos mais numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="metodos-ageis-caverna.png" alt="Caverna pré-histórica em corte transversal com 12 nichos: na faixa superior um quadro de fluxo com pedras coloridas (Kanban), sequência de símbolos de causa-e-efeito (BDD), linha descendente em sílex (Burndown), balança de valor e tempo (WSJF) e lista de verificação em argila (DoD); na faixa inferior uma pilha ordenada de tábuas (Backlog), marcas de aprovação em pedra (Critérios de Aceite), rastro de comprimento total (Lead Time), trecho ativo da trilha (Cycle Time), contador de entregas (Throughput), pedra obstruindo uma passagem (Gargalo) e roda de fogueira em círculo de tribo (Inception).">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos ágeis — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica Ágil</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma tribo ágil não é a que corre mais, mas a que sabe o que entregar primeiro, mede o fluxo e remove as pedras que bloqueiam o caminho." A caverna mostra onde cada ritual mora dentro do sistema de entrega.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    kanban: { zona:'Faixa Superior · Fluxo Visual', titulo:'Kanban — O Quadro de Pedras Coloridas', icone:'🟦', cor:'#e07b39', label:'Kanban',
+      metafora:'A tribo organizou nichos na parede: "Para Fazer", "Em Progresso" e "Pronto". Cada pedra colorida é uma tarefa que percorre os nichos da esquerda para a direita. Kanban é ver o trabalho — e limitar quanto fica parado no meio.',
+      bullets:['Visualize o trabalho: toda tarefa é uma pedra no quadro. O que não dá para ver não dá para gerenciar.','WIP Limit (limite de trabalho em progresso): restringir quantas pedras ficam em cada nicho força terminar antes de começar algo novo.','O fluxo contínuo substitui sprints fixos: o trabalho entra conforme a capacidade, sem esperar datas.'],
+      ferramentas:[{nome:'Jira',url:'https://www.atlassian.com/software/jira'},{nome:'Trello',url:'https://trello.com'},{nome:'Linear',url:'https://linear.app'}],
+      dica:'Comece reduzindo o WIP Limit: se a tribo tem 5 pessoas, não deixe mais de 5 pedras "Em Progresso". O gargalo vai aparecer na hora — e só então você o resolve.' },
+
+    bdd: { zona:'Faixa Superior · Comportamento Esperado', titulo:'BDD — O Ritual Dado-Quando-Então', icone:'🔮', cor:'#6da368', label:'BDD / Given-When-Then',
+      metafora:'Antes de caçar, o xamã descreve o ritual: "Dado que a presa está na floresta, Quando o caçador lança a lança, Então a presa é capturada." BDD transforma esse ritual em testes que executam sozinhos — o comportamento esperado, escrito em linguagem humana.',
+      bullets:['Given (Dado): o contexto inicial do sistema antes da ação.','When (Quando): a ação que o usuário ou sistema executa.','Then (Então): o resultado esperado — o que o sistema deve fazer ou mostrar.'],
+      ferramentas:[{nome:'Cucumber',url:'https://cucumber.io'},{nome:'Behave (Python)',url:'https://behave.readthedocs.io'},{nome:'SpecFlow (.NET)',url:'https://specflow.org'}],
+      dica:'Escreva o cenário BDD antes de escrever o código. Se você não consegue descrever o comportamento em linguagem simples, o requisito ainda não está claro o suficiente para implementar.' },
+
+    burndown: { zona:'Faixa Superior · Progresso da Sprint', titulo:'Burndown — A Linha que Desce', icone:'📉', cor:'#d9a441', label:'Burndown Chart',
+      metafora:'A tribo entalhava uma linha de sílex decrescente na parede a cada caçada concluída. Se a linha descia reto, o estoque estava sendo consumido no ritmo certo. O Burndown mostra visualmente se a sprint terminará no prazo — ou se a pilha de trabalho ainda é alta demais.',
+      bullets:['O eixo vertical é o trabalho restante (pontos, horas ou itens); o eixo horizontal são os dias da sprint.','A linha ideal é uma reta do topo ao zero no último dia. A linha real raramente é reta — e as divergências contam a história.','Uma linha real acima da ideal indica sprint em risco; abaixo indica subestimação ou retrabalho escondido.'],
+      ferramentas:[{nome:'Jira Software',url:'https://www.atlassian.com/software/jira'},{nome:'Azure DevOps',url:'https://azure.microsoft.com/services/devops/'},{nome:'GitHub Projects',url:'https://docs.github.com/pt/issues/planning-and-tracking-with-projects'}],
+      dica:'Use o Burndown para a conversa, não para a vigilância. Se a linha está subindo, pergunte o que bloqueou — não quem é o culpado. A função do gráfico é sinalizar cedo, enquanto ainda dá para agir.' },
+
+    wsjf: { zona:'Faixa Superior · Priorização por Valor', titulo:'WSJF — A Balança de Valor e Tempo', icone:'⚖️', cor:'#c0563a', label:'WSJF / Custo do Atraso',
+      metafora:'O ancião colocou na balança: de um lado o valor que a caçada traria à tribo; do outro, o custo de cada dia que ela não acontecia. A pedra mais leve de executar e com mais valor urgente vai primeiro. WSJF é a fórmula que faz essa conta para o backlog inteiro.',
+      bullets:['WSJF = Custo do Atraso ÷ Tamanho do trabalho. Quem tem o maior resultado vai primeiro.','Custo do Atraso combina: valor para o negócio, urgência de tempo e redução de risco/oportunidade.','É relativo, não absoluto: você compara itens entre si, não precisa de estimativas precisas em horas.'],
+      ferramentas:[{nome:'SAFe WSJF',url:'https://scaledagileframework.com/wsjf/'},{nome:'Productboard',url:'https://www.productboard.com'},{nome:'Aha!',url:'https://www.aha.io'}],
+      dica:'Pergunte "qual o custo de NÃO fazer isso esta sprint?" para cada item do backlog. Quando a resposta for alta — prazo perdido, cliente saindo, multa contratual — o item sobe na balança mesmo sendo grande.' },
+
+    dod: { zona:'Faixa Superior · Qualidade da Entrega', titulo:'Definition of Done — A Lista de Pedras Seladas', icone:'✅', cor:'#8fb8d6', label:'Definition of Done',
+      metafora:'Antes de fechar um nicho da caverna, a tribo verificava a lista entalhada na entrada: a pedra de fogo está acesa? O símbolo está gravado? O ancião aprovou? Só com todos os entalhes feitos o nicho era "Pronto". A DoD é esse contrato de qualidade que todos da tribo conhecem e respeitam.',
+      bullets:['A DoD é um contrato da equipe, não do indivíduo: "Pronto" significa a mesma coisa para todos.','Itens típicos: código revisado, testes passando, documentação atualizada, aprovado no ambiente de staging.','Sem DoD, cada um tem seu critério de "feito" — e bugs surgem na fronteira entre as definições.'],
+      ferramentas:[{nome:'Notion (checklists)',url:'https://www.notion.so'},{nome:'Confluence',url:'https://www.atlassian.com/software/confluence'},{nome:'GitHub PR templates',url:'https://docs.github.com/pt/communities/using-templates-to-encourage-useful-issues-and-pull-requests'}],
+      dica:'Coloque a DoD visível no quadro físico ou no topo do repositório. Se alguém pergunta "isso precisa de teste?", a DoD já responde — e evita a discussão no momento errado.' },
+
+    backlog: { zona:'Faixa Inferior · Planejamento de Valor', titulo:'Product Backlog — A Pilha de Tábuas Ordenadas', icone:'📋', cor:'#b08cc4', label:'Product Backlog',
+      metafora:'A tribo guardava um empilhado de tábuas entalhadas com tudo que queria construir. As mais valiosas ficavam no topo — sempre acessíveis para a próxima caçada. O Product Backlog é esse empilhado vivo: cresce, encolhe e se reordena conforme o que a tribo aprende.',
+      bullets:['O backlog é ordenado, não priorizado: o topo tem o que é mais valioso agora, e isso muda com o tempo.','Refinamento contínuo: os itens do topo são detalhados, os do fundo permanecem vagos até chegarem ao topo.','O Product Owner é responsável pelo backlog — mas toda a equipe contribui para entender e detalhar os itens.'],
+      ferramentas:[{nome:'Jira Backlog',url:'https://www.atlassian.com/software/jira'},{nome:'Linear',url:'https://linear.app'},{nome:'Shortcut',url:'https://shortcut.com'}],
+      dica:'Se o backlog tem mais de 3 sprints de itens detalhados, ele está caro de manter. Mantenha a ponta do backlog refinada e o resto esboçado — detalhe quando chegar perto do topo.' },
+
+    criterios: { zona:'Faixa Inferior · Contrato de Aceite', titulo:'Critérios de Aceite — As Marcas de Aprovação', icone:'🎯', cor:'#5fc8a0', label:'Critérios de Aceite',
+      metafora:'Cada pedra entalhada só ganhava a marca de aprovação do ancião quando atendia a três símbolos gravados na parede: resistência, forma e encaixe. Os Critérios de Aceite são esses símbolos — as condições específicas que uma história de usuário precisa cumprir para ser considerada concluída.',
+      bullets:['Critérios de aceite definem o QUE o sistema deve fazer; a DoD define COMO deve ser feito.','Escrevem-se em linguagem de negócio, não de código: "O usuário vê a lista filtrada em menos de 2 segundos".','São acordados antes de começar a implementação — não descobertos depois, quando corrigir é caro.'],
+      ferramentas:[{nome:'Cucumber (Given-When-Then)',url:'https://cucumber.io'},{nome:'Zephyr (Jira)',url:'https://smartbear.com/test-management/zephyr/'},{nome:'TestRail',url:'https://www.testrail.com'}],
+      dica:'Escreva no mínimo três critérios por história: o caminho feliz, um caminho alternativo e um caso de erro. Se você não consegue pensar nos erros antecipadamente, a história ainda não está madura.' },
+
+    leadtime: { zona:'Faixa Inferior · Métricas de Fluxo', titulo:'Lead Time — O Rastro Completo', icone:'⏳', cor:'#c9aa5c', label:'Lead Time',
+      metafora:'O rastro na pedra começava no momento em que a presa era avistada e terminava quando a carne chegava à mesa da tribo. Cada pegada no meio era tempo gasto. Lead Time é a duração total desse rastro — da solicitação à entrega nas mãos do cliente.',
+      bullets:['Lead Time = tempo entre o pedido entrar no sistema e a entrega ao cliente, incluindo esperas.','Ele revela o tamanho real do compromisso: "quanto tempo leva depois que você pede algo".','Reduzir Lead Time significa eliminar filas de espera (handoffs, aprovações, ambiguidades).'],
+      ferramentas:[{nome:'LinearB',url:'https://linearb.io'},{nome:'Actionable Agile Metrics',url:'https://actionableagile.com'},{nome:'Jira Metrics',url:'https://www.atlassian.com/software/jira/features/reports'}],
+      dica:'Meça o Lead Time de ponta a ponta, incluindo o tempo que o item passa aguardando no backlog. A maior parte do tempo costuma ser espera, não trabalho — e é onde está a maior oportunidade de melhoria.' },
+
+    cycletime: { zona:'Faixa Inferior · Métricas de Fluxo', titulo:'Cycle Time — O Trecho Ativo da Trilha', icone:'🔄', cor:'#d4915a', label:'Cycle Time',
+      metafora:'O caçador traçou na pedra só o trecho da trilha que estava caçando ativamente — sem incluir o tempo que a presa ficou aguardando. Cycle Time é isso: o tempo que o trabalho leva desde que a equipe começa a trabalhar nele até a entrega, sem contar as filas.',
+      bullets:['Cycle Time = tempo em que o item está sendo ativamente trabalhado (sem esperas).','É a métrica de eficiência da equipe: "quanto tempo leva depois que você começa a fazer".','Um Cycle Time alto indica complexidade alta, dependências externas ou trabalho em excesso em paralelo.'],
+      ferramentas:[{nome:'Actionable Agile Metrics',url:'https://actionableagile.com'},{nome:'LinearB',url:'https://linearb.io'},{nome:'Velocity Reports (Jira)',url:'https://www.atlassian.com/software/jira/features/reports'}],
+      dica:'Compare Cycle Time com Lead Time. Se o Cycle Time é de 2 dias mas o Lead Time é de 15 dias, o trabalho fica 13 dias na fila. Esse é o gargalo real — ataque as filas antes de tentar ir mais rápido.' },
+
+    throughput: { zona:'Faixa Inferior · Cadência de Entrega', titulo:'Throughput — O Contador de Entregas', icone:'🏹', cor:'#e0c04a', label:'Throughput',
+      metafora:'O ancião marcava uma entalhes na pedra a cada caça entregue à tribo. No fim da lua, contava os entalhes. Throughput é quantas caçadas (itens) a tribo completa por unidade de tempo — a cadência real de entrega, sem estimativas.',
+      bullets:['Throughput = número de itens concluídos por período (semana, sprint, mês).','Diferente de velocidade em pontos, Throughput conta entregas reais — não estimativas.','Medir Throughput por semanas gera uma distribuição histórica que permite prever datas com probabilidade.'],
+      ferramentas:[{nome:'Actionable Agile Metrics',url:'https://actionableagile.com'},{nome:'Nave (métricas)',url:'https://nave.io'},{nome:'Pluralsight Flow',url:'https://www.pluralsight.com/product/flow'}],
+      dica:'Use o Throughput histórico para fazer projeções de Monte Carlo: "com base nas últimas 8 semanas, há 85% de chance de entregarmos 40 itens em 10 semanas." É mais honesto que somar pontos de história.' },
+
+    gargalos: { zona:'Faixa Inferior · Restrições de Fluxo', titulo:'Gargalos — A Pedra no Caminho', icone:'🪨', cor:'#9aa0a6', label:'Gargalos e Restrições',
+      metafora:'Uma pedra enorme bloqueava a passagem mais estreita da caverna. Não importava quão rápido os caçadores corriam antes ou depois — tudo desacelerava no ponto de restrição. A Teoria das Restrições diz que otimizar antes do gargalo só aumenta a fila na frente da pedra.',
+      bullets:['O gargalo dita o ritmo de todo o sistema: a velocidade do fluxo é a velocidade do elo mais lento.','Identificar o gargalo: onde o trabalho se acumula? Onde uma pessoa, fase ou aprovação cria fila?','A solução não é sempre contratar mais: muitas vezes é quebrar o item em partes menores ou remover a dependência.'],
+      ferramentas:[{nome:'Value Stream Mapping',url:'https://www.lean.org/explore-lean/what-is-lean/'},{nome:'Theory of Constraints',url:'https://www.toc-goldratt.com'},{nome:'Cumulative Flow Diagram',url:'https://kanbanize.com/kanban-resources/kanban-analytics/cumulative-flow-diagram'}],
+      dica:'Faça o Cumulative Flow Diagram da sua equipe: onde as faixas de cores ficam mais largas, está o gargalo. Trate o gargalo antes de qualquer outra melhoria — otimizar fora do gargalo não muda a velocidade de entrega.' },
+
+    inception: { zona:'Faixa Inferior · Alinhamento de Equipe', titulo:'Inception — O Fogo do Alinhamento', icone:'🔥', cor:'#cdbd9a', label:'Inception / Alinhamento',
+      metafora:'Antes de qualquer caçada grande, toda a tribo se reunia ao redor do fogo por dias: o xamã narrava a visão, os caçadores discutiam o mapa, e cada membro saía com o mesmo entendimento na cabeça. A Inception é essa reunião fundacional que alinha visão, riscos e escopo antes de a equipe começar a correr.',
+      bullets:['A Inception responde: por que fazemos isso? Para quem? O que está dentro e fora do escopo? Quais são os maiores riscos?','Duração típica: 1 a 5 dias para projetos novos. Não é perda de tempo — evita semanas de retrabalho por desalinhamento.','Participantes: toda a equipe + stakeholders chave. Alinhamento é coletivo — não funciona com uma pessoa "passando a visão" depois.'],
+      ferramentas:[{nome:'Miro (colaboração)',url:'https://miro.com'},{nome:'FigJam',url:'https://www.figma.com/figjam/'},{nome:'Inception Deck (Rasmusson)',url:'https://agilewarrior.wordpress.com/2010/11/06/the-agile-inception-deck/'}],
+      dica:'Use o "Elevador Pitch" da Inception Deck: se você não consegue descrever o produto em 30 segundos para alguém de fora da tribo, a visão ainda não está clara o suficiente para a equipe inteira.' }
+  };
+
+  // Geometria dos hotspots em % do container — faixa superior (5 nichos) e inferior (7 nichos)
+  const GEO = {
+    kanban:    [1,   4, 18, 44],
+    bdd:       [21,  4, 18, 44],
+    burndown:  [41,  4, 18, 44],
+    wsjf:      [61,  4, 18, 44],
+    dod:       [81,  4, 17, 44],
+    backlog:   [1,  53, 13, 43],
+    criterios: [15, 53, 13, 43],
+    leadtime:  [29, 53, 13, 43],
+    cycletime: [43, 53, 13, 43],
+    throughput:[57, 53, 13, 43],
+    gargalos:  [71, 53, 13, 43],
+    inception: [85, 53, 13, 43]
+  };
+
+  const ORDEM = ['kanban','bdd','burndown','wsjf','dod','backlog','criterios','leadtime','cycletime','throughput','gargalos','inception'];
+
+  // Laços entre os 12 conceitos ágeis
+  const RELACOES = {
+    kanban:     { ids:['throughput','gargalos','wsjf'],    nota:'O quadro visual expõe o Throughput, revela onde estão os Gargalos e é onde se vê o impacto do WSJF na ordem das pedras.' },
+    bdd:        { ids:['criterios','dod','inception'],     nota:'O ritual Given-When-Then nasce dos Critérios de Aceite, integra a DoD e tem sua origem na Inception onde o comportamento é debatido.' },
+    burndown:   { ids:['dod','cycletime','inception'],     nota:'O Burndown reflete a DoD (o que conta como feito), é alimentado pelo Cycle Time de cada item e parte do escopo definido na Inception.' },
+    wsjf:       { ids:['backlog','leadtime','gargalos'],   nota:'O WSJF ordena o Backlog, considera o custo que os Gargalos impõem e o Lead Time total para priorizar o que reduz mais dor.' },
+    dod:        { ids:['criterios','bdd','throughput'],    nota:'A DoD e os Critérios de Aceite definem juntos o que "Pronto" significa; o BDD automatiza essa verificação; o Throughput conta as entregas que passaram pela DoD.' },
+    backlog:    { ids:['wsjf','inception','criterios'],    nota:'O Backlog é ordenado pelo WSJF, nasce da Inception e cada item precisa de Critérios de Aceite antes de entrar na sprint.' },
+    criterios:  { ids:['bdd','dod','backlog'],             nota:'Critérios de Aceite são a fonte dos cenários BDD, compõem a DoD e qualificam um item do Backlog como pronto para ser trabalhado.' },
+    leadtime:   { ids:['cycletime','gargalos','kanban'],   nota:'Lead Time inclui Cycle Time mais as esperas; os Gargalos inflam o Lead Time; o Kanban torna essas esperas visíveis.' },
+    cycletime:  { ids:['leadtime','throughput','gargalos'],nota:'Cycle Time alimenta o cálculo do Throughput, está contido no Lead Time e é diretamente afetado pelos Gargalos.' },
+    throughput: { ids:['kanban','cycletime','burndown'],   nota:'Throughput mede o que o Kanban flui, depende do Cycle Time e compõe o ritmo real por trás do Burndown.' },
+    gargalos:   { ids:['kanban','leadtime','wsjf'],        nota:'Gargalos são revelados pelo Kanban, inflam o Lead Time e alteram a equação do WSJF ao aumentar o custo do atraso.' },
+    inception:  { ids:['backlog','criterios','bdd'],       nota:'A Inception gera o Backlog inicial, define os primeiros Critérios de Aceite e as perguntas que viram cenários BDD.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
