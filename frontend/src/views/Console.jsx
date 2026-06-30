@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api, streamRun } from '../lib/api.js'
 import { Card, GraphTrail, RunStatus } from '../components.jsx'
 
@@ -7,7 +7,6 @@ export default function Console({ activeRun, go }) {
   const [nodes, setNodes] = useState({})
   const [log, setLog] = useState([])
   const [busy, setBusy] = useState(false)
-  const esRef = useRef(null)
 
   useEffect(() => {
     if (!activeRun) return
@@ -18,13 +17,14 @@ export default function Console({ activeRun, go }) {
       setRun(d); setNodes(d.nodes || {}); setLog(d.log || [])
     }).catch(() => {})
 
-    const es = streamRun(activeRun, (ev) => {
+    // streamRun retorna um unsubscribe (conexão SSE deduplicada por thread_id).
+    const unsubscribe = streamRun(activeRun, (ev) => {
+      if (!alive) return
       if (ev.node === '_run') { api.run(activeRun).then(setRun).catch(() => {}); return }
       setNodes((n) => ({ ...n, [ev.node]: ev.status }))
       if (ev.message) setLog((l) => [...l, { ts: ev.ts, status: ev.status, message: ev.message }])
     })
-    esRef.current = es
-    return () => { alive = false; es.close() }
+    return () => { alive = false; unsubscribe() }
   }, [activeRun])
 
   async function act(fn) {

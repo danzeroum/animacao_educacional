@@ -1,45 +1,93 @@
-"""Nó 2 — gerar_imagem: Gemini 2.5 Flash Image (Fase 1: stub grava PNG placeholder).
+"""Nó 2 — gerar_imagem: imagem de fundo via Gemini 2.5 Flash Image.
 
-Fase 2 liga o Gemini real (generate_content + inline_data.data) com retry e
-guardrail de cota.
+Real quando há GEMINI_API_KEY; senão, grava um PNG placeholder (offline).
+Trata retry + guardrail de cota.
 """
 from __future__ import annotations
 
-import asyncio
 import struct
 import zlib
+from io import BytesIO
+from pathlib import Path
 
 from ...config import settings
+from .. import clients
 from ..state import PipelineState
+from ..util import QuotaError, with_retry
 from ._util import emit
 
 
-def _png_placeholder(path) -> None:
-    """Gera um PNG 16x9 cinza sólido sem dependências externas (Fase 1)."""
+def _png_placeholder(path: Path) -> None:
+    """PNG 16x9 cinza sólido, sem dependências (fallback offline)."""
     w, h = 16, 9
-    raw = b"".join(b"\x00" + b"\x4a\x3a\x2a" * w for _ in range(h))  # filtro 0 + pixels RGB
+    raw = b"".join(b"\x00" + b"\x4a\x3a\x2a" * w for _ in range(h))
 
     def chunk(tag, data):
         c = tag + data
         return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
 
-    ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)  # 8-bit RGB
+    ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
     png = (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr)
            + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))
     path.write_bytes(png)
 
 
+def _extrair_bytes(resp) -> bytes | None:
+    """Pega os bytes da primeira parte com inline_data (imagem) da resposta."""
+    for cand in getattr(resp, "candidates", None) or []:
+        content = getattr(cand, "content", None)
+        for part in getattr(content, "parts", None) or []:
+            inline = getattr(part, "inline_data", None)
+            if inline and getattr(inline, "data", None):
+                return inline.data
+    return None
+
+
+def _chamar_gemini(prompt: str, destino: Path) -> None:
+    s = settings()
+    resp = clients.gemini().models.generate_content(
+        model=s.gemini_image_model,
+        contents=[prompt],
+    )
+    data = _extrair_bytes(resp)
+    if not data:
+        # sem imagem (ex.: bloqueio de segurança) → erro transitório p/ retry
+        raise RuntimeError("Gemini não retornou imagem (resposta sem inline_data).")
+    try:
+        from PIL import Image
+        Image.open(BytesIO(data)).convert("RGB").save(destino, format="PNG")
+    except Exception:  # noqa: BLE001 — se já vier PNG, grava direto
+        destino.write_bytes(data)
+
+
 async def gerar_imagem(state: PipelineState, config) -> dict:
     await emit(config, "gerar_imagem", "running", "Gerando imagem de fundo (Gemini)…")
-    await asyncio.sleep(0.5)  # stub
-
     slug = state["slug"]
     destino = settings().repo_root / slug / f"{slug}.png"
-    _png_placeholder(destino)
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    prompt = state.get("prompt_imagem") or f"Ilustração mapa-metáfora para {slug}."
 
-    await emit(config, "gerar_imagem", "ok", f"Imagem salva: {slug}.png (placeholder)",
+    if not settings().has_gemini:
+        _png_placeholder(destino)
+        await emit(config, "gerar_imagem", "ok",
+                   f"Imagem salva: {slug}.png (placeholder — sem GEMINI_API_KEY).",
+                   {"caminho_imagem": str(destino)})
+        return {"caminho_imagem": str(destino),
+                "tentativas_imagem": state.get("tentativas_imagem", 0) + 1}
+
+    async def _aviso(i, exc):
+        await emit(config, "gerar_imagem", "running", f"Tentativa {i} falhou ({exc}); repetindo…")
+
+    try:
+        await with_retry(lambda: _chamar_gemini(prompt, destino), on_retry=_aviso)
+    except QuotaError as e:
+        await emit(config, "gerar_imagem", "fail", f"Cota do Gemini esgotada: {e}")
+        raise
+    except Exception as e:  # noqa: BLE001
+        await emit(config, "gerar_imagem", "fail", f"Falha no Gemini: {e}")
+        raise
+
+    await emit(config, "gerar_imagem", "ok", f"Imagem salva: {slug}.png",
                {"caminho_imagem": str(destino)})
-    return {
-        "caminho_imagem": str(destino),
-        "tentativas_imagem": state.get("tentativas_imagem", 0) + 1,
-    }
+    return {"caminho_imagem": str(destino),
+            "tentativas_imagem": state.get("tentativas_imagem", 0) + 1}
