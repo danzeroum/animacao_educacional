@@ -1,0 +1,18 @@
+# Forja — backend (FastAPI + LangGraph)
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sse-starlette>=2.1
+python-dotenv>=1.0
+pydantic>=2.6
+
+# Orquestração do pipeline
+langgraph>=0.2.40
+langgraph-checkpoint-sqlite>=2.0
+
+# Provedores (APIs gratuitas/quase-gratuitas)
+openai>=1.40            # DeepSeek é OpenAI-compatible (base_url=https://api.deepseek.com)
+google-genai>=0.8       # Gemini 2.5 Flash Image (free tier ~500 img/dia)
+pillow>=10.0            # salvar PNG retornado pelo Gemini
+
+# Validação do objeto gerado
+playwright>=1.44        # Chromium já instalado em /opt/pw-browsers neste ambiente
