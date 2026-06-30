@@ -26,6 +26,32 @@ def _commit_msg(slug: str) -> str:
     return f"feat: add {slug} educational object"
 
 
+def _ensure_identity(root) -> None:
+    """Garante uma identidade git (usa a do repo se já existir; senão, fallback)."""
+    tem = subprocess.run(["git", "config", "user.name"], cwd=str(root),
+                         capture_output=True).returncode == 0
+    if not tem:
+        _git(["config", "user.email", "forja@local"], root)
+        _git(["config", "user.name", "A Forja"], root)
+
+
+def _push_autenticado(branch: str, root) -> None:
+    """Push usando o GITHUB_TOKEN embutido na URL (token NUNCA aparece nos logs).
+
+    Evita depender de `git remote set-url`: monta a URL autenticada na hora e
+    mascara o token em qualquer mensagem de erro.
+    """
+    s = settings()
+    token = s.github_token
+    url = f"https://x-access-token:{token}@github.com/{s.github_repo}.git"
+    try:
+        subprocess.run(["git", "push", url, f"HEAD:refs/heads/{branch}"],
+                       cwd=str(root), check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        bruto = (e.stderr or e.stdout or str(e))
+        raise RuntimeError("git push falhou: " + bruto.replace(token, "****")) from None
+
+
 def _abrir_pr_rest(slug: str, branch: str) -> str:
     """POST /repos/{owner}/{repo}/pulls com o GITHUB_TOKEN. Retorna a URL do PR."""
     s = settings()
@@ -53,6 +79,7 @@ def _deploy_real(slug: str) -> dict:
     s = settings()
     root = s.repo_root
     branch = f"{slug}/objeto-educacional"
+    _ensure_identity(root)
     _git(["checkout", "-B", branch, s.github_base_branch], root)
     _git(["add", slug, "index.html", "README.md"], root)
     # só commita se há algo staged (evita falha em re-run idempotente)
@@ -63,7 +90,7 @@ def _deploy_real(slug: str) -> dict:
     pushed = False
     pr_url = ""
     if s.has_github_token:
-        _git(["push", "-u", "origin", branch], root)
+        _push_autenticado(branch, root)  # token vai na URL, mascarado em erros
         pushed = True
         pr_url = _abrir_pr_rest(slug, branch)
     return {"branch": branch, "pushed": pushed, "pr_url": pr_url}
