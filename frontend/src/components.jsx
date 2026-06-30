@@ -13,6 +13,15 @@ export const NODES = [
 const RUN_DOT = { 'Em execução': 'running', 'Aguardando aprovação': 'wait',
   'Concluído': 'ok', 'Falha': 'fail' }
 
+export const STATUS_COR = {
+  ok: 'var(--ok)', running: 'var(--atencao)', wait: 'var(--info)',
+  fail: 'var(--fail)', skip: 'var(--txt-fraco)', pending: 'var(--pending)',
+}
+const STATUS_LABEL = {
+  ok: 'concluído', running: 'rodando…', wait: 'aguardando', fail: 'falhou',
+  skip: 'pulado', pending: 'pendente',
+}
+
 export function StatusDot({ status }) {
   const s = status || 'pending'
   const pulse = s === 'running' || s === 'wait'
@@ -27,37 +36,29 @@ export function RunStatus({ status }) {
   )
 }
 
-// Trilha dos 7 nós do grafo.
+// Trilha dos 7 nós do grafo (cards com borda-topo na cor do status).
 export function GraphTrail({ nodes, tentativas }) {
   return (
     <div className="trail">
-      {NODES.map(([id, label, icon], i) => (
-        <Frag key={id} last={i === NODES.length - 1}>
-          <div className="node-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span aria-hidden="true">{icon}</span>
-              <StatusDot status={nodes?.[id]} />
+      {NODES.map(([id, label, icon], i) => {
+        const st = nodes?.[id] || 'pending'
+        const cor = STATUS_COR[st]
+        const pulse = st === 'running' || st === 'wait'
+        const objLabel = id === 'gerar_objeto' && tentativas > 1
+          ? `tentativa ${tentativas}/3` : STATUS_LABEL[st]
+        return (
+          <div className="node-card" key={id} style={{ borderTopColor: cor }}>
+            <div className="ntop">
+              <span aria-hidden="true" style={{ fontSize: 16 }}>{icon}</span>
+              <span className={`dot ${st}${pulse ? ' pulse' : ''}`} style={{ background: cor }} />
             </div>
-            <div className="nname">{label}</div>
-            <div className="nlabel">{id}</div>
-            {id === 'gerar_objeto' && tentativas > 1 && (
-              <div className="nlabel" style={{ color: 'var(--atencao)' }}>
-                tentativa {tentativas}/3
-              </div>
-            )}
+            <div className="nname">{id}</div>
+            <div className="nlabel" style={{ color: cor }}>{objLabel}</div>
+            {i < NODES.length - 1 && <span className="arrow" aria-hidden="true">▶</span>}
           </div>
-        </Frag>
-      ))}
+        )
+      })}
     </div>
-  )
-}
-
-function Frag({ children, last }) {
-  return (
-    <>
-      {children}
-      {!last && <span className="arrow" aria-hidden="true">▶</span>}
-    </>
   )
 }
 
