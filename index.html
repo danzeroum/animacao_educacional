@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas dos Objetos Educacionais — Mapas-Metáfora para Devs</title>
+  <meta name="description" content="Acervo de objetos educacionais interativos no formato mapa-metáfora para devs juniores: de QA a IA responsável, cada tema técnico vira uma ilustração viva onde toda estação é um conceito clicável. Busca, filtros por trilha e 100% acessível.">
+  <meta property="og:title" content="Atlas dos Objetos Educacionais — Mapas-Metáfora para Devs">
+  <meta property="og:description" content="18 objetos reunidos em 16 mapas temáticos. Cada cartão é a entrada de um mapa onde conceitos difíceis viram lugares que você explora.">
+  <meta property="og:type" content="website">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+
+    :root{
+      --fundo-1:#2a1c10; --fundo-2:#18100a; --fundo-3:#0e0905;
+      --texto:#f0e6d2; --texto-2:#d9c4a0; --texto-3:#cdbb9a; --texto-4:#a89576;
+      --dourado:#f0d29a; --dourado-2:#e0b066; --dourado-3:#b9925a;
+      --borda:#3a2c1e; --borda-2:#6d5b47; --mute:#8a7350;
+      --font-display:"Cinzel",Georgia,"Times New Roman",serif;
+      --font-body:"Spectral",Georgia,"Times New Roman",serif;
+    }
+
+    body{
+      min-height:100vh; color:var(--texto); font-family:var(--font-body);
+      background:radial-gradient(125% 80% at 50% -8%, var(--fundo-1) 0%, var(--fundo-2) 52%, var(--fundo-3) 100%);
+      background-attachment:fixed; padding-bottom:72px; position:relative; overflow-x:hidden;
+    }
+
+    .skip{position:absolute;left:-9999px;top:8px;z-index:200;background:var(--dourado);color:#1a120b;
+      font-family:var(--font-display);font-size:13px;padding:10px 16px;border-radius:8px;text-decoration:none}
+    .skip:focus{left:50%;transform:translateX(-50%)}
+
+    .glow{position:absolute;border-radius:50%;filter:blur(8px);pointer-events:none;z-index:0;
+      animation:glow 9s ease-in-out infinite}
+    .glow.a{top:-120px;left:8%;width:520px;height:520px;background:radial-gradient(circle,rgba(224,176,102,.16),transparent 65%)}
+    .glow.b{top:120px;right:4%;width:440px;height:440px;background:radial-gradient(circle,rgba(192,86,58,.13),transparent 65%);animation-duration:11s;animation-delay:.8s}
+
+    .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding-left:28px;padding-right:28px}
+
+    /* ---------- Hero ---------- */
+    header{padding-top:58px;padding-bottom:30px;text-align:center}
+    .kicker{font-family:var(--font-display);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--dourado-3);margin-bottom:18px}
+    header h1{font-family:var(--font-display);font-weight:700;font-size:clamp(32px,5.4vw,60px);line-height:1.04;color:var(--dourado);letter-spacing:.005em;text-wrap:balance}
+    header .tese{font-size:clamp(16px,2.1vw,20px);color:var(--texto-2);max-width:720px;margin:20px auto 0;line-height:1.55;text-wrap:pretty}
+    header .tese strong{color:var(--dourado);font-weight:600}
+
+    .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+    .btn{font-family:var(--font-display);font-size:13.5px;letter-spacing:.06em;text-decoration:none;border-radius:10px;padding:13px 26px;cursor:pointer;transition:transform .18s,box-shadow .18s,background .18s,border-color .18s}
+    .btn-primary{background:var(--dourado);color:#1a120b;border:1px solid var(--dourado);font-weight:600;box-shadow:0 12px 30px -12px rgba(240,210,154,.6)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px -12px rgba(240,210,154,.75)}
+    .btn-ghost{background:transparent;color:var(--dourado);border:1px solid var(--borda-2);font-weight:500}
+    .btn-ghost:hover{background:rgba(109,91,71,.22);border-color:var(--dourado-3)}
+
+    .stats{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:40px}
+    .stat{min-width:148px;padding:16px 20px;background:rgba(42,28,16,.5);border:1px solid var(--borda);border-radius:12px}
+    .stat b{display:block;font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--dourado)}
+    .stat span{display:block;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dourado-3);margin-top:4px}
+
+    /* ---------- Seções ---------- */
+    .sec{margin-top:48px}
+    .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+    .sec-head .lab{font-family:var(--font-display);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--dourado-3);white-space:nowrap}
+    .sec-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--borda),transparent)}
+
+    .como{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .como .card{padding:22px;background:linear-gradient(180deg,rgba(42,28,16,.62),rgba(22,14,7,.62));border:1px solid var(--borda);border-radius:14px}
+    .como .ico{font-size:26px;line-height:1;margin-bottom:12px}
+    .como h3{font-family:var(--font-display);font-size:16.5px;font-weight:600;color:var(--texto);margin-bottom:7px}
+    .como p{font-size:14px;line-height:1.55;color:var(--texto-3)}
+
+    /* ---------- Acervo / Toolbar ---------- */
+    .acervo-head h2{font-family:var(--font-display);font-size:clamp(22px,3vw,30px);font-weight:700;color:var(--dourado)}
+    .acervo-head p{font-size:14px;color:var(--dourado-3);margin-top:4px}
+
+    .toolbar{position:sticky;top:0;z-index:30;padding:14px 0;margin-top:18px;
+      background:linear-gradient(180deg,rgba(14,9,5,.96) 60%,rgba(14,9,5,0));backdrop-filter:blur(6px)}
+    .search{position:relative;margin-bottom:12px}
+    .search .mag{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--mute)}
+    .search input{width:100%;font-family:var(--font-body);font-size:15px;color:var(--texto);
+      background:rgba(42,28,16,.55);border:1px solid var(--borda-2);border-radius:11px;padding:13px 16px 13px 42px;outline:none;transition:border-color .18s,box-shadow .18s}
+    .search input::placeholder{color:#7d6a4f;opacity:1}
+    .search input:focus-visible{border-color:var(--dourado);box-shadow:0 0 0 3px rgba(240,210,154,.18)}
+
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{font-family:var(--font-display);font-size:12.5px;letter-spacing:.04em;cursor:pointer;border-radius:9px;padding:8px 14px;
+      background:rgba(58,44,30,.55);color:var(--texto-2);border:1px solid var(--borda-2);transition:background .16s,color .16s,border-color .16s}
+    .chip:hover{border-color:var(--dourado-3)}
+    .chip[aria-pressed="true"]{background:var(--dourado);color:#1a120b;border-color:var(--dourado)}
+    .chip .n{opacity:.6;font-size:11px}
+
+    .count{font-size:13px;color:var(--mute);margin:4px 2px 18px;font-style:italic}
+
+    /* ---------- Grid de cartões ---------- */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:18px}
+
+    .obj{--c:#e0b066;position:relative;display:flex;flex-direction:column;min-height:312px;
+      background:linear-gradient(180deg,rgba(45,30,17,.94),rgba(20,13,7,.94));border:1px solid var(--borda);border-radius:14px;
+      overflow:hidden;box-shadow:0 18px 40px -26px rgba(0,0,0,.95);transition:transform .2s,box-shadow .2s,border-color .2s;
+      animation:fadeUp .5s ease both}
+    .obj:hover{transform:translateY(-5px);border-color:var(--c);box-shadow:0 28px 60px -22px rgba(0,0,0,.95),0 0 30px -8px var(--c)}
+
+    .banner{position:relative;height:120px;border-bottom:1px solid var(--borda);overflow:hidden;
+      background:linear-gradient(150deg,color-mix(in srgb,var(--c) 36%,#1b1109) 0%,#130c06 80%)}
+    .banner .strata{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 13px);opacity:.55}
+    .banner .arch{position:absolute;inset:0;background:radial-gradient(85% 130% at 28% 135%,color-mix(in srgb,var(--c) 52%,transparent),transparent 62%)}
+    .banner .glyph{position:absolute;right:14px;bottom:2px;font-size:60px;line-height:1;opacity:.16}
+    .banner .dot{position:absolute;border-radius:50%;background:var(--c)}
+    .banner .d1{left:18%;top:38%;width:11px;height:11px;box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 22%,transparent),0 0 14px 2px var(--c)}
+    .banner .d2{left:46%;top:60%;width:9px;height:9px;opacity:.85;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 20%,transparent),0 0 12px 2px var(--c)}
+    .banner .d3{left:70%;top:30%;width:8px;height:8px;opacity:.7;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent),0 0 10px 1px var(--c)}
+    .banner .cenario{position:absolute;left:14px;top:12px;display:inline-flex;align-items:center;gap:6px;
+      font-family:var(--font-display);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--texto);
+      background:rgba(16,10,5,.5);padding:4px 9px;border-radius:7px;backdrop-filter:blur(2px)}
+    .banner .cenario .ci{font-size:12px}
+    .banner .num{position:absolute;right:14px;top:12px;font-family:var(--font-display);font-size:11px;color:var(--texto);opacity:.65}
+
+    .obj .content{position:relative;display:flex;flex-direction:column;gap:9px;padding:15px 18px 16px;flex:1}
+    .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--mute)}
+    .meta .nivel{display:inline-flex;align-items:center;gap:5px;font-weight:600}
+    .meta .nivel i{width:7px;height:7px;border-radius:50%;display:inline-block}
+    .obj h3{font-family:var(--font-display);font-weight:700;font-size:19px;line-height:1.12;color:var(--texto)}
+    .obj .tema{font-size:11.5px;letter-spacing:.06em;color:var(--dourado-3);margin-top:3px;text-transform:uppercase}
+    .obj .desc{font-size:13.5px;line-height:1.5;color:var(--texto-3)}
+    .tags{display:flex;flex-wrap:wrap;gap:6px}
+    .tag{font-size:11px;color:var(--texto-3);background:rgba(109,91,71,.18);border:1px solid var(--borda);border-radius:6px;padding:3px 8px}
+
+    .foot{margin-top:auto;padding-top:11px;border-top:1px solid rgba(109,91,71,.28)}
+    .foot.single{display:flex;align-items:center;justify-content:space-between}
+    .foot.single .abrir{font-size:12px;color:var(--mute)}
+    .foot.single .explorar{font-family:var(--font-display);font-size:11.5px;letter-spacing:.08em;color:var(--c)}
+    .foot.var{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+    .foot.var .lentes{font-size:11px;color:var(--mute);margin-right:1px}
+    .pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-display);font-size:11px;letter-spacing:.03em;
+      text-decoration:none;color:var(--dourado);background:rgba(58,44,30,.6);border:1px solid var(--borda-2);border-radius:8px;padding:5px 10px;
+      transition:background .15s,border-color .15s}
+    .pill:hover{background:rgba(109,91,71,.42);border-color:var(--c)}
+
+    .stretch{position:absolute;inset:0;z-index:1;border-radius:14px}
+    .obj a:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--dourado);outline-offset:3px;border-radius:10px}
+
+    .vazio{text-align:center;padding:54px 20px;color:var(--dourado-3)}
+    .vazio .ico{font-size:34px;margin-bottom:10px}
+    .vazio p{font-size:15px;margin-bottom:16px}
+
+    /* ---------- Acessibilidade ---------- */
+    .a11y{position:relative;padding:34px 30px;border:1px solid var(--borda);border-radius:18px;overflow:hidden;
+      background:linear-gradient(180deg,rgba(42,28,16,.55),rgba(20,13,7,.55))}
+    .a11y .halo{position:absolute;inset:0;background:radial-gradient(70% 120% at 100% 0%,rgba(224,176,102,.1),transparent 60%);pointer-events:none}
+    .a11y .inner{position:relative}
+    .a11y .lab{font-family:var(--font-display);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--dourado-3);margin-bottom:10px}
+    .a11y h2{font-family:var(--font-display);font-size:clamp(22px,3vw,30px);font-weight:700;color:var(--dourado);max-width:620px;line-height:1.12}
+    .a11y .lead{font-size:14.5px;line-height:1.55;color:var(--texto-3);max-width:660px;margin-top:12px}
+    .a11y .grid6{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:24px}
+    .a11y .feat{display:flex;gap:11px;align-items:flex-start;padding:14px 16px;background:rgba(16,10,5,.4);border:1px solid var(--borda);border-radius:11px}
+    .a11y .feat .fi{font-size:18px}
+    .a11y .feat b{display:block;font-size:13.5px;font-weight:600;color:var(--texto)}
+    .a11y .feat span{display:block;font-size:12.5px;color:var(--texto-4);line-height:1.4;margin-top:2px}
+
+    footer.foot-page{text-align:center;margin-top:54px}
+    footer.foot-page p{font-size:13.5px;color:#8a6f43;font-style:italic;line-height:1.6;max-width:680px;margin:0 auto}
+    footer.foot-page .credit{font-family:var(--font-display);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5a4633;margin-top:14px}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.08)}}
+
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#acervo">Pular para o acervo</a>
+  <div class="glow a" aria-hidden="true"></div>
+  <div class="glow b" aria-hidden="true"></div>
+
+  <!-- ===================== HERO ===================== -->
+  <header class="wrap">
+    <div class="kicker">18 objetos · 16 mapas temáticos · formato mapa-metáfora</div>
+    <h1>Conceitos difíceis viram<br>lugares que você explora.</h1>
+    <p class="tese">Cada objeto transforma um tema técnico — de QA a IA responsável — numa ilustração viva onde <strong>toda estação é um conceito clicável</strong>. Sem instalar nada: abre no navegador, funciona no teclado e conta a história com tour guiado.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#acervo">Explorar o acervo ↓</a>
+      <a class="btn btn-ghost" href="#como">Como funciona</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>16</b><span>mapas</span></div>
+      <div class="stat"><b>200+</b><span>conceitos</span></div>
+      <div class="stat"><b>5</b><span>metáforas</span></div>
+      <div class="stat"><b>100%</b><span>acessível</span></div>
+    </div>
+  </header>
+
+  <!-- ===================== COMO FUNCIONA ===================== -->
+  <section class="wrap sec" id="como">
+    <div class="sec-head"><span class="lab">Como funciona</span><span class="rule"></span></div>
+    <div class="como">
+      <div class="card"><div class="ico" aria-hidden="true">🗺️</div><h3>Uma imagem, muitos conceitos</h3><p>A própria ilustração é a interface. Cada nicho, estação ou peça é um hotspot que você passa o mouse e clica.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">🔗</div><h3>Da metáfora ao real</h3><p>Cada conceito abre com a frase que liga a metáfora à prática, três explicações diretas e links de ferramentas reais.</p></div>
+      <div class="card"><div class="ico" aria-hidden="true">▶️</div><h3>Tour guiado e conexões</h3><p>Um tour percorre tudo em ordem com barra de progresso; conceitos relacionados pulsam e se conectam entre si.</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== ACERVO ===================== -->
+  <section class="wrap sec" id="acervo">
+    <div class="acervo-head">
+      <h2>O acervo</h2>
+      <p>Busque por tema ou filtre por trilha. Cada cartão é a entrada de um mapa.</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <span class="mag" aria-hidden="true">🔎</span>
+        <input id="busca" type="search" aria-label="Buscar objeto educacional por tema, metáfora ou conceito" placeholder="Buscar tema, metáfora ou conceito — ex.: testes, IA, Kanban…">
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por trilha"></div>
+    </div>
+
+    <div class="count" id="count" aria-live="polite"></div>
+    <div class="grid" id="grid"></div>
+    <div id="vazio" hidden class="vazio">
+      <div class="ico" aria-hidden="true">🪨</div>
+      <p>Nenhum objeto encontrado nesta busca.</p>
+      <button class="btn btn-ghost" id="limpar" type="button">Limpar filtros</button>
+    </div>
+  </section>
+
+  <!-- ===================== ACESSIBILIDADE ===================== -->
+  <section class="wrap sec">
+    <div class="a11y">
+      <div class="halo" aria-hidden="true"></div>
+      <div class="inner">
+        <div class="lab">Acessível por princípio</div>
+        <h2>Não é só sobre o tema — a interface também é acessível.</h2>
+        <p class="lead">Todo objeto segue o mesmo padrão de acessibilidade, e este acervo também: cada recurso abaixo está ativo nesta página.</p>
+        <div class="grid6">
+          <div class="feat"><span class="fi" aria-hidden="true">⌨️</span><div><b>Teclado completo</b><span>Tab, Enter, Esc e setas em estações e tour.</span></div></div>
+          <div class="feat"><span class="fi" aria-hidden="true">🎯</span><div><b>Foco visível</b><span>Contorno dourado em todo elemento focável.</span></div></div>
+          <div class="feat"><span class="fi" aria-hidden="true">🔊</span><div><b>Leitor de tela</b><span>aria-label, regiões e rota numerada alternativa.</span></div></div>
+          <div class="feat"><span class="fi" aria-hidden="true">🌗</span><div><b>Movimento reduzido</b><span>prefers-reduced-motion desliga as animações.</span></div></div>
+          <div class="feat"><span class="fi" aria-hidden="true">📦</span><div><b>Funciona offline</b><span>HTML único, sem CDN — abre por duplo clique.</span></div></div>
+          <div class="feat"><span class="fi" aria-hidden="true">🎨</span><div><b>Alto contraste</b><span>Texto pergaminho sobre rocha, legível e calmo.</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap foot-page">
+    <p>Um acervo de objetos educacionais no formato mapa-metáfora para devs juniores — onde cada tema técnico vira uma paisagem que se aprende explorando.</p>
+    <div class="credit">danzeroum · animacao_educacional</div>
+  </footer>
+
+<script>
+  const NIVEL_COR = { 'Iniciante':'#7cb87c', 'Intermediário':'#e0b066', 'Avançado':'#d6795f' };
+
+  const DATA = [
+    { id:'observabilidade-sala-de-controle', nome:'Sala de Controle', tema:'Observabilidade', cenario:'Sala de Controle', icone:'🛰️', cor:'#5fb3d9', n:6, cat:'arq', nivel:'Intermediário', tags:['Logs','Métricas','Traces','SLOs'], desc:'Os pilares da observabilidade numa sala de mission control.' },
+    { id:'qa-caverna', nome:'A Caverna da Qualidade', tema:'QA & Testes', cenario:'Caverna', icone:'🪨', cor:'#e0b066', n:12, cat:'qual', nivel:'Iniciante', tags:['V&V','Pirâmide','TDD','Code Review'], desc:'Da verificação ao code review, cada prática no seu nicho.' },
+    { id:'principios-de-codigo-caverna', nome:'A Caverna do Código', tema:'Princípios de Código', cenario:'Caverna', icone:'🪨', cor:'#c9aa5c', n:11, cat:'qual', nivel:'Intermediário', tags:['SOLID','Big-O','Clean Code','12-Factor'], desc:'SOLID, padrões e clean code esculpidos na pedra.' },
+    { id:'arquitetura', nome:'Arquitetura de Software', tema:'Atributos & Trade-offs', cenario:'3 lentes', icone:'🏛️', cor:'#d68b3c', n:12, cat:'arq', nivel:'Avançado', tags:['Escalabilidade','C4','Cloud','Dívida Técnica'], desc:'O mesmo tema em três cenários-metáfora — escolha a lente que faz mais sentido para você.', variantes:[
+      { id:'arquitetura-de-software-caverna', cenario:'Caverna', icone:'🪨' },
+      { id:'arquitetura-software-aldeia', cenario:'Aldeia', icone:'🌾' },
+      { id:'arquitetura-de-software-acampamento-nomade', cenario:'Acampamento', icone:'⛺' },
+    ] },
+    { id:'design-de-api-caverna', nome:'A Caverna das APIs', tema:'Design de API', cenario:'Caverna', icone:'🪨', cor:'#8fb8d6', n:12, cat:'arq', nivel:'Intermediário', tags:['Métodos HTTP','Versionamento','Rate Limiting','Segurança'], desc:'Métodos, recursos e anti-patterns de uma API bem desenhada.' },
+    { id:'devops-caverna', nome:'A Caverna DevOps', tema:'DevOps', cenario:'Caverna', icone:'🪨', cor:'#6aa9c9', n:12, cat:'arq', nivel:'Avançado', tags:['CI/CD','DevSecOps','Rollback','SAMM'], desc:'Pipeline, segurança e entrega contínua na caverna.' },
+    { id:'automacao-processos-caverna', nome:'A Caverna dos Processos', tema:'Automação & BPM', cenario:'Caverna', icone:'🪨', cor:'#b0894d', n:12, cat:'arq', nivel:'Avançado', tags:['BPMN','Gateways','RPA','Orquestração'], desc:'BPM/BPMS: do BPMN à automação end-to-end.' },
+    { id:'engenharia-de-ia-caverna', nome:'A Caverna Inteligente', tema:'Engenharia de IA', cenario:'Caverna', icone:'🪨', cor:'#81b29a', n:12, cat:'dados', nivel:'Avançado', tags:['Viés & Ética','LGPD','Overfitting','Supervisão'], desc:'IA responsável: dos dados ao julgamento humano.' },
+    { id:'sistemas-de-dados-caverna', nome:'A Caverna dos Dados', tema:'Sistemas de Dados', cenario:'Caverna', icone:'🪨', cor:'#5fa8a0', n:12, cat:'dados', nivel:'Avançado', tags:['5 Vs','ETL','Data Lake','Lineage'], desc:'Big data intensivo: dos 5 Vs ao data lineage.' },
+    { id:'analytics-caverna', nome:'A Tribo Analítica', tema:'Analytics & Decisão', cenario:'Tribo', icone:'🔥', cor:'#e0894d', n:12, cat:'dados', nivel:'Intermediário', tags:['Regressão','Amostragem','Hipóteses','Desvio Padrão'], desc:'Estatística e tomada de decisão na tribo analítica.' },
+    { id:'ux-caverna', nome:'A Caverna do UX', tema:'UX no Software', cenario:'Caverna', icone:'🪨', cor:'#d6a4c7', n:11, cat:'prod', nivel:'Iniciante', tags:['Empatia','Heurísticas','Protótipo','Usabilidade'], desc:'Do empático ao usável: UX dentro do ciclo de dev.' },
+    { id:'gestao-de-mudancas-caverna', nome:'A Caverna da Mudança', tema:'Gestão de Mudanças', cenario:'Caverna', icone:'🪨', cor:'#e07a5f', n:12, cat:'prod', nivel:'Intermediário', tags:['Kotter','Cultura','Comunicação','Liderança'], desc:'Os 8 passos de Kotter e a cultura que sustenta a mudança.' },
+    { id:'transformacao-digital-caverna', nome:'A Caverna da Transformação', tema:'Transformação Digital', cenario:'Caverna', icone:'🪨', cor:'#d9a441', n:12, cat:'prod', nivel:'Intermediário', tags:['Data-Driven','Journey Map','KPIs','Experimentação'], desc:'Negócios data-driven e cultura de experimentação rápida.' },
+    { id:'tech-squads-caverna', nome:'A Caverna dos Squads', tema:'Tech Squads', cenario:'Caverna', icone:'🪨', cor:'#c08457', n:12, cat:'prod', nivel:'Intermediário', tags:['Squad','OKR','Tuckman','Skills Matrix'], desc:'Formar e gerir squads: do forming ao performing.' },
+    { id:'metodos-ageis-caverna', nome:'Métodos Ágeis na Caverna', tema:'Métodos Ágeis', cenario:'Caverna', icone:'🪨', cor:'#cf7d52', n:12, cat:'prod', nivel:'Iniciante', tags:['Kanban','Lead Time','WSJF','Definition of Done'], desc:'Agilidade por fluxo: Kanban e métricas de entrega.' },
+    { id:'privacidade-design-caverna', nome:'A Caverna Protetora', tema:'Privacy by Design & LGPD', cenario:'Caverna', icone:'🪨', cor:'#9b7ed6', n:12, cat:'seg', nivel:'Avançado', tags:['Privacy by Design','Bases Legais','Consentimento','DPIA'], desc:'Os 7 princípios do Privacy by Design na prática.' },
+  ];
+
+  const CATS = [
+    { key:'all',   label:'Tudo' },
+    { key:'arq',   label:'Arquitetura & Infra' },
+    { key:'qual',  label:'Qualidade & Código' },
+    { key:'dados', label:'Dados & IA' },
+    { key:'prod',  label:'Produto & Pessoas' },
+    { key:'seg',   label:'Segurança & Governança' },
+  ];
+
+  let estado = { q:'', cat:'all' };
+
+  const elGrid  = document.getElementById('grid');
+  const elChips = document.getElementById('chips');
+  const elCount = document.getElementById('count');
+  const elVazio = document.getElementById('vazio');
+  const elBusca = document.getElementById('busca');
+
+  function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function dur(n){ return '≈' + Math.max(5, Math.round(n*0.7)) + ' min'; }
+
+  function filtrar(){
+    const q = estado.q.trim().toLowerCase();
+    return DATA.filter(o=>{
+      const okCat = estado.cat==='all' || o.cat===estado.cat;
+      const hay = (o.nome+' '+o.tema+' '+o.cenario+' '+o.tags.join(' ')+' '+o.desc).toLowerCase();
+      return okCat && (!q || hay.includes(q));
+    });
+  }
+
+  function cartao(o, i){
+    const hasVar = Array.isArray(o.variantes) && o.variantes.length>0;
+    const num = String(i+1).padStart(2,'0');
+    const nivelCor = NIVEL_COR[o.nivel] || 'var(--dourado-3)';
+    const tags = o.tags.slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+
+    const banner = `
+      <div class="banner">
+        <span class="strata" aria-hidden="true"></span>
+        <span class="arch" aria-hidden="true"></span>
+        <span class="glyph" aria-hidden="true">${o.icone}</span>
+        <span class="dot d1" aria-hidden="true"></span>
+        <span class="dot d2" aria-hidden="true"></span>
+        <span class="dot d3" aria-hidden="true"></span>
+        <span class="cenario"><span class="ci" aria-hidden="true">${o.icone}</span>${esc(o.cenario)}</span>
+        <span class="num" aria-hidden="true">${num}</span>
+      </div>`;
+
+    const head = `
+      <div class="meta">
+        <span class="nivel" style="color:${nivelCor}"><i style="background:${nivelCor}"></i>${esc(o.nivel)}</span>
+        <span aria-hidden="true">·</span><span>${dur(o.n)}</span>
+        <span aria-hidden="true">·</span><span>${o.n} conceitos</span>
+      </div>
+      <div>
+        <h3>${esc(o.nome)}</h3>
+        <div class="tema">${esc(o.tema)}</div>
+      </div>
+      <p class="desc">${esc(o.desc)}</p>
+      <div class="tags">${tags}</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'obj';
+    card.style.setProperty('--c', o.cor);
+
+    if (hasVar){
+      const pills = o.variantes.map(v=>`<a class="pill" href="${v.id}/index.html"><span aria-hidden="true">${v.icone}</span>${esc(v.cenario)} →</a>`).join('');
+      card.innerHTML = banner + `<div class="content">${head}
+        <div class="foot var"><span class="lentes">Lentes:</span>${pills}</div>
+      </div>`;
+    } else {
+      card.innerHTML = banner + `<div class="content">${head}
+        <div class="foot single"><span class="abrir">Abrir o mapa</span><span class="explorar">Explorar →</span></div>
+      </div>
+      <a class="stretch" href="${o.id}/index.html" aria-label="${esc(o.nome)} — ${esc(o.tema)}, abrir o mapa"></a>`;
+    }
+    return card;
+  }
+
+  function render(){
+    const lista = filtrar();
+    elGrid.innerHTML = '';
+    lista.forEach((o,i)=> elGrid.appendChild(cartao(o,i)));
+    const has = lista.length>0;
+    elGrid.hidden = !has;
+    elVazio.hidden = has;
+    elCount.textContent = `Mostrando ${lista.length} de ${DATA.length} ${DATA.length===1?'mapa':'mapas'}.`;
+  }
+
+  function renderChips(){
+    const counts = {};
+    DATA.forEach(o=> counts[o.cat] = (counts[o.cat]||0)+1);
+    elChips.innerHTML = '';
+    CATS.forEach(c=>{
+      const n = c.key==='all' ? DATA.length : (counts[c.key]||0);
+      const b = document.createElement('button');
+      b.className='chip'; b.type='button';
+      b.setAttribute('aria-pressed', String(c.key===estado.cat));
+      b.innerHTML = `${esc(c.label)} <span class="n">${n}</span>`;
+      b.addEventListener('click', ()=>{ estado.cat=c.key; renderChips(); render(); });
+      elChips.appendChild(b);
+    });
+  }
+
+  elBusca.addEventListener('input', e=>{ estado.q=e.target.value; render(); });
+  document.getElementById('limpar').addEventListener('click', ()=>{
+    estado={ q:'', cat:'all' }; elBusca.value=''; renderChips(); render();
+  });
+
+  renderChips();
+  render();
+</script>
+</body>
+</html>
