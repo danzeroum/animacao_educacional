@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna da Transformação Digital — Negócios Digitais para Times de Produto</title>
+  <meta name="description" content="Objeto educacional interativo: uma ilustração de caverna pré-histórica em duas faixas onde cada nicho é um conceito de transformação digital — Customer-Centric, Data-Driven, Ecossistema, Cultura de Inovação, Maturidade Digital, Journey Mapping, KPIs, Hipóteses, Learning Plan, Experimentação Rápida, Parcerias e APIs.">
+  <meta property="og:title" content="A Caverna da Transformação Digital — Negócios Digitais para Times de Produto">
+  <meta property="og:description" content="Clique em cada nicho da caverna para explorar os 12 conceitos de transformação digital. Tour guiado com progresso visual, conexões entre conceitos e dicas práticas acionáveis.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="transformacao-digital-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Transformação Digital dos Negócios</div>
+    <h1>🪨 A Caverna da Transformação Digital</h1>
+    <p class="tese">De <em>projetos de digitalização isolados</em> para a <strong>figura que mostra onde cada prática mora no sistema</strong>. A caverna pré-histórica vira interface: faixa superior com a visão macro (Customer-Centric, Data-Driven, Ecossistema, Cultura e Maturidade) e faixa inferior com as práticas micro — clique em qualquer nicho.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — visão macro acima, práticas micro abaixo.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="transformacao-digital-caverna.png" alt="Caverna pré-histórica em corte transversal dividida em duas faixas horizontais: faixa superior com cinco nichos representando Customer-Centric (trilha de pegadas), Data-Driven (mural de métricas), Ecossistema (pontes entre cavernas), Cultura de Inovação (protótipos e lições aprendidas) e Maturidade Digital (escada de degraus); faixa inferior com sete nichos representando Journey Mapping (mural de jornada), KPI Dashboards (painel de pedra), Hipóteses Mensuráveis (tábua de argila), Learning Plan (círculo de troca de conhecimento), Experimentação Rápida (bancada de protótipos), Parcerias e Integração (plataforma de troca) e Integração de Serviços (canais de água com válvulas).">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos de transformação digital — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Transformação Digital</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma tribo que transforma não é a que tem mais ferramentas, mas a que sabe onde cada ferramenta serve dentro da jornada." A figura faz isso pelo time: mostra onde cada prática mora dentro do sistema de transformação.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    clientecentric: {
+      zona: 'Macro · Faixa Superior — Visão Digital',
+      titulo: 'Customer-Centric — A Jornada do Cliente',
+      icone: '👣',
+      cor: '#d9a441',
+      label: 'Customer-Centric',
+      metafora: 'Uma trilha de pegadas serpenteia pela caverna: chegada acolhedora, pedra pontiaguda do atrito, fogueira do encantamento e grupo apontando novos membros para a entrada. O ancião anota cada ponto de melhoria — a jornada inteira visível numa só parede.',
+      bullets: [
+        'Customer Journey Map é a trilha de pegadas: visualiza cada interação do cliente com o produto, do primeiro contato ao encantamento e à recomendação.',
+        'Pontos de atrito (pedras pontiagudas) são onde os clientes abandonam — eliminar um deles vale mais que adicionar dez novas funcionalidades.',
+        'NPS e CSAT medem o "calor da fogueira": use-os para priorizar melhorias onde o cliente sente mais a diferença, não onde a equipe acha mais interessante.'
+      ],
+      ferramentas: [
+        {nome: 'Hotjar', url: 'https://www.hotjar.com'},
+        {nome: 'Qualtrics', url: 'https://www.qualtrics.com'},
+        {nome: 'Maze', url: 'https://maze.co'}
+      ],
+      dica: 'Antes de qualquer nova funcionalidade, rode um teste de usabilidade com 5 usuários reais. Você encontrará 80% dos problemas críticos — e vai descobrir que a pedra pontiaguda que machuca mais não é a que você imaginava.'
+    },
+    datadriven: {
+      zona: 'Macro · Faixa Superior — Visão Digital',
+      titulo: 'Data-Driven — Decisão por Evidência',
+      icone: '📊',
+      cor: '#5fc8a0',
+      label: 'Data-Driven',
+      metafora: 'O sábio consulta termômetros de pedra, relógios de areia e gráficos em relevo antes de qualquer mudança. Nenhum passo sem evidência — é a tribo que mede antes de agir, e o mural de métricas fica visível para todos.',
+      bullets: [
+        'Cultura data-driven não é ter dados — é tomar decisões com base neles. O sábio não caça sem consultar o mural, mesmo que a intuição aponte para outra direção.',
+        'Defina uma North Star Metric: um único número que representa valor real entregue ao cliente, que toda a tribo conhece e sabe como impactar.',
+        'Cuidado com vaidade metrics: visitas e downloads sem conversão são termômetros que indicam a temperatura errada — números que crescem mas não geram valor.'
+      ],
+      ferramentas: [
+        {nome: 'Mixpanel', url: 'https://mixpanel.com'},
+        {nome: 'Looker', url: 'https://looker.com'},
+        {nome: 'dbt', url: 'https://getdbt.com'}
+      ],
+      dica: 'Para cada decisão importante, pergunte: "Que dado me faria mudar de ideia?" Se você não sabe responder, a decisão já está tomada por viés — não por evidência. Esse exercício expõe suposições escondidas antes de qualquer análise.'
+    },
+    ecossistema: {
+      zona: 'Macro · Faixa Superior — Visão Digital',
+      titulo: 'Ecossistema — A Rede de Tribos',
+      icone: '🌐',
+      cor: '#8fb8d6',
+      label: 'Ecossistema Digital',
+      metafora: 'Pontes de troncos e cordas conectam a caverna principal a parceiros, fornecedores e clientes. Cestos trafegam informações com guardiões verificando compatibilidade. O valor cresce com a rede — nenhuma tribo prospera sozinha nesse território.',
+      bullets: [
+        'Plataformas de ecossistema criam mais valor conectando participantes do que operando sozinhas — pense em marketplaces, APIs abertas e redes de parceiros.',
+        'Network effects: cada novo membro da rede aumenta o valor para todos os outros membros existentes — o crescimento acelera quanto mais a rede cresce.',
+        'Parcerias estratégicas são as pontes: escolha bem com quem conectar, pois a ponte errada consome energia dos dois lados sem entregar valor ao cliente.'
+      ],
+      ferramentas: [
+        {nome: 'Apigee', url: 'https://cloud.google.com/apigee'},
+        {nome: 'MuleSoft', url: 'https://www.mulesoft.com'},
+        {nome: 'Stripe Connect', url: 'https://stripe.com/connect'}
+      ],
+      dica: 'Antes de construir qualquer capacidade internamente, pergunte se existe um parceiro de ecossistema que já a oferece melhor. Conectar uma boa ponte é mais rápido e barato do que construir uma nova caverna — e libera energia para o que é diferenciador.'
+    },
+    culturainovacao: {
+      zona: 'Macro · Faixa Superior — Visão Digital',
+      titulo: 'Cultura de Inovação — Permissão para Errar',
+      icone: '🔥',
+      cor: '#e07b3a',
+      label: 'Cultura de Inovação',
+      metafora: 'Uma área com protótipos em diferentes estágios: ferramentas quebradas, ajustadas e funcionando. O líder incentiva quem testa sem punição — e uma pilha crescente de lições aprendidas fica ao lado. Falha rápida e barata é o combustível da inovação.',
+      bullets: [
+        'Psychological safety (segurança psicológica) é o pré-requisito: times que temem punição por falhas não experimentam — e param de aprender e de inovar.',
+        'Separe inovação incremental (melhorias contínuas) de inovação disruptiva (novos modelos de negócio) — elas precisam de ambientes, times e métricas diferentes.',
+        '"Lições aprendidas" em retrospectivas só têm valor se gerarem ação concreta. A pilha de tábuas só serve se a tribo a consulta antes de caçar de novo.'
+      ],
+      ferramentas: [
+        {nome: 'IDEO Design Thinking', url: 'https://designthinking.ideo.com'},
+        {nome: 'Miro', url: 'https://miro.com'},
+        {nome: 'Retrium', url: 'https://www.retrium.com'}
+      ],
+      dica: 'Celebre falhas rápidas e baratas em público. Uma "failure session" trimestral onde todos compartilham o que tentaram e não funcionou constrói mais confiança psicológica do que mil discursos sobre inovação — e revela padrões de erro que ninguém via sozinho.'
+    },
+    maturidadedigital: {
+      zona: 'Macro · Faixa Superior — Visão Digital',
+      titulo: 'Maturidade Digital — A Escada da Transformação',
+      icone: '🪜',
+      cor: '#b08cc4',
+      label: 'Maturidade Digital',
+      metafora: 'Uma escada de cinco degraus gravada na parede: do primeiro com ferramentas rudimentares ao topo com ferramentas sofisticadas e polidas. Cada degrau — manual, mecanizado, digitalizado, otimizado, autônomo — tem o que é necessário antes de subir ao próximo.',
+      bullets: [
+        'Modelos de maturidade digital (DMM, MIT CISR) mapeiam onde a organização está e o que precisa evoluir — a escada existe antes de subir, não se improvisa.',
+        'Erro clássico: pular degraus. Automatizar um processo ruim só acelera o caos. Primeiro otimize o processo manual, depois digitalize, depois automatize.',
+        'Maturidade digital não é destino, é ritmo de evolução: organizações no topo continuam subindo — o último degrau visível sempre revela o próximo que estava escondido.'
+      ],
+      ferramentas: [
+        {nome: 'MIT CISR', url: 'https://cisr.mit.edu'},
+        {nome: 'BCG Digital Acceleration Index', url: 'https://www.bcg.com/capabilities/digital-technology-data/digital-acceleration-index'},
+        {nome: 'McKinsey Digital', url: 'https://www.mckinsey.com/capabilities/mckinsey-digital'}
+      ],
+      dica: 'Faça um digital maturity assessment a cada 12 meses com liderança E com quem executa. Quando os dois grupos concordam no degrau atual, a organização está pronta para subir. Quando divergem, há alinhamento a fazer antes de qualquer investimento em transformação.'
+    },
+    journeymapping: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'Journey Mapping — O Mural da Jornada',
+      icone: '🗺️',
+      cor: '#d9a441',
+      label: 'Journey Mapping',
+      metafora: 'Um mural detalhado com trilha de pegadas: pedras pontiagudas marcam atrito e fogueiras marcam encantamento. Trogloditas percorrem a trilha expressando frustração ou satisfação — o mapa torna a experiência real visível para toda a tribo ao mesmo tempo.',
+      bullets: [
+        'Customer Journey Map é um artefato construído com dados reais (entrevistas, analytics, gravações de sessão) — não com suposições de quem está dentro da caverna.',
+        'Inclua emoções em cada etapa: o mapa com expressões (frustração/satisfação) revela onde a experiência quebra mesmo quando os dados de conversão parecem "ok".',
+        'O maior valor do mapeamento é o processo colaborativo: alinhar equipes em torno da jornada real quebra silos mais eficientemente do que qualquer organograma.'
+      ],
+      ferramentas: [
+        {nome: 'UXPressia', url: 'https://uxpressia.com'},
+        {nome: 'Miro', url: 'https://miro.com'},
+        {nome: 'FullStory', url: 'https://www.fullstory.com'}
+      ],
+      dica: 'Mapeie a jornada "as-is" (como é hoje, com toda a dor) antes de imaginar a "to-be" (como deveria ser). Times que pulam para o futuro sem entender o presente criam murais bonitos que não resolvem o problema que machuca o cliente de verdade.'
+    },
+    kpidashboard: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'KPIs e Dashboards — O Painel de Pedra',
+      icone: '📈',
+      cor: '#5fc8a0',
+      label: 'KPI Dashboards',
+      metafora: 'Um painel com termômetro de desempenho, relógio de areia duplo (lead time vs cycle time), contador de fluxo (throughput) e alvo com mira (meta alcançada). Cada indicador conta uma história diferente — juntos mostram a saúde real da tribo.',
+      bullets: [
+        'KPI (Key Performance Indicator) só é chave se está diretamente ligado a uma decisão que precisa ser tomada — KPI que não gera ação é pedra sem função no painel.',
+        'Lead time ≠ cycle time: lead time mede do pedido à entrega; cycle time mede do início do trabalho à entrega. A diferença entre os dois é a fila de espera — onde o valor some.',
+        'Dashboard em tempo real só vale se alguém está olhando e tomando ação imediata. Defina alertas com responsável, não apenas relatórios que ninguém lê.'
+      ],
+      ferramentas: [
+        {nome: 'Metabase', url: 'https://www.metabase.com'},
+        {nome: 'Grafana', url: 'https://grafana.com'},
+        {nome: 'Tableau', url: 'https://www.tableau.com'}
+      ],
+      dica: 'Limite a 3-5 KPIs no dashboard principal. Mais de 7 e ninguém consegue monitorar — é painel com muito painel e pouca decisão. Para cada métrica, defina quem é o dono e qual é a ação automática quando sai do alvo esperado.'
+    },
+    hipoteses: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'Hipóteses Mensuráveis — A Tábua de Argila',
+      icone: '🧪',
+      cor: '#c9aa5c',
+      label: 'Hipóteses Mensuráveis',
+      metafora: 'Um troglodita escreve uma previsão em tábua de argila úmida, testa na prática e compara o resultado — marcando "confirmado" ou "refutado" com símbolos distintos. Hipótese sem critério de validação é desejo, não ciência.',
+      bullets: [
+        'Formato padrão: "Acreditamos que [ação] para [segmento] resultará em [outcome] — medido por [métrica] — com sucesso definido como [threshold]". Sem o threshold, não é hipótese.',
+        'Defina o critério de refutação ANTES de executar o experimento. Se você define depois, sempre encontra uma forma de "confirmar" o que queria acreditar.',
+        'Um backlog de hipóteses priorizadas por impacto esperado vs. confiança atual é mais acionável que um roadmap de features — você prioriza aprendizado, não entrega de código.'
+      ],
+      ferramentas: [
+        {nome: 'Notion', url: 'https://notion.so'},
+        {nome: 'Jira', url: 'https://www.atlassian.com/software/jira'},
+        {nome: 'Optimizely', url: 'https://www.optimizely.com'}
+      ],
+      dica: 'O objetivo de um experimento não é provar que você estava certo — é descobrir a verdade o mais rápido e barato possível. Experimentos que refutam a hipótese são os mais valiosos: custam pouco e economizam muito, poupando a tribo de caçar na direção errada.'
+    },
+    learningplan: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'Learning Plan — O Círculo de Conhecimento',
+      icone: '🔄',
+      cor: '#8fb8d6',
+      label: 'Learning Plan',
+      metafora: 'Um círculo de trogloditas trocando tábuas de conhecimento — cada um contribui com uma lição e recebe outra em troca. Um mural central registra o conhecimento acumulado da tribo, evoluindo a cada ciclo de aprendizado.',
+      bullets: [
+        'Learning Plan define O QUE o time precisa aprender para executar a estratégia digital — não é catálogo de cursos, é plano de capacidade com prazo e critério de avaliação.',
+        'Conhecimento tácito (o que os trogloditas velhos sabem mas não escreveram) vale mais que qualquer curso gravado — invista em mentoria, pair work e job rotation.',
+        'Ciclos de aprendizagem com retrospectiva: o que testamos? o que aprendemos? o que mudamos no jeito de trabalhar? Sem esse fechamento, o círculo não gira de verdade.'
+      ],
+      ferramentas: [
+        {nome: 'Loom', url: 'https://www.loom.com'},
+        {nome: 'Notion', url: 'https://notion.so'},
+        {nome: 'Confluence', url: 'https://www.atlassian.com/software/confluence'}
+      ],
+      dica: 'Antes de contratar, pergunte: "O que este time precisaria aprender para resolver esse problema?" Se a resposta for "muita coisa em pouco tempo", talvez seja mais eficiente contratar alguém que já sabe do que treinar todos do zero e perder velocidade de transformação.'
+    },
+    experimentacao: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'Experimentação Rápida — Fail Fast',
+      icone: '⚡',
+      cor: '#e07b3a',
+      label: 'Experimentação Rápida',
+      metafora: 'Uma bancada com múltiplos protótipos simultâneos: alguns quebram de imediato, outros são promissores. Trogloditas descartam rapidamente os que falham e refinam os que mostram potencial. Velocidade de aprendizado é a vantagem competitiva real.',
+      bullets: [
+        'MVP (Minimum Viable Product) é o protótipo mais barato que testa a hipótese mais arriscada — não é um produto ruim, é uma pergunta disfarçada de produto para o cliente responder.',
+        'Fail fast não significa valorizar o fracasso — significa reduzir o custo do aprendizado. Quanto mais barato e rápido você testa, mais hipóteses consegue testar com o mesmo orçamento.',
+        'Design Sprint (5 dias) e spike técnico (timebox curto) são formatos estruturados de experimentação: critério de sucesso claro antes de começar, resultado claro no fim.'
+      ],
+      ferramentas: [
+        {nome: 'Figma', url: 'https://figma.com'},
+        {nome: 'LaunchDarkly', url: 'https://launchdarkly.com'},
+        {nome: 'GrowthBook', url: 'https://www.growthbook.io'}
+      ],
+      dica: 'Antes de construir qualquer experimento, complete as duas sentenças: "Será sucesso se..." e "Será fracasso se..." Se você não consegue completar a segunda, o experimento não está pronto. Critério de falha definido é o que diferencia aprendizado de busca por validação.'
+    },
+    parcerias: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'Parcerias e Integração — A Plataforma de Troca',
+      icone: '🤝',
+      cor: '#b08cc4',
+      label: 'Parcerias & Integração',
+      metafora: 'Trogloditas de tribos diferentes inspecionam cestos antes de aceitá-los — símbolos de compatibilidade gravados nas cestas garantem interoperabilidade. Parceria boa é aquela onde ambos os lados saem com mais do que trouxeram.',
+      bullets: [
+        'Avalie parcerias pelo modelo win-win-win: seu negócio ganha, o parceiro ganha e o cliente final ganha — falte um dos três e a parceria não sobrevive ao primeiro ano.',
+        'SLA (Service Level Agreement) é o "símbolo de compatibilidade no cesto": define o que cada lado promete e como medir e remediar a quebra de promessa de forma objetiva.',
+        'Integração técnica é só metade da equação. Alinhar incentivos comerciais e KPIs compartilhados é tão importante quanto alinhar APIs — integração sem alinhamento quebra rápido.'
+      ],
+      ferramentas: [
+        {nome: 'Crossbeam', url: 'https://www.crossbeam.com'},
+        {nome: 'PartnerStack', url: 'https://partnerstack.com'},
+        {nome: 'Zapier', url: 'https://zapier.com'}
+      ],
+      dica: 'Defina um "partnership health score" com 3-5 métricas de sucesso mútuo revisadas trimestralmente. Parceria sem review regular vira serviço que ninguém usa — custo fixo sem geração de valor para nenhum dos lados da ponte.'
+    },
+    integracaoservicos: {
+      zona: 'Micro · Faixa Inferior — Práticas e Métricas',
+      titulo: 'Integração de Serviços — As APIs Naturais',
+      icone: '🔌',
+      cor: '#cdbd9a',
+      label: 'Integração de Serviços',
+      metafora: 'Canais de água conectam compartimentos da caverna: cada serviço tem entrada e saída padronizadas, e válvulas controlam o fluxo entre eles. Ajustar uma válvula não para o sistema inteiro — é desacoplamento modelado em pedra e água.',
+      bullets: [
+        'API-first design: defina o contrato (entrada/saída) antes de implementar o serviço — a válvula e seus encaixes existem antes de abrir o canal.',
+        'Integração síncrona (REST/GraphQL) quando você precisa da resposta agora; assíncrona (eventos/filas/streams) quando pode processar depois e quer mais resiliência.',
+        'Cuidado com tight coupling: serviços que conhecem demais os internos uns dos outros quebram juntos. A válvula deve regular o fluxo, não saber o que há dentro de cada compartimento.'
+      ],
+      ferramentas: [
+        {nome: 'Kong API Gateway', url: 'https://konghq.com'},
+        {nome: 'AWS EventBridge', url: 'https://aws.amazon.com/eventbridge/'},
+        {nome: 'Swagger / OpenAPI', url: 'https://swagger.io'}
+      ],
+      dica: 'Versione suas APIs desde o dia 1 (/v1/, /v2/). Mudar uma API sem versionar é retirar uma válvula com o sistema funcionando — garante vazamento em algum lugar que você não estava monitorando. Contratos versionados permitem evoluir sem quebrar.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container [left, top, width, height]
+  // Faixa superior (macro): top ≈ 8%, height ≈ 40% — 5 nichos de ~18% de largura
+  // Faixa inferior (micro): top ≈ 56%, height ≈ 38% — 7 nichos de ~13% de largura
+  const GEO = {
+    clientecentric:    [ 1,   8, 18, 40],
+    datadriven:        [21,   8, 18, 40],
+    ecossistema:       [41,   8, 18, 40],
+    culturainovacao:   [61,   8, 18, 40],
+    maturidadedigital: [81,   8, 17, 40],
+    journeymapping:    [ 1,  56, 13, 38],
+    kpidashboard:      [15,  56, 13, 38],
+    hipoteses:         [29,  56, 13, 38],
+    learningplan:      [43,  56, 13, 38],
+    experimentacao:    [57,  56, 13, 38],
+    parcerias:         [71,  56, 13, 38],
+    integracaoservicos:[85,  56, 13, 38]
+  };
+
+  const ORDEM = [
+    'clientecentric','datadriven','ecossistema','culturainovacao','maturidadedigital',
+    'journeymapping','kpidashboard','hipoteses','learningplan','experimentacao','parcerias','integracaoservicos'
+  ];
+
+  const RELACOES = {
+    clientecentric:    { ids:['journeymapping','hipoteses','experimentacao'],     nota:'A jornada do cliente gera o mural de mapeamento, alimenta hipóteses mensuráveis e define onde experimentar melhorias que realmente doem para quem usa.' },
+    datadriven:        { ids:['kpidashboard','hipoteses','maturidadedigital'],    nota:'O sábio que decide por evidência precisa do painel de KPIs para medir, de hipóteses claras para testar e da escada de maturidade para saber quão longe ainda vai.' },
+    ecossistema:       { ids:['parcerias','integracaoservicos','maturidadedigital'], nota:'A rede de tribos só funciona com parcerias bem definidas, serviços integrados via APIs e o nível de maturidade digital que sustenta a conexão estável.' },
+    culturainovacao:   { ids:['experimentacao','learningplan','hipoteses'],       nota:'Cultura de inovação é o ambiente onde experimentos são protegidos, planos de aprendizagem evoluem a cada ciclo e hipóteses são testadas sem punição por refutação.' },
+    maturidadedigital: { ids:['ecossistema','integracaoservicos','kpidashboard'], nota:'A escada da maturidade avança conectando ecossistemas, integrando serviços com padrões sólidos e medindo o progresso com dashboards que mostram onde a tribo realmente está.' },
+    journeymapping:    { ids:['clientecentric','kpidashboard','experimentacao'],  nota:'O mural da jornada dá corpo à visão customer-centric, aponta quais KPIs importam para o cliente e revela onde experimentar melhorias com maior impacto real.' },
+    kpidashboard:      { ids:['datadriven','hipoteses','maturidadedigital'],      nota:'O painel de pedra materializa a cultura data-driven, valida ou refuta hipóteses com números e mede em que degrau da escada de maturidade a tribo realmente está.' },
+    hipoteses:         { ids:['datadriven','experimentacao','learningplan'],      nota:'Hipóteses mensuráveis nascem da cultura de dados, viram experimentos rápidos e, confirmadas ou refutadas, alimentam o plano de aprendizagem da tribo.' },
+    learningplan:      { ids:['culturainovacao','experimentacao','parcerias'],    nota:'O ciclo de conhecimento sustenta a cultura de inovação, captura o que os experimentos ensinaram e transfere aprendizados entre tribos parceiras do ecossistema.' },
+    experimentacao:    { ids:['culturainovacao','hipoteses','journeymapping'],    nota:'Experimentar rápido é a prática que dá vida à cultura de inovação, valida hipóteses na prática e descobre pontos de atrito invisíveis no mural da jornada.' },
+    parcerias:         { ids:['ecossistema','integracaoservicos','learningplan'], nota:'Parcerias constroem o ecossistema de tribos, exigem serviços integrados em escala e cruzam conhecimento — cada parceiro carrega lições que nenhuma tribo teria sozinha.' },
+    integracaoservicos:{ ids:['ecossistema','parcerias','maturidadedigital'],     nota:'As APIs naturais conectam o ecossistema de tribos, sustentam as parcerias em escala e são o sinal mais claro do grau de maturidade digital alcançado pela tribo.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1);  return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
