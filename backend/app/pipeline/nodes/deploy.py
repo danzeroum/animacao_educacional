@@ -74,26 +74,46 @@ def _abrir_pr_rest(slug: str, branch: str) -> str:
         return json.loads(resp.read()).get("html_url", "")
 
 
+def _branch_atual(root) -> str:
+    try:
+        return _git(["rev-parse", "--abbrev-ref", "HEAD"], root)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def _deploy_real(slug: str) -> dict:
-    """git branch/commit/push (+PR se houver token). Roda em thread."""
+    """git branch/commit/push (+PR se houver token). Roda em thread.
+
+    Restaura o branch original ao fim (mesmo em erro) para NÃO deixar o clone
+    montado preso no branch do objeto.
+    """
     s = settings()
     root = s.repo_root
     branch = f"{slug}/objeto-educacional"
+    original = _branch_atual(root)
     _ensure_identity(root)
-    _git(["checkout", "-B", branch, s.github_base_branch], root)
-    _git(["add", slug, "index.html", "README.md"], root)
-    # só commita se há algo staged (evita falha em re-run idempotente)
-    tem_staged = subprocess.run(["git", "diff", "--cached", "--quiet"],
-                                cwd=str(root)).returncode != 0
-    if tem_staged:
-        _git(["commit", "-m", _commit_msg(slug)], root)
-    pushed = False
-    pr_url = ""
-    if s.has_github_token:
-        _push_autenticado(branch, root)  # token vai na URL, mascarado em erros
-        pushed = True
-        pr_url = _abrir_pr_rest(slug, branch)
-    return {"branch": branch, "pushed": pushed, "pr_url": pr_url}
+    try:
+        _git(["checkout", "-B", branch, s.github_base_branch], root)
+        _git(["add", slug, "index.html", "README.md"], root)
+        # só commita se há algo staged (evita falha em re-run idempotente)
+        tem_staged = subprocess.run(["git", "diff", "--cached", "--quiet"],
+                                    cwd=str(root)).returncode != 0
+        if tem_staged:
+            _git(["commit", "-m", _commit_msg(slug)], root)
+        pushed = False
+        pr_url = ""
+        if s.has_github_token:
+            _push_autenticado(branch, root)  # token vai na URL, mascarado em erros
+            pushed = True
+            pr_url = _abrir_pr_rest(slug, branch)
+        return {"branch": branch, "pushed": pushed, "pr_url": pr_url}
+    finally:
+        # volta pro branch original (o objeto já está commitado no branch do objeto)
+        if original and original != branch:
+            try:
+                _git(["checkout", original], root)
+            except Exception:  # noqa: BLE001
+                pass
 
 
 async def deploy(state: PipelineState, config) -> dict:

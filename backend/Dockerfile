@@ -4,7 +4,8 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
 
@@ -13,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
 # Dependências Python + navegador do Playwright (Chromium) com libs de SO.
+# Instala em PLAYWRIGHT_BROWSERS_PATH (/ms-playwright); o runtime acha pelo mesmo env.
 COPY requirements.txt .
 RUN pip install -r requirements.txt \
     && python -m playwright install --with-deps chromium

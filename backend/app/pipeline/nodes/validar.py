@@ -10,7 +10,6 @@ async conflita com o uvloop do uvicorn e pode travar — a sync em thread é rob
 from __future__ import annotations
 
 import asyncio
-import os
 from pathlib import Path
 
 from ...config import settings
@@ -36,11 +35,13 @@ def _validar_sync(html_path: Path, slug: str, n: int) -> tuple[list[dict], list[
     externos: list[str] = []
     console_errs: list[str] = []
 
-    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/opt/pw-browsers")
+    # NÃO forçar PLAYWRIGHT_BROWSERS_PATH: deixa o Playwright usar o caminho onde
+    # o navegador foi instalado (no Docker é o default; em dev pode vir do ambiente).
     with sync_playwright() as p:
         try:
             browser = p.chromium.launch()
         except Exception:
+            # último recurso: caminho do ambiente de dev (no Docker isto não roda).
             browser = p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
         page = browser.new_page()
         page.on("console", lambda m: console_errs.append(m.text) if m.type == "error" else None)
@@ -61,7 +62,10 @@ def _validar_sync(html_path: Path, slug: str, n: int) -> tuple[list[dict], list[
             "})")
         modal_abre = False
         if hotspots:
-            page.click("#figura [data-conceito]")
+            # clique via JS (el.click()) — testa o handler do modal sem esbarrar na
+            # sobreposição dos hotspots (que faz o page.click estrito dar timeout).
+            page.eval_on_selector("#figura [data-conceito]", "el => el.click()")
+            page.wait_for_timeout(150)  # deixa o handler abrir o modal
             modal_abre = page.eval_on_selector(
                 "#modal-overlay", "el => el.classList.contains('aberto') "
                 "|| getComputedStyle(el).display !== 'none'")
