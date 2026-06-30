@@ -5,13 +5,51 @@ mecânica de injeção. Fase 3 liga o DeepSeek real + validação de schema.
 """
 from __future__ import annotations
 
-import asyncio
 import json
 
 from ...config import settings
+from .. import clients
+from ..prompts import CORRECAO_SUFIXO, OBJETO_JSON
+from ..render import render_objeto, validar_schema
 from ..state import PipelineState
+from ..util import QuotaError, with_retry
 from ._util import emit
-from ..render import render_objeto
+
+
+def _parse_json(texto: str) -> dict:
+    """Extrai JSON do texto da LLM, tolerando cercas ```json … ```."""
+    t = texto.strip()
+    if t.startswith("```"):
+        t = t.split("```", 2)[1] if t.count("```") >= 2 else t.strip("`")
+        if t.lstrip().startswith("json"):
+            t = t.lstrip()[4:]
+    i, j = t.find("{"), t.rfind("}")
+    if i != -1 and j != -1:
+        t = t[i:j + 1]
+    return json.loads(t)
+
+
+def _chamar_deepseek(state: PipelineState) -> dict:
+    s = settings()
+    prompt = OBJETO_JSON.format(tema=state["tema"], metafora=state["metafora"],
+                                n=state.get("n_conceitos", 12))
+    erros = state.get("erros_validacao") or []
+    if erros:
+        prompt += CORRECAO_SUFIXO.format(erros="\n".join(f"- {e}" for e in erros))
+
+    resp = clients.deepseek().chat.completions.create(
+        model=s.deepseek_model,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=8000,
+        response_format={"type": "json_object"},
+    )
+    objeto = _parse_json(resp.choices[0].message.content or "")
+    problemas = validar_schema(objeto, state.get("n_conceitos", 12))
+    if problemas:
+        # schema inválido → força nova tentativa da própria LLM (não é cota)
+        raise ValueError("JSON fora do schema: " + "; ".join(problemas[:6]))
+    return objeto
 
 
 def _stub_objeto(state: PipelineState) -> dict:
@@ -58,9 +96,22 @@ async def gerar_objeto(state: PipelineState, config) -> dict:
     tentativa = state.get("tentativas_correcao", 0) + 1
     await emit(config, "gerar_objeto", "running",
                f"Gerando objeto (JSON → template) · tentativa {tentativa}…")
-    await asyncio.sleep(0.5)  # stub
 
-    objeto = _stub_objeto(state)
+    if not settings().has_deepseek:
+        objeto = _stub_objeto(state)
+        await emit(config, "gerar_objeto", "running", "(stub — sem DEEPSEEK_API_KEY)")
+    else:
+        async def _aviso(i, exc):
+            await emit(config, "gerar_objeto", "running", f"Tentativa {i} do JSON falhou ({exc}); repetindo…")
+        try:
+            objeto = await with_retry(lambda: _chamar_deepseek(state), on_retry=_aviso)
+        except QuotaError as e:
+            await emit(config, "gerar_objeto", "fail", f"Cota da DeepSeek esgotada: {e}")
+            raise
+        except Exception as e:  # noqa: BLE001
+            await emit(config, "gerar_objeto", "fail", f"JSON inválido após retries: {e}")
+            raise
+
     html_path, readme_path = render_objeto(state["slug"], objeto, settings().repo_root)
 
     await emit(config, "gerar_objeto", "ok",

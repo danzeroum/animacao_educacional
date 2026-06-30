@@ -17,6 +17,54 @@ def _js(value) -> str:
     return json.dumps(value, ensure_ascii=False, indent=2)
 
 
+class SchemaError(ValueError):
+    """objeto_json não cumpre o contrato esperado pelo template."""
+
+
+_META_OBRIG = ["titulo", "titulo_pagina", "descricao", "og_desc", "tese", "figura_dica",
+               "img_alt", "dica_label", "rodape", "icone", "cenario", "cor", "cat",
+               "nivel", "tags", "desc"]
+_CONC_OBRIG = ["zona", "titulo", "icone", "cor", "label", "metafora", "bullets",
+               "ferramentas", "dica"]
+
+
+def validar_schema(objeto: dict, n: int) -> list[str]:
+    """Valida o objeto_json contra o contrato. Retorna lista de erros (vazia = ok)."""
+    erros: list[str] = []
+    for chave in ("metadados", "ordem", "conceitos", "geo", "relacoes"):
+        if chave not in objeto:
+            erros.append(f"falta a chave de topo '{chave}'")
+    if erros:
+        return erros
+
+    ordem = objeto["ordem"]
+    if not isinstance(ordem, list) or len(ordem) != n:
+        erros.append(f"'ordem' deve ter {n} ids (tem {len(ordem) if isinstance(ordem, list) else 'N/A'})")
+
+    conceitos, geo = objeto["conceitos"], objeto["geo"]
+    for cid in ordem if isinstance(ordem, list) else []:
+        if cid not in conceitos:
+            erros.append(f"id '{cid}' ausente em 'conceitos'")
+        else:
+            faltando = [k for k in _CONC_OBRIG if k not in conceitos[cid]]
+            if faltando:
+                erros.append(f"conceito '{cid}' sem campos: {', '.join(faltando)}")
+            b = conceitos[cid].get("bullets")
+            if not isinstance(b, list) or len(b) < 3:
+                erros.append(f"conceito '{cid}' precisa de >=3 bullets")
+        g = geo.get(cid)
+        if not (isinstance(g, list) and len(g) == 4):
+            erros.append(f"geo['{cid}'] deve ser [left,top,width,height]")
+
+    meta = objeto["metadados"]
+    falt_meta = [k for k in _META_OBRIG if k not in meta]
+    if falt_meta:
+        erros.append(f"metadados sem campos: {', '.join(falt_meta)}")
+    if meta.get("cat") not in {"arq", "qual", "dados", "prod", "seg"}:
+        erros.append(f"metadados.cat inválido: {meta.get('cat')!r}")
+    return erros
+
+
 def montar_html(slug: str, objeto: dict) -> str:
     meta = objeto["metadados"]
     n = len(objeto["ordem"])
