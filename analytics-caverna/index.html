@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Tribo Analítica — Analytics e Tomada de Decisão para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma ilustração de caverna pré-histórica onde cada nicho representa um conceito de analytics para negócios — análise descritiva, inferência, regressão linear, amostragem, dashboard, média, mediana, moda, desvio padrão, erros tipo I/II e R².">
+  <meta property="og:title" content="A Tribo Analítica — Analytics e Tomada de Decisão para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna para aprender analytics com a metáfora da tribo pré-histórica que toma decisões baseadas em dados.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="analytics-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Analytics & Tomada de Decisão</div>
+    <h1>🪨 A Tribo Analítica</h1>
+    <p class="tese">Da <em>intuição do caçador</em> para a <strong>decisão baseada em dados</strong>. Cada nicho da caverna é um conceito vivo de analytics — clique para aprender como a tribo pré-histórica transforma pedras e pegadas em conhecimento acionável.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — cada pedra contém um conceito de analytics.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="analytics-caverna.png" alt="Caverna pré-histórica em corte transversal mostrando a tribo analítica: na faixa superior cinco nichos representam análise descritiva com mural de medidas, inferência e teste de hipótese com dois trogloditas debatendo, regressão linear com régua de pedra alinhando pegadas, amostragem com métodos de coleta distintos e dashboard integrado com painel de indicadores; na faixa inferior sete nichos representam média como centro de gravidade, mediana como ponto central de ordem, moda como maior frequência visual, desvio padrão como faixa de dispersão concêntrica, erro tipo I como falso positivo rejeitando pedra válida, erro tipo II como falso negativo aceitando pedra defeituosa, e R² comparando qualidade do ajuste entre cenários.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Analytics</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma tribo forte não é a que coleta mais pedras, mas a que sabe ler o que elas dizem." O mural faz isso pelo analista: mostra onde cada métrica mora dentro do processo de decisão.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    descritiva: {
+      zona: 'Faixa Superior · A Tribo Analítica',
+      titulo: 'Análise Descritiva — O Mural das Medidas',
+      icone: '📊',
+      cor: '#d4915a',
+      label: 'Análise Descritiva',
+      metafora: 'O mural central da caverna registra tudo o que aconteceu: pilhas equilibradas, pedras ordenadas, círculos de alcance e pedras isoladas. A análise descritiva é esse registro fiel do passado — sem julgamentos, só os fatos das pedras.',
+      bullets: [
+        'Descreve o que JÁ aconteceu: médias, totais, distribuições e outliers — o ponto de partida de toda análise.',
+        'Diferente de inferência (prever) ou regressão (modelar), a descritiva não extrapola: só organiza o que você tem.',
+        'Dashboards de BI são, em essência, análise descritiva interativa — olhar para o mural de ângulos diferentes.'
+      ],
+      ferramentas: [
+        { nome: 'Pandas', url: 'https://pandas.pydata.org' },
+        { nome: 'Power BI', url: 'https://powerbi.microsoft.com' },
+        { nome: 'Tableau', url: 'https://www.tableau.com' }
+      ],
+      dica: 'Antes de qualquer modelo preditivo, conheça seus dados descritivamente. Metade dos bugs de modelos são surpresas que aparecem no EDA (Exploratory Data Analysis).'
+    },
+
+    inferencia: {
+      zona: 'Faixa Superior · A Tribo Analítica',
+      titulo: 'Inferência e Teste de Hipótese — O Debate das Pedras',
+      icone: '⚖️',
+      cor: '#7b9bc8',
+      label: 'Inferência & Teste de Hipótese',
+      metafora: 'Dois trogloditas debatem diante do mural dividido: o da esquerda defende o padrão estável (H₀), o da direita mostra a pedra diferente (H₁). Um terceiro lança pedras aleatórias para decidir quem está certo — isso é inferência estatística.',
+      bullets: [
+        'H₀ (nulidade): "nada mudou, é variação aleatória". H₁ (alternativa): "algo realmente mudou". O teste decide qual manter.',
+        'p-valor é a probabilidade de ver o resultado observado SE H₀ fosse verdade — quanto menor, mais improvável o acaso.',
+        'Cuidado com o p-hacking: testar muitas hipóteses até encontrar p < 0,05 infla falsos positivos — defina a hipótese antes dos dados.'
+      ],
+      ferramentas: [
+        { nome: 'SciPy Stats', url: 'https://docs.scipy.org/doc/scipy/reference/stats.html' },
+        { nome: 'statsmodels', url: 'https://www.statsmodels.org' },
+        { nome: 'Optimizely', url: 'https://www.optimizely.com' }
+      ],
+      dica: 'Em testes A/B de produto, pré-calcule o tamanho de amostra necessário ANTES de começar. Parar cedo porque "parece bom" é uma das formas mais comuns de conclusão errada.'
+    },
+
+    regressao: {
+      zona: 'Faixa Superior · A Tribo Analítica',
+      titulo: 'Regressão Linear — A Régua de Melhor Ajuste',
+      icone: '📐',
+      cor: '#6ba368',
+      label: 'Regressão Linear',
+      metafora: 'Duas trilhas de pegadas (X e Y) correm pela caverna e uma régua de pedra é ajustada para minimizar a distância visual entre elas. A regressão linear é essa régua: encontra a linha que melhor resume a relação entre duas variáveis.',
+      bullets: [
+        'A linha y = a + bx descreve como Y muda em média para cada unidade de X — o coeficiente b é a inclinação da régua.',
+        'Minimiza o erro quadrático médio (OLS): a posição da régua que deixa as pegadas mais próximas possível.',
+        'Correlação ≠ causalidade: régua ajustada entre sorveteria e afogamentos não significa que sorvete mata — ambos sobem no verão.'
+      ],
+      ferramentas: [
+        { nome: 'scikit-learn', url: 'https://scikit-learn.org' },
+        { nome: 'statsmodels', url: 'https://www.statsmodels.org' },
+        { nome: 'Excel', url: 'https://support.microsoft.com/excel' }
+      ],
+      dica: 'Sempre plote os resíduos (distâncias das pegadas à régua). Se formarem padrão não-aleatório, o modelo linear não captura toda a história — experimente transformações ou modelos não-lineares.'
+    },
+
+    amostragem: {
+      zona: 'Faixa Superior · A Tribo Analítica',
+      titulo: 'Amostragem — O Plano de Coleta',
+      icone: '🪣',
+      cor: '#c0a44a',
+      label: 'Amostragem',
+      metafora: 'O troglodita não pode coletar todas as pedras da caverna, então escolhe: às cegas (aleatória simples), separando por cor antes (estratificada) ou pegando uma a cada três passos (sistemática). Cada método tem uma lógica para representar o todo.',
+      bullets: [
+        'Aleatória simples: toda pedra tem igual chance de ser escolhida — simples, mas ignora subgrupos importantes.',
+        'Estratificada: divide por grupos (cor, tamanho) e amostra cada grupo proporcionalmente — mais precisa quando há heterogeneidade.',
+        'Sistemática: coleta a cada k passos — eficiente, mas cuidado com padrões periódicos nos dados que colidem com o intervalo k.'
+      ],
+      ferramentas: [
+        { nome: 'NumPy random', url: 'https://numpy.org/doc/stable/reference/random' },
+        { nome: 'Pandas sample', url: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sample.html' },
+        { nome: 'Power Query', url: 'https://learn.microsoft.com/power-query' }
+      ],
+      dica: 'Viés de amostragem é silencioso: coletar só das pedras perto da entrada da caverna gera conclusões que não valem para o fundo. Questione sempre de onde veio cada observação.'
+    },
+
+    dashboard: {
+      zona: 'Faixa Superior · A Tribo Analítica',
+      titulo: 'Dashboard Analítico — O Painel Integrado',
+      icone: '🗂️',
+      cor: '#8fb8d6',
+      label: 'Dashboard Analítico',
+      metafora: 'O sábio da tribo consulta um mural composto de múltiplos indicadores lado a lado: barras, termômetros, ampulhetas e mapas de calor. O dashboard integrado é esse painel que transforma dados dispersos em decisão concentrada.',
+      bullets: [
+        'Um bom dashboard responde UMA pergunta por vez — montar "tudo numa tela" cria um mural ilegível, não uma ferramenta.',
+        'KPIs vs. métricas: KPI mede progresso em direção a uma meta; métrica é qualquer dado mensurável. Nem toda métrica é um KPI.',
+        'Data freshness importa: um painel de ontem pode custar caro hoje — defina SLA de atualização junto com quem decide.'
+      ],
+      ferramentas: [
+        { nome: 'Metabase', url: 'https://www.metabase.com' },
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Looker Studio', url: 'https://lookerstudio.google.com' }
+      ],
+      dica: 'Teste o dashboard com quem vai usá-lo de verdade antes de lançar. Se a primeira pergunta do usuário não está respondida em 5 segundos, o layout precisa mudar.'
+    },
+
+    media: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'Média — O Centro de Gravidade',
+      icone: '⚖️',
+      cor: '#d9a441',
+      label: 'Média',
+      metafora: 'Uma viga de pedra equilibrada sobre um fulcro: se você mover qualquer pedra dos lados, o ponto de equilíbrio se desloca. A média é exatamente esse ponto de equilíbrio que muda quando qualquer valor muda.',
+      bullets: [
+        'Soma de todos os valores dividida pela contagem — sensível a outliers: uma pedra gigante distante desequilibra tudo.',
+        'Útil quando a distribuição é simétrica (sem caudas pesadas). Para dados assimétricos, a mediana costuma representar melhor.',
+        'Média de médias pode enganar: média de taxas de conversão de canais diferentes não é a taxa geral sem ponderar pelos volumes.'
+      ],
+      ferramentas: [
+        { nome: 'Pandas mean()', url: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.mean.html' },
+        { nome: 'Excel MÉDIA', url: 'https://support.microsoft.com/excel' },
+        { nome: 'SQL AVG()', url: 'https://www.w3schools.com/sql/sql_func_avg.asp' }
+      ],
+      dica: 'Sempre acompanhe a média com o desvio padrão. Uma média de 100 com desvio 5 é muito diferente de uma média de 100 com desvio 80 — a viga pode estar "equilibrada" mas instável.'
+    },
+
+    mediana: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'Mediana — O Ponto Central da Ordem',
+      icone: '🦴',
+      cor: '#c09060',
+      label: 'Mediana',
+      metafora: 'A fileira de pedras ordenadas por tamanho com um marcador de osso no centro exato: mesmo que as pedras nas pontas mudem de tamanho absurdo, o marcador se move pouco. A mediana ignora os extremos.',
+      bullets: [
+        'O valor do meio quando os dados são ordenados — resistente a outliers: uma pedra gigante nas pontas não afeta o centro.',
+        'Salários, preços de imóveis e tempo de resposta são melhor representados pela mediana — um outlier rico não "eleva" a renda típica.',
+        'Para número par de elementos, é a média dos dois valores centrais — o marcador cai entre dois pontos.'
+      ],
+      ferramentas: [
+        { nome: 'Pandas median()', url: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.median.html' },
+        { nome: 'Excel MED', url: 'https://support.microsoft.com/excel' },
+        { nome: 'SQL PERCENTILE_CONT', url: 'https://www.postgresql.org/docs/current/functions-aggregate.html' }
+      ],
+      dica: 'Em métricas de performance (latência p50, p95, p99), a mediana é o p50. Mas olhe também p95 e p99 — os usuários mais lentos costumam ser os que pagam ou reclamam mais.'
+    },
+
+    moda: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'Moda — A Maior Frequência Visual',
+      icone: '🏔️',
+      cor: '#b87333',
+      label: 'Moda',
+      metafora: 'A pilha com dezenas de pedras idênticas que se destaca imediatamente das outras — a moda é o valor que aparece mais vezes, identificável de relance porque a frequência grita visualmente.',
+      bullets: [
+        'O valor mais frequente do conjunto — útil para dados categóricos (produto mais vendido, erro mais comum, região mais ativa).',
+        'Uma distribuição pode ter múltiplas modas (bimodal, multimodal) — sinal de que há subgrupos distintos na população.',
+        'Moda é a única medida de tendência central que faz sentido para dados nominais (cor, categoria, nome).'
+      ],
+      ferramentas: [
+        { nome: 'Pandas mode()', url: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.mode.html' },
+        { nome: 'Excel MODO', url: 'https://support.microsoft.com/excel' },
+        { nome: 'SQL GROUP BY + ORDER', url: 'https://www.w3schools.com/sql/sql_groupby.asp' }
+      ],
+      dica: 'Distribuição bimodal é um sinal valioso: dois picos separados sugerem dois comportamentos distintos de usuário. Segmente e analise cada grupo separadamente antes de tentar uma média única.'
+    },
+
+    desvio: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'Desvio Padrão — A Faixa de Dispersão',
+      icone: '🎯',
+      cor: '#5fc8a0',
+      label: 'Desvio Padrão',
+      metafora: 'O círculo com três camadas concêntricas: a maioria das pedras cabe na primeira faixa (±1σ), menos na segunda (±2σ) e raramente na terceira (±3σ). O desvio padrão é o raio dessa faixa — mede quão espalhadas as pedras estão.',
+      bullets: [
+        '±1σ contém ~68% dos dados (numa normal); ±2σ contém ~95%; ±3σ contém ~99,7% — a regra empírica da distribuição normal.',
+        'Desvio alto = pedras espalhadas, previsibilidade baixa. Desvio baixo = pedras concentradas, comportamento consistente.',
+        'Z-score = (valor - média) / desvio: normaliza qualquer pedra para "quantos desvios ela está da média", comparável entre escalas diferentes.'
+      ],
+      ferramentas: [
+        { nome: 'Pandas std()', url: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.std.html' },
+        { nome: 'NumPy std', url: 'https://numpy.org/doc/stable/reference/generated/numpy.std.html' },
+        { nome: 'Excel DESVPAD', url: 'https://support.microsoft.com/excel' }
+      ],
+      dica: 'Em monitoramento de sistemas, use média ± 2σ ou ± 3σ como limites de alerta (controle estatístico de processo). Alertas baseados em threshold fixo ignoram a variabilidade natural dos dados.'
+    },
+
+    erroTipoI: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'Erro Tipo I — O Falso Positivo',
+      icone: '🚨',
+      cor: '#c0563a',
+      label: 'Erro Tipo I (Falso Positivo)',
+      metafora: 'O guardião rejeita uma pedra genuína e brilhante por excesso de cautela, jogando-a no cesto dos falsos alarmes. Outro troglodita observa perplexo o custo: uma oportunidade perdida por desconfiança excessiva.',
+      bullets: [
+        'Rejeitar H₀ quando ela é verdadeira — declarar que houve efeito quando não houve. "Vimos melhora" quando foi ruído.',
+        'A taxa de falsos positivos é controlada pelo nível de significância α (geralmente 5%): em 100 testes com H₀ verdadeira, ~5 darão falso positivo.',
+        'Em detecção de fraudes, falsos positivos bloqueiam clientes legítimos — o custo é perda de venda e reputação. Calibre α conforme o custo.'
+      ],
+      ferramentas: [
+        { nome: 'SciPy ttest', url: 'https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html' },
+        { nome: 'Statsmodels', url: 'https://www.statsmodels.org' },
+        { nome: 'Evidently AI', url: 'https://www.evidentlyai.com' }
+      ],
+      dica: 'Ao rodar múltiplos testes simultâneos (ex.: 20 KPIs ao mesmo tempo), use correção de Bonferroni ou FDR. Sem isso, com α=5% e 20 testes, a chance de pelo menos um falso positivo é ~64%.'
+    },
+
+    erroTipoII: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'Erro Tipo II — O Falso Negativo',
+      icone: '🫥',
+      cor: '#9a7b4a',
+      label: 'Erro Tipo II (Falso Negativo)',
+      metafora: 'O guardião aceita uma pedra defeituosa que se camufla entre as boas, deixando-a passar. Só depois de causar problema alguém identifica a falha — o custo de não detectar o que deveria ter sido detectado.',
+      bullets: [
+        'Não rejeitar H₀ quando ela é falsa — deixar passar um efeito real. "Não vimos diferença" quando havia melhora real.',
+        'A taxa de falsos negativos é β; o poder estatístico é 1-β — a capacidade de detectar um efeito quando ele existe.',
+        'Poder depende do tamanho de amostra: amostra pequena = poder baixo = mais falsos negativos. É por isso que calculamos n antes do teste.'
+      ],
+      ferramentas: [
+        { nome: 'statsmodels power', url: 'https://www.statsmodels.org/stable/stats.html#power-and-sample-size-calculations' },
+        { nome: 'G*Power', url: 'https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower.html' },
+        { nome: 'PyMC', url: 'https://www.pymc.io' }
+      ],
+      dica: 'Em testes clínicos e de segurança, um falso negativo pode ser fatal. Nesses contextos, aumente o poder para 90-95% (vs. o padrão de 80%) — o custo de não detectar um problema real é muito alto.'
+    },
+
+    r2: {
+      zona: 'Faixa Inferior · Os Detalhes Micro',
+      titulo: 'R² — A Qualidade do Ajuste',
+      icone: '📏',
+      cor: '#8080c0',
+      label: 'R² e Qualidade do Ajuste',
+      metafora: 'O sábio compara duas réguas lado a lado: na primeira, as pegadas colam na régua (R² alto, ajuste forte); na segunda, as pegadas estão espalhadas pela caverna (R² baixo, ajuste fraco). R² mede o quanto a régua explica o que acontece.',
+      bullets: [
+        'R² varia de 0 a 1: quanto mais próximo de 1, maior a proporção da variação em Y explicada pelo modelo — pegadas na régua.',
+        'R² alto não garante causalidade nem bom modelo: overfitting produz R²=0,99 em treino mas falha em dados novos.',
+        'R² ajustado penaliza a adição de variáveis irrelevantes — preferível ao R² simples quando se comparam modelos com número de variáveis diferentes.'
+      ],
+      ferramentas: [
+        { nome: 'scikit-learn r2_score', url: 'https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html' },
+        { nome: 'statsmodels', url: 'https://www.statsmodels.org' },
+        { nome: 'MLflow', url: 'https://mlflow.org' }
+      ],
+      dica: 'Nunca use R² como única métrica de regressão. Combine com RMSE (escala dos erros) e análise de resíduos. Um R²=0,70 com resíduos aleatórios é melhor que R²=0,95 com padrão nos resíduos.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container — faixa superior (5 nichos) + faixa inferior (7 nichos)
+  // [left%, top%, width%, height%]
+  const GEO = {
+    // Faixa superior — 5 nichos de largura ~19% cada, y≈3%–47%
+    descritiva:  [0.5,  3, 19, 44],
+    inferencia:  [20.5, 3, 19, 44],
+    regressao:   [40.5, 3, 19, 44],
+    amostragem:  [60.5, 3, 19, 44],
+    dashboard:   [80.5, 3, 19, 44],
+    // Faixa inferior — 7 nichos de largura ~14% cada, y≈53%–95%
+    media:       [0.5,  53, 13.5, 43],
+    mediana:     [14.5, 53, 13.5, 43],
+    moda:        [28.5, 53, 13.5, 43],
+    desvio:      [42.5, 53, 14,   43],
+    erroTipoI:   [57,   53, 14,   43],
+    erroTipoII:  [71,   53, 14,   43],
+    r2:          [85.5, 53, 14,   43]
+  };
+
+  const ORDEM = ['descritiva','inferencia','regressao','amostragem','dashboard','media','mediana','moda','desvio','erroTipoI','erroTipoII','r2'];
+
+  const RELACOES = {
+    descritiva:  { ids:['media','mediana','moda','desvio'], nota:'O mural das medidas é composto exatamente por média, mediana, moda e desvio — cada métrica ocupa seu espaço no registro descritivo.' },
+    inferencia:  { ids:['erroTipoI','erroTipoII','amostragem'], nota:'Todo teste de hipótese balanceia o risco de falso positivo (Tipo I) e falso negativo (Tipo II), e depende de uma amostra bem coletada.' },
+    regressao:   { ids:['r2','media','inferencia'], nota:'A qualidade da régua é medida pelo R², seus coeficientes dependem de médias e sua significância é avaliada por inferência estatística.' },
+    amostragem:  { ids:['descritiva','inferencia','media'], nota:'Uma amostra bem coletada alimenta a análise descritiva com métricas confiáveis e valida as inferências sobre a população inteira.' },
+    dashboard:   { ids:['descritiva','media','desvio'], nota:'O painel integrado exibe análise descritiva resumida — médias e desvios são os indicadores mais comuns que aparecem nos tiles de um dashboard.' },
+    media:       { ids:['desvio','mediana','descritiva'], nota:'A média sem o desvio está incompleta; a comparação com a mediana revela a assimetria da distribuição no mural descritivo.' },
+    mediana:     { ids:['media','moda','erroTipoII'], nota:'Mediana e moda são alternativas robustas à média para distribuições com cauda — e identificar a posição certa evita falsos negativos em análises de performance.' },
+    moda:        { ids:['descritiva','mediana','dashboard'], nota:'A moda revela o comportamento mais frequente — informação central para segmentação em dashboards e análises descritivas de categorias.' },
+    desvio:      { ids:['media','erroTipoI','r2'], nota:'O desvio padrão define os limites de alerta (controlando falsos positivos) e compõe o R² ao medir a variação explicada pelo modelo.' },
+    erroTipoI:   { ids:['inferencia','erroTipoII','amostragem'], nota:'Falso positivo e falso negativo são dois lados do mesmo trade-off no teste de hipótese — o tamanho de amostra determina qual você consegue controlar.' },
+    erroTipoII:  { ids:['erroTipoI','inferencia','r2'], nota:'Aumentar poder (reduzir Tipo II) exige mais amostra ou aceitar mais Tipo I — o R² baixo às vezes indica que o modelo não tem poder para detectar o efeito.' },
+    r2:          { ids:['regressao','desvio','inferencia'], nota:'O R² quantifica o ajuste da régua, o desvio dos resíduos revela onde o ajuste falha, e a inferência testa se os coeficientes são significativos.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
