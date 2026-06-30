@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna dos Dados — Sistemas de Uso Intensivo de Dados para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde cada nicho representa um conceito de sistemas de dados intensivos (Big Data, ETL, Data Lake, Microsserviços, Qualidade de Dados e muito mais).">
+  <meta property="og:title" content="A Caverna dos Dados — Sistemas de Uso Intensivo de Dados para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna para aprender sobre Big Data, ETL, Data Lake, Microsserviços, Qualidade e Análise de Dados. Ao abrir um conceito, a figura acende os relacionados.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="caverna-sistemas-dados.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Sistemas de Uso Intensivo de Dados</div>
+    <h1>🪨 A Caverna dos Dados</h1>
+    <p class="tese">Do <em>dado bruto na pedra</em> ao <strong>insight comunicado ao clã</strong>. Cada nicho da caverna é um pilar do sistema — Big Data, ETL, Data Lake, Microsserviços, Qualidade e Análise vivem num único mapa visual.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — 12 conceitos essenciais, todos numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="caverna-sistemas-dados.png" alt="Caverna pré-histórica em corte transversal: faixa superior com cinco nichos mostrando pilares de Big Data, linha de produção ETL, câmara de Data Lake, compartimentos independentes de Microsserviços e rotas paralelas de resiliência; faixa inferior com sete nichos representando tratamento de dados faltantes, remoção de anomalias, normalização, rastreabilidade de origem, coleta de múltiplas fontes, modelagem e comunicação de resultados, e feedback com métricas.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Dados</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma caverna bem organizada não é a que acumula mais pedras, mas a que sabe de onde cada pedra veio, o que ela vale e para onde vai." — o dado só vira decisão quando a tribo entende todo o caminho.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    bigdata5vs: {
+      zona: 'Macro · A Caverna-Tribo',
+      titulo: 'Os 5 Vs do Big Data — Os Pilares da Montanha',
+      icone: '🏔️',
+      cor: '#d9a441',
+      label: 'Os 5 Vs do Big Data',
+      metafora: 'Cinco pilares de rocha sustentam o teto: um carrega uma montanha de pedras (Volume), outro canaliza um rio rápido (Velocidade), outro exibe pedras de todas as cores (Variedade), uma balança separa as genuínas das ocas (Veracidade) e no alto de um pedestal brilha a única pedra preciosa (Valor). Sem os cinco pilares, o teto cai.',
+      bullets: [
+        'Volume: a quantidade de dados gerada é tão grande que bancos relacionais tradicionais não conseguem processar em tempo hábil — pense em bilhões de eventos por dia.',
+        'Velocidade e Variedade exigem pipelines que ingerem em tempo real dados de tipos diferentes (JSON, imagens, logs, sensores) sem parar o fluxo.',
+        'Veracidade e Valor são os mais ignorados: dados incorretos ou sem propósito claro consomem infra sem retorno — cuide da qualidade antes de escalar o volume.'
+      ],
+      ferramentas: [
+        { nome: 'Apache Kafka', url: 'https://kafka.apache.org' },
+        { nome: 'Apache Spark', url: 'https://spark.apache.org' },
+        { nome: 'Databricks', url: 'https://databricks.com' }
+      ],
+      dica: 'Antes de montar o cluster Hadoop, pergunte: "Qual problema de negócio esse dado resolve?" Se a resposta for vaga, o V de Valor está faltando e todo o resto é custo sem retorno.'
+    },
+
+    etl: {
+      zona: 'Macro · A Caverna-Tribo',
+      titulo: 'Pipeline ETL — Coleta, Limpeza e Armazenamento',
+      icone: '⛏️',
+      cor: '#c0563a',
+      label: 'Pipeline ETL',
+      metafora: 'Três trogloditas em linha: o primeiro coleta pedras brutas do rio, da montanha e da floresta (Extract); o segundo limpa, poli e descarta as defeituosas numa bancada (Transform); o terceiro empilha as processadas em cestos padronizados e etiquetados (Load). Cada etapa tem entrada e saída bem definidas — bagunçar a linha paralisa tudo.',
+      bullets: [
+        'Extract é o ponto de integração com o mundo externo: APIs, bancos legados, arquivos CSV, eventos de streaming — cada fonte tem seu conector próprio.',
+        'Transform é onde mora a maior parte da lógica e dos bugs: validações, conversões de tipo, joins e enriquecimentos devem ser testados como código de produção.',
+        'Load define como os dados chegam ao destino: modo incremental (só o novo) vs. full refresh (tudo de novo) impacta diretamente custo e latência.'
+      ],
+      ferramentas: [
+        { nome: 'Apache Airflow', url: 'https://airflow.apache.org' },
+        { nome: 'dbt', url: 'https://www.getdbt.com' },
+        { nome: 'Fivetran', url: 'https://fivetran.com' }
+      ],
+      dica: 'Trate seu pipeline ETL como software de produção: versione os scripts de transformação, escreva testes de dados (dbt test, Great Expectations) e monitore falhas com alertas — um pipeline silenciosamente quebrado é mais perigoso que um que falha com barulho.'
+    },
+
+    datalake: {
+      zona: 'Macro · A Caverna-Tribo',
+      titulo: 'Data Lake — Repositório Bruto e Variado',
+      icone: '🌊',
+      cor: '#5a9fd6',
+      label: 'Data Lake',
+      metafora: 'Uma grande câmara com montanhas de pedras brutas de formas, cores e origens distintas, sem organização aparente. Trogloditas mergulham na pilha para extrair amostras quando precisam. O lago não julga: guarda tudo, bruto, para quem vier buscar depois — mas sem catálogo, ninguém encontra nada.',
+      bullets: [
+        'Data Lake armazena dados em formato bruto (raw), sem necessidade de esquema prévio — ideal para dados semiestruturados e não estruturados como logs, imagens e JSONs.',
+        'A diferença para um Data Warehouse é o esquema: no Warehouse você define a estrutura antes (schema-on-write); no Lake você define ao ler (schema-on-read).',
+        'O risco real é o "Data Swamp" (pântano): sem catálogo, linhagem e governança, o lago vira uma pilha de pedras anônimas que ninguém consegue usar.'
+      ],
+      ferramentas: [
+        { nome: 'Amazon S3', url: 'https://aws.amazon.com/s3/' },
+        { nome: 'Delta Lake', url: 'https://delta.io' },
+        { nome: 'Apache Iceberg', url: 'https://iceberg.apache.org' }
+      ],
+      dica: 'Implemente um catálogo de dados desde o dia 1: registre o que cada conjunto de pedras é, de onde veio e quem pode tocar. Lago sem catálogo é pântano com atraso.'
+    },
+
+    microsservicos: {
+      zona: 'Macro · A Caverna-Tribo',
+      titulo: 'Microsserviços — Compartimentos Independentes',
+      icone: '🏛️',
+      cor: '#6ba368',
+      label: 'Microsserviços',
+      metafora: 'A caverna dividida por pilares robustos em múltiplos compartimentos — cada nicho tem sua própria entrada, saída e grupo autônomo trabalhando em uma tarefa (caça, artesanato, pesca). Eles trocam mercadorias pelas passagens controladas entre nichos, mas cada grupo decide seu próprio ritmo de trabalho sem depender do vizinho.',
+      bullets: [
+        'Cada microsserviço é proprietário dos seus próprios dados — compartilhar banco entre serviços cria acoplamento invisível que destrói a independência.',
+        'A comunicação entre compartimentos pode ser síncrona (HTTP/gRPC, como pedir pedras pela passagem) ou assíncrona (mensageria, como deixar pedras na entrada do vizinho para ele pegar depois).',
+        'O custo de operação sobe muito: em vez de um binário, você tem dezenas de serviços para monitorar, versionar, deployar e escalar individualmente.'
+      ],
+      ferramentas: [
+        { nome: 'Kubernetes', url: 'https://kubernetes.io' },
+        { nome: 'gRPC', url: 'https://grpc.io' },
+        { nome: 'Apache Kafka', url: 'https://kafka.apache.org' }
+      ],
+      dica: 'Não comece com microsserviços: construa um monolito modular primeiro (compartimentos sem paredes físicas). Divida em serviços separados apenas quando o problema real de escala ou equipe aparecer — paredes prematuras são mais caras de remover do que nunca ter construído.'
+    },
+
+    resiliencia: {
+      zona: 'Macro · A Caverna-Tribo',
+      titulo: 'Resiliência e Escalabilidade Horizontal',
+      icone: '🔀',
+      cor: '#ff7a18',
+      label: 'Resiliência & Escalabilidade',
+      metafora: 'Múltiplas rotas paralelas para transportar pedras: se uma rota quebra (pilar caído), as outras continuam operando sem interrupção. Novas rotas podem ser adicionadas facilmente ao lado das existentes — não há necessidade de ampliar uma única rota para suportar toda a carga.',
+      bullets: [
+        'Escalabilidade horizontal = adicionar mais instâncias do mesmo serviço em paralelo. É mais barato e mais resiliente que escalar verticalmente (máquina maior).',
+        'Resiliência exige projetar para a falha: circuit breakers, retry com backoff exponencial e timeouts evitam que a falha de um componente derrube toda a caverna.',
+        'O padrão Bulkhead (compartimento estanque de navio) isola falhas: se um serviço sobrecarga, ele não deve consumir recursos dos outros — use thread pools ou semáforos separados.'
+      ],
+      ferramentas: [
+        { nome: 'Resilience4j', url: 'https://resilience4j.readme.io' },
+        { nome: 'Istio', url: 'https://istio.io' },
+        { nome: 'Netflix Hystrix', url: 'https://github.com/Netflix/Hystrix' }
+      ],
+      dica: 'Faça chaos engineering antes que o caos te encontre: derrube instâncias em produção de forma controlada (Chaos Monkey) e veja se as rotas alternativas assumem de verdade. Resiliência não testada é ilusão.'
+    },
+
+    dadosfaltantes: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Tratamento de Dados Faltantes',
+      icone: '🔲',
+      cor: '#d4915a',
+      label: 'Dados Faltantes',
+      metafora: 'Um troglodita identifica buracos em um mural de pedras encaixadas e preenche cada lacuna com uma pedra padrão de reposição, mantendo a integridade visual do mosaico. A pedra substituta é marcada — quem olhar o mural saberá que ali havia uma lacuna.',
+      bullets: [
+        'Dados faltantes (null/NaN) não são um problema raro: em datasets reais, 5-30% dos campos costumam estar ausentes — ignorar quebra modelos silenciosamente.',
+        'Estratégias: remoção (drop) quando a faltante é aleatória e rara; imputação com média/mediana/moda para dados numéricos; imputação com modelo (KNN, regressão) para dados com padrão.',
+        'Nunca substitua sem registrar: documente a estratégia de imputação no catálogo de dados para que analistas saibam que o campo pode ter sido estimado.'
+      ],
+      ferramentas: [
+        { nome: 'pandas', url: 'https://pandas.pydata.org' },
+        { nome: 'scikit-learn SimpleImputer', url: 'https://scikit-learn.org/stable/modules/impute.html' },
+        { nome: 'missingno', url: 'https://github.com/ResidentMario/missingno' }
+      ],
+      dica: 'Visualize o padrão de ausência antes de imputar: se os campos faltam aleatoriamente (MCAR), remover é seguro; se faltam por causa de outro campo (MAR), imputação é mais correta — usar a estratégia errada introduz viés invisível.'
+    },
+
+    anomalias: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Remoção de Anomalias — Outliers',
+      icone: '🔍',
+      cor: '#b08cc4',
+      label: 'Outliers & Anomalias',
+      metafora: 'Um ancião com lupa examina a pilha e rejeita uma pedra absurdamente grande, colocando-a num cesto separado de descarte. Outros trogloditas observam o critério de seleção — a decisão de descartar é explícita e auditável, não feita às escondidas.',
+      bullets: [
+        'Outlier não é sinônimo de erro: uma venda de R$ 1 milhão pode ser real e importante — remover sem investigar apaga sinal valioso.',
+        'Detecção estatística clássica: IQR (1.5× acima do 3º quartil), Z-score (>3 desvios-padrão) ou Isolation Forest para dados multidimensionais.',
+        'O que fazer com o outlier depende do objetivo: em modelos de previsão de demanda, remover; em detecção de fraude, o outlier É o sinal que você quer encontrar.'
+      ],
+      ferramentas: [
+        { nome: 'PyOD', url: 'https://pyod.readthedocs.io' },
+        { nome: 'scikit-learn IsolationForest', url: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html' },
+        { nome: 'Great Expectations', url: 'https://greatexpectations.io' }
+      ],
+      dica: 'Antes de remover um outlier, pergunte: "O que esse dado me diz?" Em sistemas de monitoramento e detecção de fraude, o dado anômalo é o mais valioso de todos — removê-lo cegamente é jogar fora o alerta antes de ouvir o alarme.'
+    },
+
+    normalizacao: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Normalização de Dados',
+      icone: '📐',
+      cor: '#5fc8a0',
+      label: 'Normalização',
+      metafora: 'Um artesão corta pedras de tamanhos variados num formato padrão usando uma bigorna de calibração. As pedras normalizadas saem uniformes e são empilhadas em ordem, prontas para uso intercambiável em qualquer construção da caverna.',
+      bullets: [
+        'Normalização coloca variáveis em escalas comparáveis: sem ela, um campo de renda (milhares) domina um campo de idade (dezenas) em algoritmos baseados em distância.',
+        'Min-Max Scaling (0 a 1) e Z-score Standardization (média 0, desvio 1) são os mais comuns — a escolha depende do algoritmo: redes neurais preferem Min-Max; PCA e SVM, Z-score.',
+        'Atenção ao data leakage: calcule os parâmetros de normalização (min, max, média) APENAS no conjunto de treino e aplique no teste — usar o dataset inteiro "vaza" informação do futuro.'
+      ],
+      ferramentas: [
+        { nome: 'scikit-learn preprocessing', url: 'https://scikit-learn.org/stable/modules/preprocessing.html' },
+        { nome: 'pandas', url: 'https://pandas.pydata.org' },
+        { nome: 'Apache Spark MLlib', url: 'https://spark.apache.org/mllib/' }
+      ],
+      dica: 'Salve o objeto de normalização treinado (scaler) junto com o modelo — na inferência você vai precisar aplicar exatamente os mesmos parâmetros aos dados novos. Um scaler diferente em prod e em treino destrói a acurácia silenciosamente.'
+    },
+
+    rastreabilidade: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Rastreabilidade de Origem — Data Lineage',
+      icone: '👣',
+      cor: '#cdbd9a',
+      label: 'Data Lineage',
+      metafora: 'Cada pedra carrega uma marca de origem gravada — símbolo único da fonte. Um troglodita segue uma trilha de pegadas que leva da pedra processada até sua fonte original, demonstrando rastreio ponta a ponta. Quando algo vai errado, a trilha aponta para onde começou o problema.',
+      bullets: [
+        'Data Lineage responde "de onde veio esse dado e por quais transformações passou?" — essencial para depurar anomalias e cumprir regulações como LGPD e GDPR.',
+        'Linhagem em nível de coluna (column-level lineage) vai além da tabela e mostra exatamente qual campo originou qual cálculo — fundamental para auditoria financeira e saúde.',
+        'A falta de linhagem transforma cada investigação num jogo de "quem fez isso?" que pode durar dias — implementar desde o início custa muito menos do que retrofitar.'
+      ],
+      ferramentas: [
+        { nome: 'Apache Atlas', url: 'https://atlas.apache.org' },
+        { nome: 'OpenLineage', url: 'https://openlineage.io' },
+        { nome: 'dbt docs', url: 'https://docs.getdbt.com/docs/collaborate/documentation' }
+      ],
+      dica: 'Adote o padrão OpenLineage desde o início: é uma spec aberta suportada por Airflow, Spark e dbt, então você obtém linhagem automática sem instrumentar cada pipeline manualmente.'
+    },
+
+    multifontes: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Coleta de Múltiplas Fontes',
+      icone: '🌐',
+      cor: '#e07878',
+      label: 'Múltiplas Fontes',
+      metafora: 'Trogloditas chegam simultaneamente de direções diferentes — um do rio com pedras lisas, outro da montanha com pedras pontiagudas, outro da floresta com pedras escuras — e depositam suas coletas em compartimentos separados antes da integração. Cada fonte tem seu ritmo e seu tipo de pedra.',
+      bullets: [
+        'Cada fonte de dados tem seu schema, latência e confiabilidade — trate como um contrato: mude o contrato e notifique os consumidores antes de alterar.',
+        'O desafio da integração é a resolução de entidades: o "João Silva" do CRM é o mesmo "J. Silva" do e-commerce? Entity resolution é um problema difícil com impacto enorme na qualidade.',
+        'Evite o anti-pattern de copiar dados entre sistemas de forma ad-hoc: crie uma camada de integração centralizada (data hub, event broker) que todos os sistemas usam como intermediário.'
+      ],
+      ferramentas: [
+        { nome: 'Apache Kafka', url: 'https://kafka.apache.org' },
+        { nome: 'Airbyte', url: 'https://airbyte.com' },
+        { nome: 'Stitch', url: 'https://www.stitchdata.com' }
+      ],
+      dica: 'Documente o SLA de cada fonte: frequência de atualização, latência máxima e taxa de erro aceitável. Quando um dashboard mostra dados errados, a primeira pergunta é sempre "qual fonte quebrou?" — quem tem o SLA documentado responde em minutos.'
+    },
+
+    modelagem: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Modelagem e Comunicação de Resultados',
+      icone: '📊',
+      cor: '#a8c86a',
+      label: 'Modelagem & Comunicação',
+      metafora: 'Um sábio organiza pedras processadas em padrões significativos sobre uma mesa de argila — agrupamentos, tendências — e apresenta o resultado a um grupo atento, que reage com gestos de compreensão. O dado bruto virou insight comunicável: a pedra certa, no lugar certo, contando uma história.',
+      bullets: [
+        'Modelo sem comunicação clara não gera decisão: o melhor modelo de ML do mundo é inútil se o stakeholder não entende o que o número significa para o negócio.',
+        'Comece pelo resultado esperado: desenhe o dashboard ou relatório final antes de construir o pipeline — isso revela quais dados realmente importam e evita coletar tudo "por precaução".',
+        'Storytelling com dados: estruture a apresentação como uma narrativa (contexto → problema → dado → insight → recomendação), não como uma dump de gráficos sem fio condutor.'
+      ],
+      ferramentas: [
+        { nome: 'Apache Superset', url: 'https://superset.apache.org' },
+        { nome: 'Metabase', url: 'https://www.metabase.com' },
+        { nome: 'Tableau', url: 'https://www.tableau.com' }
+      ],
+      dica: 'Para cada visualização, defina uma única pergunta que ela responde. Se você precisar de dois parágrafos para explicar o que um gráfico mostra, o gráfico errado foi escolhido — simplifique até a pergunta e a resposta ficarem óbvias num olhar de 5 segundos.'
+    },
+
+    feedback: {
+      zona: 'Micro · O Detalhe da Qualidade',
+      titulo: 'Feedback e Métricas SMART',
+      icone: '🎯',
+      cor: '#e0c04a',
+      label: 'Feedback & Métricas SMART',
+      metafora: 'Um mural com um alvo de pedra — objetivo claro e mensurável — e um líder ajustando a estratégia com base em sinais de retorno: trogloditas trazendo pedras de feedback que indicam progresso ou desvio, permitindo correção de rota antes que a caça inteira fracasse.',
+      bullets: [
+        'SMART: Específica, Mensurável, Atingível, Relevante e Temporal. Uma métrica vaga ("melhorar a qualidade") não é uma métrica — é uma intenção.',
+        'North Star Metric: cada produto deve ter uma única métrica que resume o valor entregue ao usuário. Tudo mais são métricas de saúde (indicadores de que a North Star vai bem).',
+        'Loops de feedback rápidos evitam desperdício: quanto menor o ciclo entre ação e medição, menos recurso é queimado na direção errada. Meça cedo, meça frequentemente.'
+      ],
+      ferramentas: [
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Amplitude', url: 'https://amplitude.com' },
+        { nome: 'Prometheus', url: 'https://prometheus.io' }
+      ],
+      dica: 'Defina o critério de sucesso antes de começar o projeto, não depois. "Sucesso é X% de aumento em Y até a data Z" impede que a régua mude quando os resultados decepcionam — e força a conversa honesta sobre o que realmente importa.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container (left%, top%, width%, height%)
+  // Faixa superior: 5 nichos em ~50% superior | Faixa inferior: 7 nichos em ~50% inferior
+  const GEO = {
+    bigdata5vs:      [ 1,   2,  19,  47],
+    etl:             [21,   2,  19,  47],
+    datalake:        [41,   2,  19,  47],
+    microsservicos:  [61,   2,  19,  47],
+    resiliencia:     [81,   2,  18,  47],
+    dadosfaltantes:  [ 1,  52,  13,  44],
+    anomalias:       [15,  52,  13,  44],
+    normalizacao:    [29,  52,  13,  44],
+    rastreabilidade: [43,  52,  13,  44],
+    multifontes:     [57,  52,  13,  44],
+    modelagem:       [71,  52,  13,  44],
+    feedback:        [85,  52,  14,  44]
+  };
+
+  const ORDEM = [
+    'bigdata5vs','etl','datalake','microsservicos','resiliencia',
+    'dadosfaltantes','anomalias','normalizacao','rastreabilidade','multifontes','modelagem','feedback'
+  ];
+
+  // Conexões entre conceitos
+  const RELACOES = {
+    bigdata5vs:      { ids:['etl','datalake','microsservicos'], nota:'Os 5 Vs definem o problema que o ETL trata, alimentam o Data Lake e determinam como os Microsserviços devem ser dimensionados.' },
+    etl:             { ids:['bigdata5vs','normalizacao','rastreabilidade'], nota:'O pipeline ETL aplica normalização nos dados que coleta e gera a rastreabilidade de cada transformação desde a fonte dos 5 Vs.' },
+    datalake:        { ids:['etl','multifontes','dadosfaltantes'], nota:'O Data Lake recebe dados brutos de múltiplas fontes via ETL — e é nele que os dados faltantes precisam ser tratados antes do consumo analítico.' },
+    microsservicos:  { ids:['resiliencia','multifontes','feedback'], nota:'Cada microsserviço produz e consome dados de múltiplas fontes, precisa de resiliência individual e expõe métricas para o loop de feedback.' },
+    resiliencia:     { ids:['microsservicos','feedback','anomalias'], nota:'A resiliência horizontal gera métricas que alimentam o feedback e precisa de detecção de anomalias para identificar quando um componente está falhando.' },
+    dadosfaltantes:  { ids:['datalake','normalizacao','rastreabilidade'], nota:'O tratamento de faltantes acontece no Data Lake, precisa ser normalizado junto com os demais dados e deve ser rastreado para auditoria.' },
+    anomalias:       { ids:['resiliencia','feedback','multifontes'], nota:'Anomalias nos dados frequentemente sinalizam falha de resiliência ou problema em uma das fontes — o loop de feedback deve incluir alertas de anomalia.' },
+    normalizacao:    { ids:['etl','dadosfaltantes','modelagem'], nota:'Normalização faz parte do Transform no ETL, complementa o tratamento de faltantes e é pré-requisito para a modelagem analítica.' },
+    rastreabilidade: { ids:['etl','datalake','multifontes'], nota:'A linhagem dos dados nasce no ETL, percorre o Data Lake e deve cobrir cada uma das múltiplas fontes de coleta.' },
+    multifontes:     { ids:['datalake','microsservicos','rastreabilidade'], nota:'Múltiplas fontes depositam no Data Lake, são consumidas por microsserviços e exigem rastreabilidade detalhada para entender qual fonte gerou qual insight.' },
+    modelagem:       { ids:['normalizacao','feedback','anomalias'], nota:'Modelar bem requer dados normalizados, livres de anomalias, e o resultado da modelagem alimenta o loop de feedback para validação contínua.' },
+    feedback:        { ids:['modelagem','resiliencia','microsservicos'], nota:'O feedback valida os modelos, monitora a resiliência dos serviços e fecha o ciclo de dados de volta para as equipes de produto e engenharia.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
