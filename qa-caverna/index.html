@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna da Qualidade — QA e Testes para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde cada nicho é um conceito de Garantia e Controle de Qualidade (V&V, Pirâmide de Testes, TDD, BDD, Pipeline DevOps, Teste de Unidade, Integração, Sistema, Aceitação, Análise Estática, Código Morto e Code Review).">
+  <meta property="og:title" content="A Caverna da Qualidade — QA e Testes para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna para aprender QA e testes de software. 12 conceitos, da Verificação/Validação ao Code Review.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="qa-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Garantia e Controle de Qualidade</div>
+    <h1>🪨 A Caverna da Qualidade</h1>
+    <p class="tese">Da <em>ferramenta mal lascada</em> para a <strong>peça que a tribo confia de olhos fechados</strong>. Cada nicho da caverna é uma prática viva de QA — da verificação à revisão colaborativa, cada uma no seu lugar dentro do ciclo.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — 12 práticas de QA numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="qa-caverna.png" alt="Caverna pré-histórica em corte transversal dividida em 12 nichos: faixa superior com 5 nichos (Verificação vs. Validação, Pirâmide de Testes, TDD, BDD e Pipeline de Qualidade Contínua) e faixa inferior com 7 nichos (Teste de Unidade, Integração, Sistema, Aceitação, Análise Estática, Código Morto e Code Review). Trogloditas ilustram cada prática de QA sem texto.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos de QA — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de QA</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma ferramenta boa não é a que parece certa, mas a que passou por todas as pedras de teste da tribo." A caverna faz isso pelo aluno: mostra onde cada prática mora dentro do ciclo de qualidade.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    verificacao: {
+      zona: 'Macro · O Processo V&V',
+      titulo: 'Verificação vs. Validação — Duas Perspectivas',
+      icone: '🔍',
+      cor: '#d9a441',
+      label: 'Verificação vs. Validação',
+      metafora: 'Dois trogloditas inspecionam a mesma ferramenta com olhares distintos: um confere se foi lascada conforme o molde de pedra (Verificação — "está correto?"), o outro testa se a ponta caça de verdade (Validação — "é o que deveria fazer?"). Ambos registram o resultado em tábuas separadas.',
+      bullets: [
+        'Verificação pergunta "construímos o produto certo?". Ocorre durante o processo: revisões, inspeções e testes de unidade confirmam que o código segue a especificação.',
+        'Validação pergunta "construímos o produto certo para o usuário?". Ocorre no final: o software é testado em cenário real para confirmar que resolve o problema do cliente.',
+        'Confundir os dois gera softwares tecnicamente perfeitos que ninguém usa — ou produtos adorados pelos usuários mas cheios de bugs internos.'
+      ],
+      ferramentas: [
+        { nome: 'IEEE 829', url: 'https://www.iso.org/standard/45142.html' },
+        { nome: 'ISTQB Glossary', url: 'https://glossary.istqb.org' },
+        { nome: 'Testlink', url: 'https://testlink.org' }
+      ],
+      dica: 'Faça as duas perguntas explicitamente em cada sprint: "passamos na verificação do critério de aceite?" e "o usuário confirmou que resolve o problema?". São perguntas diferentes e precisam de respostas diferentes.'
+    },
+
+    piramide: {
+      zona: 'Macro · O Processo V&V',
+      titulo: 'Níveis de Teste — A Pirâmide de Pedras',
+      icone: '🔺',
+      cor: '#c0563a',
+      label: 'Pirâmide de Testes',
+      metafora: 'Um mural em pirâmide com quatro camadas de pedra: na base larga ficam as pedras individuais testadas sozinhas; acima, pares encaixados; depois, o mecanismo completo em operação; no topo estreito, o usuário aprovando com gesto de polegar. A base larga custa pouco e roda rápido; o topo é precioso e raro.',
+      bullets: [
+        'Base (Unidade): testes rápidos e baratos que verificam funções isoladas. Devem ser a maioria — centenas ou milhares sem custo proibitivo.',
+        'Integração: confirma que peças distintas conversam corretamente. Mais lentos que unitários, mas revelam problemas de interface que testes isolados não pegam.',
+        'Sistema e Aceitação (topo): testam o comportamento completo do usuário. São raros, lentos e caros — reserve-os para os fluxos críticos do negócio.'
+      ],
+      ferramentas: [
+        { nome: 'Martin Fowler — Test Pyramid', url: 'https://martinfowler.com/bliki/TestPyramid.html' },
+        { nome: 'Jest', url: 'https://jestjs.io' },
+        { nome: 'Playwright', url: 'https://playwright.dev' }
+      ],
+      dica: 'Se a pirâmide está invertida (mais E2E do que unitários) a suíte fica lenta, frágil e cara. Inverta com disciplina: cada bug de produção vira um teste de unidade novo.'
+    },
+
+    tdd: {
+      zona: 'Macro · O Processo V&V',
+      titulo: 'TDD — Testes Primeiro, Código Depois',
+      icone: '🪨',
+      cor: '#6ba368',
+      label: 'TDD',
+      metafora: 'O artesão primeiro constrói um gabarito de pedra com o formato exato da ferramenta que quer produzir. Só então lascas a pedra bruta até encaixar no molde. A peça só é considerada pronta quando passa no teste do gabarito — o molde guia toda a construção.',
+      bullets: [
+        'Red-Green-Refactor: escreva um teste que falha (vermelho), escreva o mínimo de código para ele passar (verde) e então melhore a estrutura sem quebrar o teste (refatora).',
+        'TDD força design pensado para ser testável — código testável é código com responsabilidades claras e baixo acoplamento.',
+        'A suíte de testes resultante é um documento vivo: descreve exatamente o que o código faz, servindo de documentação executável para o time.'
+      ],
+      ferramentas: [
+        { nome: 'Kent Beck — TDD By Example', url: 'https://www.oreilly.com/library/view/test-driven-development/0321146530/' },
+        { nome: 'JUnit 5', url: 'https://junit.org/junit5/' },
+        { nome: 'pytest', url: 'https://pytest.org' }
+      ],
+      dica: 'Comece pelo teste mais simples possível — nem o caminho feliz completo. Um único assert que falha já direciona o próximo passo. TDD é cadência, não perfeccionismo.'
+    },
+
+    bdd: {
+      zona: 'Macro · O Processo V&V',
+      titulo: 'BDD — Cenários de Comportamento',
+      icone: '📖',
+      cor: '#8fb8d6',
+      label: 'BDD',
+      metafora: 'Três trogloditas encenam um ritual com pictogramas flutuando: o primeiro prepara a bancada (Given), o segundo aciona a ferramenta (When), o terceiro confere se a pedra caiu no alvo (Then). O ritual é repetível, observável e entendido por toda a tribo — não só pelo artesão.',
+      bullets: [
+        'BDD usa linguagem natural estruturada (Given-When-Then / Dado-Quando-Então) para que negócio, QA e dev escrevam cenários juntos antes de qualquer código.',
+        'Cenários BDD viram testes automatizados: a frase em português "Dado que o usuário tem saldo, Quando faz um saque, Então o saldo diminui" é executada como teste.',
+        'O maior benefício não é técnico — é a conversa entre os papéis ao escrever o cenário: ambiguidades aparecem antes de virar bug.'
+      ],
+      ferramentas: [
+        { nome: 'Cucumber', url: 'https://cucumber.io' },
+        { nome: 'Behave (Python)', url: 'https://behave.readthedocs.io' },
+        { nome: 'SpecFlow (.NET)', url: 'https://specflow.org' }
+      ],
+      dica: 'Faça as "Three Amigos sessions": dev, QA e PO escrevem cenários juntos antes do sprint. Cada divergência de interpretação que aparece ali vale semanas de debug depois.'
+    },
+
+    pipeline: {
+      zona: 'Macro · O Processo V&V',
+      titulo: 'Pipeline de Qualidade Contínua — A Esteira Automatizada',
+      icone: '⚙️',
+      cor: '#9b7ed6',
+      label: 'Pipeline de Qualidade',
+      metafora: 'Uma esteira de madeira e corda atravessa toda a caverna conectando todas as bancadas de teste em sequência. Cada estação valida a peça e, se ela falha, um mecanismo de desvio redireciona a pedra para correção antes de seguir — nenhuma peça defeituosa chega ao depósito final.',
+      bullets: [
+        'Um pipeline de qualidade automatiza lint, testes unitários, integração, análise estática e deploy em sequência — cada estágio é um portão que só libera a peça se passar.',
+        'Feedback rápido é o valor central: uma quebra detectada em segundos custa centenas de vezes menos que a mesma falha descoberta em produção.',
+        'A qualidade deixa de depender da disciplina individual e vira propriedade do sistema — o pipeline rejeita automaticamente o que não atende ao padrão.'
+      ],
+      ferramentas: [
+        { nome: 'GitHub Actions', url: 'https://github.com/features/actions' },
+        { nome: 'Jenkins', url: 'https://www.jenkins.io' },
+        { nome: 'GitLab CI', url: 'https://docs.gitlab.com/ee/ci/' }
+      ],
+      dica: 'Trate uma quebra no pipeline como emergência: ninguém faz merge enquanto a esteira está vermelha. Normalizar uma esteira quebrada é o começo do fim da cultura de qualidade.'
+    },
+
+    unidade: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Teste de Unidade — Peça Isolada',
+      icone: '🪶',
+      cor: '#e07a5f',
+      label: 'Teste de Unidade',
+      metafora: 'Um troglodita testa uma única ferramenta em bancada totalmente isolada, sem conexão com nenhuma outra peça da caverna. Um marcador visual na bancada indica que o teste é exclusivamente sobre aquela unidade — qualquer falha é daquela peça, não do encaixe.',
+      bullets: [
+        'Testa a menor unidade de código (função, método ou classe) de forma completamente isolada, substituindo dependências por dublês (mocks/stubs).',
+        'São os testes mais rápidos de escrever e executar — uma suíte de mil testes unitários deve rodar em segundos, não minutos.',
+        'Localizam a falha com precisão cirúrgica: se o teste vermelho aponta para `calcularDesconto()`, o bug está ali — sem precisar investigar o sistema todo.'
+      ],
+      ferramentas: [
+        { nome: 'Jest', url: 'https://jestjs.io' },
+        { nome: 'JUnit 5', url: 'https://junit.org/junit5/' },
+        { nome: 'Mockito', url: 'https://site.mockito.org' }
+      ],
+      dica: 'Um bom teste unitário segue o padrão AAA: Arrange (prepara o estado), Act (executa a ação), Assert (verifica o resultado). Se o teste precisa de mais de 5 linhas em cada fase, talvez a função esteja fazendo coisas demais.'
+    },
+
+    integracao: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Teste de Integração — Encaixe entre Peças',
+      icone: '🔗',
+      cor: '#f2cc8f',
+      label: 'Teste de Integração',
+      metafora: 'Dois trogloditas conectam duas ferramentas distintas e testam a interface entre elas: a força do encaixe, o alinhamento e a transferência de energia de uma para a outra. Um terceiro observa se há folga ou atrito excessivo na junta — o problema que os testes isolados jamais veriam.',
+      bullets: [
+        'Testa a comunicação entre dois ou mais módulos reais — banco de dados, APIs externas, filas de mensagem — sem dublês nessas fronteiras.',
+        'Pega bugs invisíveis nos testes unitários: conversão de tipos entre camadas, mapeamento ORM errado, formato de resposta de API diferente do esperado.',
+        'São mais lentos e frágeis que unitários porque dependem de infraestrutura real ou simulada — use containers (TestContainers) para isolar e tornar reproduzíveis.'
+      ],
+      ferramentas: [
+        { nome: 'TestContainers', url: 'https://testcontainers.com' },
+        { nome: 'Spring Boot Test', url: 'https://docs.spring.io/spring-boot/docs/current/reference/html/test-auto-configuration.html' },
+        { nome: 'Supertest', url: 'https://github.com/ladjs/supertest' }
+      ],
+      dica: 'Teste as fronteiras do sistema, não o interior. Se você já tem boa cobertura unitária, os testes de integração devem focar nos contratos entre serviços — não repetir a lógica que os unitários já verificam.'
+    },
+
+    sistema: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Teste de Sistema — Mecanismo Completo',
+      icone: '⚙️',
+      cor: '#81b29a',
+      label: 'Teste de Sistema',
+      metafora: 'Um grande mecanismo com múltiplas peças interconectadas funciona em plena operação. Trogloditas monitoram cada componente enquanto o sistema inteiro trabalha junto — verificando se a sinergia de todas as peças produz o resultado esperado sem que nenhuma parte quebre as outras.',
+      bullets: [
+        'Testa o software completo como uma caixa-preta: a entrada entra pela interface do usuário ou API pública e a saída é verificada sem olhar para o interior do código.',
+        'Verifica requisitos não-funcionais: desempenho, segurança, escalabilidade e confiabilidade do sistema inteiro sob carga realista.',
+        'É o nível mais próximo do que o usuário vai encontrar — mas também o mais caro e lento de manter. Reserve para os fluxos críticos e de maior risco.'
+      ],
+      ferramentas: [
+        { nome: 'Selenium', url: 'https://www.selenium.dev' },
+        { nome: 'Playwright', url: 'https://playwright.dev' },
+        { nome: 'k6 (performance)', url: 'https://k6.io' }
+      ],
+      dica: 'Testes de sistema quebram por qualquer mudança na UI, nos dados de teste ou no ambiente. Invista em dados de teste estáveis e em selectors robustos (data-testid) antes de escrever o primeiro teste E2E.'
+    },
+
+    aceitacao: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Teste de Aceitação — Uso Real pelo Cliente',
+      icone: '👍',
+      cor: '#d6a4c7',
+      label: 'Teste de Aceitação',
+      metafora: 'Um troglodita-usuário utiliza a ferramenta em cenário cotidiano — caça, construção, cozinha — enquanto um observador registra se o resultado atende à necessidade real. O usuário sinaliza aprovação com gesto inequívoco: não interessa se a peça foi bem lascada, interessa se ela resolveu o problema.',
+      bullets: [
+        'UAT (User Acceptance Testing) é conduzido pelo cliente ou usuário final em ambiente o mais próximo possível da produção.',
+        'Verifica se o software entregue corresponde ao que foi acordado no contrato ou nos critérios de aceite — é o portão final antes do go-live.',
+        'Diferente dos outros níveis, o UAT não é automatizável em essência: o valor está no julgamento humano sobre se o produto serve para o propósito real.'
+      ],
+      ferramentas: [
+        { nome: 'Cucumber (BDD como UAT)', url: 'https://cucumber.io' },
+        { nome: 'UserTesting', url: 'https://www.usertesting.com' },
+        { nome: 'Maze', url: 'https://maze.co' }
+      ],
+      dica: 'Inclua usuários reais no UAT, não apenas o PO ou o gerente de projeto. O feedback de alguém que realmente usa o sistema no dia a dia revela problemas que nenhum stakeholder interno enxerga.'
+    },
+
+    estatica: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Análise Estática — Inspeção Visual de Padrões',
+      icone: '🔎',
+      cor: '#e07b39',
+      label: 'Análise Estática',
+      metafora: 'Um guardião experiente com lupa examina pedras individuais antes de qualquer teste funcional, em busca de padrões defeituosos visíveis: rachaduras internas, bolhas de ar, manchas de impureza. Cada anomalia detectada é marcada com símbolo de alerta — sem precisar usar a ferramenta para saber que ela vai falhar.',
+      bullets: [
+        'Análise estática inspeciona o código sem executá-lo: detecta bugs potenciais, violações de estilo, complexidade excessiva e vulnerabilidades de segurança ainda no editor.',
+        'SAST (Static Application Security Testing) é análise estática focada em segurança: encontra SQL injection, XSS e outros vetores de ataque no código-fonte antes do deploy.',
+        'Integrada ao pipeline ou ao editor, é a checagem mais barata que existe — feedback em milissegundos, sem precisar rodar o sistema.'
+      ],
+      ferramentas: [
+        { nome: 'SonarQube', url: 'https://www.sonarsource.com/products/sonarqube/' },
+        { nome: 'ESLint', url: 'https://eslint.org' },
+        { nome: 'Semgrep', url: 'https://semgrep.dev' }
+      ],
+      dica: 'Configure as regras de análise estática como portão obrigatório no PR. Uma regra que ninguém pode suprimir sem justificativa vale mais do que cem revisões manuais.'
+    },
+
+    codigomorto: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Código Morto e Duplicado — Limpeza da Oficina',
+      icone: '🚫',
+      cor: '#9aa0a6',
+      label: 'Código Morto e Duplicado',
+      metafora: 'Uma pilha de pedras que ninguém mais usa acumula poeira ao fundo da oficina (código morto). Ao lado, duas pedras idênticas ocupam espaço dobrado (código duplicado). Um troglodita remove a pilha morta e funde as cópias em uma peça única — a oficina fica menor, mais limpa e mais rápida de percorrer.',
+      bullets: [
+        'Código morto é aquele que nunca é chamado em produção: branches de feature antigas, parâmetros nunca passados, funções sem referências. Ele confunde, distrai e oculta bugs.',
+        'Código duplicado multiplica o custo de manutenção: corrigir um bug exige encontrar e atualizar todas as cópias — e inevitavelmente uma delas é esquecida.',
+        'DRY (Don\'t Repeat Yourself) não é sobre não escrever a mesma linha duas vezes, mas sobre não ter o mesmo conhecimento representado em dois lugares.'
+      ],
+      ferramentas: [
+        { nome: 'SonarQube', url: 'https://www.sonarsource.com/products/sonarqube/' },
+        { nome: 'CodeScene', url: 'https://codescene.com' },
+        { nome: 'jscpd (detector de duplicatas)', url: 'https://github.com/kucherenko/jscpd' }
+      ],
+      dica: 'Antes de remover código morto, use a ferramenta para confirmar que não há chamada dinâmica escondida (reflexão, eval, plugins). Depois de deletar, veja o histórico de git — o código morto de hoje pode virar referência importante amanhã.'
+    },
+
+    codereview: {
+      zona: 'Micro · As Técnicas',
+      titulo: 'Code Review — Olhar Crítico Colaborativo',
+      icone: '👁️',
+      cor: '#c9aa5c',
+      label: 'Code Review',
+      metafora: 'Dois trogloditas trabalham lado a lado em bancada compartilhada: um lasca a ferramenta enquanto o outro observa com lupa, apontando ajustes com gesto preciso. As posições se invertem periodicamente — quem revisou hoje será revisado amanhã. O resultado é melhor do que qualquer um produziria sozinho.',
+      bullets: [
+        'Code review distribui o conhecimento do código pelo time: depois que duas pessoas revisaram um trecho, o "sabe só o João" deixa de existir.',
+        'É a última linha de defesa antes do merge: pega bugs lógicos, violações de segurança e decisões de design que passaram por toda a suíte de testes automatizados.',
+        'Revise com intenção, não por obrigação: comente o "porquê" do problema, não só o "o quê" — o objetivo é o aprendizado mútuo, não a aprovação mecânica.'
+      ],
+      ferramentas: [
+        { nome: 'GitHub Pull Requests', url: 'https://docs.github.com/en/pull-requests' },
+        { nome: 'GitLab Merge Requests', url: 'https://docs.gitlab.com/ee/user/project/merge_requests/' },
+        { nome: 'Reviewpad', url: 'https://reviewpad.com' }
+      ],
+      dica: 'Defina um checklist de review no repositório: segurança, testes, complexidade ciclomática, nomeação. Um checklist compartilhado garante que todos revisem com o mesmo olhar — e que nada crítico seja negligenciado por pressa.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container [left, top, width, height]
+  // Faixa superior: 5 nichos (top 3%–47%)
+  // Faixa inferior: 7 nichos (top 52%–96%)
+  const GEO = {
+    verificacao:  [0.5,  3,   19,  44],
+    piramide:     [20.5, 3,   19,  44],
+    tdd:          [40.5, 3,   19,  44],
+    bdd:          [60.5, 3,   19,  44],
+    pipeline:     [80.5, 3,   19,  44],
+    unidade:      [0.5,  52,  13,  43],
+    integracao:   [14.5, 52,  13,  43],
+    sistema:      [28.5, 52,  13,  43],
+    aceitacao:    [42.5, 52,  13,  43],
+    estatica:     [56.5, 52,  13,  43],
+    codigomorto:  [70.5, 52,  13,  43],
+    codereview:   [84.5, 52,  15,  43]
+  };
+
+  const ORDEM = [
+    'verificacao','piramide','tdd','bdd','pipeline',
+    'unidade','integracao','sistema','aceitacao','estatica','codigomorto','codereview'
+  ];
+
+  const RELACOES = {
+    verificacao:  { ids: ['piramide','bdd','aceitacao'],    nota: 'Saber se "está correto" (verificação) e se "é o que o usuário quer" (validação) orienta quais níveis da pirâmide usar e como escrever cenários BDD que culminam no teste de aceitação.' },
+    piramide:     { ids: ['unidade','integracao','pipeline'], nota: 'A pirâmide distribui o esforço: muitos unitários na base, poucos E2E no topo — e o pipeline executa cada camada na sequência certa, impedindo que custo e lentidão dominem.' },
+    tdd:          { ids: ['unidade','estatica','codereview'], nota: 'TDD produz a suíte de testes unitários por natureza, deixa o código limpo o suficiente para passar na análise estática e facilita o code review por tornar a intenção de cada função explícita.' },
+    bdd:          { ids: ['verificacao','aceitacao','codereview'], nota: 'Cenários BDD são a ponte entre validação (o que o usuário precisa) e o teste de aceitação (aprovação final), e servem de documentação viva durante o code review.' },
+    pipeline:     { ids: ['piramide','estatica','codigomorto'], nota: 'O pipeline executa a pirâmide em ordem, roda a análise estática e pode bloquear aumento de código morto — automatizando toda a governança de qualidade sem esforço manual.' },
+    unidade:      { ids: ['tdd','piramide','integracao'],    nota: 'Testes de unidade são o coração do TDD, formam a base da pirâmide e revelam o que deve ser coberto pelo próximo nível — integração.' },
+    integracao:   { ids: ['unidade','sistema','pipeline'],   nota: 'A integração conecta o que os unitários isolaram e alimenta o sistema completo — ambos dependem do pipeline para rodar com consistência.' },
+    sistema:      { ids: ['integracao','aceitacao','pipeline'], nota: 'O sistema só pode ser testado se a integração funciona; o resultado é o substrato do teste de aceitação pelo usuário.' },
+    aceitacao:    { ids: ['verificacao','bdd','sistema'],    nota: 'Aceitação é a validação em ação: confirma se o sistema (que passou pelos outros níveis) resolve o problema real do usuário, conforme descrito nos cenários BDD.' },
+    estatica:     { ids: ['tdd','codigomorto','pipeline'],   nota: 'Análise estática complementa o TDD detectando o que os testes não veem (vulnerabilidades, style), aponta código morto e é etapa obrigatória no pipeline.' },
+    codigomorto:  { ids: ['estatica','codereview','piramide'], nota: 'Código morto é detectado pela análise estática, evidenciado no code review e aumenta quando ninguém mantém a pirâmide de testes coberta adequadamente.' },
+    codereview:   { ids: ['bdd','codigomorto','tdd'],         nota: 'Code review valida se os cenários BDD foram implementados corretamente, elimina código morto que escapou da análise e reforça a disciplina do TDD no time.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
