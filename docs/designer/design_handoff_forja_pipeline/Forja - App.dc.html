@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0e0905}
+  [data-fv]:focus-visible{outline:3px solid #f0d29a;outline-offset:2px;border-radius:8px}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#3a2c1e;border-radius:5px}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important}}
+</style>
+</helmet>
+
+<div style="width:1400px;margin:0 auto;height:904px;display:grid;grid-template-columns:228px 1fr;background:radial-gradient(120% 60% at 70% -10%, #241710 0%, #16100a 55%, #0e0905 100%);color:#f0e6d2;font-family:Spectral,Georgia,serif;overflow:hidden;">
+
+  <!-- ===== NAV ===== -->
+  <nav style="border-right:1px solid #3a2c1e;background:rgba(16,10,5,.55);display:flex;flex-direction:column;padding:18px 14px;gap:6px;overflow-y:auto;">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 8px 16px;">
+      <span style="font-size:21px;" aria-hidden="true">🔥</span>
+      <div><div style="font-family:Cinzel,serif;font-weight:700;font-size:15px;color:#f0d29a;">A Forja</div><div style="font-size:10px;color:#8a7350;letter-spacing:.04em;">pipeline · mapa-metáfora</div></div>
+    </div>
+    <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
+      <div style="font-family:Cinzel,serif;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#6d5b47;padding:10px 8px 5px;">{{ g.label }}</div>
+      <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+        <button data-fv type="button" onClick="{{ it.onClick }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:Spectral,serif;font-size:13.5px;cursor:pointer;border-radius:9px;padding:9px 11px;border:1px solid {{ it.borda }};background-color:{{ it.bg }};color:{{ it.cor }};">
+          <span style="font-size:14px;width:18px;text-align:center;" aria-hidden="true">{{ it.ic }}</span>{{ it.lab }}
+        </button>
+      </sc-for>
+    </sc-for>
+    <div style="margin-top:auto;font-size:10.5px;color:#6d5b47;line-height:1.5;padding:12px 8px 0;border-top:1px solid #3a2c1e;">FastAPI · SSE · SQLite checkpoint<br>GitHub MCP conectado</div>
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <div style="display:flex;flex-direction:column;min-width:0;">
+
+    <!-- top bar -->
+    <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 26px;border-bottom:1px solid #3a2c1e;background:rgba(16,10,5,.5);flex-shrink:0;">
+      <div>
+        <h1 style="font-family:Cinzel,serif;font-weight:700;font-size:18px;color:#f0d29a;">{{ titulo.h }}</h1>
+        <div style="font-size:12px;color:#8a7350;margin-top:2px;">{{ titulo.sub }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#8a7350;">repo <span style="color:#b9925a;">animacao_educacional</span></span>
+        <button data-fv onClick="{{ goNovo }}" style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.04em;color:#1a120b;background:#f0d29a;border:none;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:600;">✨ Nova geração</button>
+      </div>
+    </header>
+
+    <!-- content -->
+    <div style="flex:1;overflow-y:auto;padding:24px 26px 30px;">
+
+      <!-- ============ DASHBOARD ============ -->
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="padding:17px 18px;border:1px solid #3a2c1e;border-radius:14px;background:linear-gradient(180deg,rgba(45,30,17,.6),rgba(20,13,7,.6));">
+              <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#b9925a;">{{ k.lab }}</div>
+              <div style="font-family:Cinzel,serif;font-size:30px;font-weight:700;color:{{ k.cor }};margin-top:7px;">{{ k.val }}</div>
+              <div style="font-size:11.5px;color:#8a7350;margin-top:3px;">{{ k.sub }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;">
+          <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:17px 18px;">
+            <div style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#b9925a;margin-bottom:14px;">Saúde do grafo · últimos 30 runs</div>
+            <div style="display:flex;gap:12px;">
+              <sc-for list="{{ saude }}" as="s" hint-placeholder-count="7">
+                <div style="flex:1;text-align:center;">
+                  <div style="height:64px;display:flex;align-items:flex-end;justify-content:center;"><div style="width:70%;height:{{ s.h }};background:linear-gradient(180deg,{{ s.cor }},color-mix(in srgb,{{ s.cor }} 30%,transparent));border-radius:4px 4px 0 0;"></div></div>
+                  <div style="font-family:ui-monospace,monospace;font-size:9px;color:#8a7350;margin-top:6px;white-space:nowrap;">{{ s.nome }}</div>
+                  <div style="font-size:10.5px;color:{{ s.cor }};font-weight:600;">{{ s.pct }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:17px 18px;">
+            <div style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#b9925a;margin-bottom:14px;">Cota das APIs (grátis)</div>
+            <sc-for list="{{ cotas }}" as="c" hint-placeholder-count="2">
+              <div style="margin-bottom:15px;">
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#cdbb9a;margin-bottom:6px;"><span>{{ c.nome }}</span><span style="color:#8a7350;">{{ c.txt }}</span></div>
+                <div style="height:8px;border-radius:4px;background:#2a2018;overflow:hidden;"><div style="height:100%;width:{{ c.pct }};background:linear-gradient(90deg,{{ c.cor }},color-mix(in srgb,{{ c.cor }} 55%,#2a2018));border-radius:4px;"></div></div>
+              </div>
+            </sc-for>
+            <div style="font-size:11px;color:#6d5b47;line-height:1.5;margin-top:4px;">DeepSeek: grant único de signup. Gemini: cota diária do free tier. Guardrail interrompe o run se a cota acabar.</div>
+          </div>
+        </div>
+        <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:6px 4px;margin-top:20px;">
+          <div style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#b9925a;padding:12px 16px 8px;">Execuções recentes</div>
+          <sc-for list="{{ runs }}" as="r" hint-placeholder-count="4">
+            <button data-fv onClick="{{ goConsole }}" style="display:grid;grid-template-columns:1.4fr 1fr auto auto;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;background:transparent;border:none;border-top:1px solid #2a2018;padding:11px 16px;">
+              <span style="font-family:ui-monospace,monospace;font-size:12.5px;color:#e8dcc4;">{{ r.slug }}</span>
+              <span style="font-size:12px;color:#a89576;">{{ r.tema }} · {{ r.met }}</span>
+              <span style="font-size:11.5px;color:{{ r.cor }};display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:{{ r.cor }};"></span>{{ r.status }}</span>
+              <span style="font-size:11px;color:#6d5b47;font-family:ui-monospace,monospace;">{{ r.quando }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ============ EXECUÇÕES ============ -->
+      <sc-if value="{{ isRuns }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <sc-for list="{{ runFiltros }}" as="f" hint-placeholder-count="5">
+            <span style="font-family:Cinzel,serif;font-size:12px;padding:7px 13px;border-radius:8px;border:1px solid {{ f.borda }};background:{{ f.bg }};color:{{ f.cor }};">{{ f.lab }} <span style="opacity:.6;">{{ f.n }}</span></span>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);overflow:hidden;">
+          <div style="display:grid;grid-template-columns:1.5fr 1.2fr 1fr .7fr .8fr auto;gap:14px;padding:11px 18px;font-family:Cinzel,serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a7350;border-bottom:1px solid #3a2c1e;">
+            <span>Slug</span><span>Tema · Metáfora</span><span>Status</span><span>Tent.</span><span>Duração</span><span></span>
+          </div>
+          <sc-for list="{{ runs }}" as="r" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:1.5fr 1.2fr 1fr .7fr .8fr auto;gap:14px;align-items:center;padding:13px 18px;border-bottom:1px solid #2a2018;">
+              <span style="font-family:ui-monospace,monospace;font-size:12.5px;color:#e8dcc4;">{{ r.slug }}</span>
+              <span style="font-size:12.5px;color:#a89576;">{{ r.tema }} · {{ r.met }}</span>
+              <span style="font-size:11.5px;color:{{ r.cor }};display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:{{ r.cor }};"></span>{{ r.status }}</span>
+              <span style="font-family:ui-monospace,monospace;font-size:12px;color:#cdbb9a;">{{ r.tent }}</span>
+              <span style="font-family:ui-monospace,monospace;font-size:12px;color:#8a7350;">{{ r.dur }}</span>
+              <button data-fv onClick="{{ goConsole }}" style="font-family:Cinzel,serif;font-size:11px;color:#e0b066;background:transparent;border:1px solid #6d5b47;border-radius:7px;padding:6px 12px;cursor:pointer;">Abrir</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ============ NOVA GERAÇÃO ============ -->
+      <sc-if value="{{ isNovo }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:22px;max-width:980px;">
+          <div style="border:1px solid #3a2c1e;border-radius:16px;background:rgba(20,13,7,.5);padding:22px;">
+            <div style="font-family:Cinzel,serif;font-size:13px;letter-spacing:.06em;color:#d9c4a0;margin-bottom:18px;">Configurar geração</div>
+            <label style="display:block;font-size:12px;color:#a89576;margin-bottom:5px;">Tema técnico</label>
+            <input data-fv value="Git Flow" readonly style="width:100%;font-family:Spectral,serif;font-size:14px;color:#f0e6d2;background:rgba(42,28,16,.5);border:1px solid #6d5b47;border-radius:9px;padding:11px 13px;margin-bottom:14px;">
+            <label style="display:block;font-size:12px;color:#a89576;margin-bottom:5px;">Metáfora</label>
+            <input data-fv value="Metrô" readonly style="width:100%;font-family:Spectral,serif;font-size:14px;color:#f0e6d2;background:rgba(42,28,16,.5);border:1px solid #6d5b47;border-radius:9px;padding:11px 13px;margin-bottom:14px;">
+            <div style="font-family:ui-monospace,monospace;font-size:12px;color:#8a7350;margin-bottom:18px;padding:10px 12px;background:#0c0703;border:1px solid #2a2018;border-radius:8px;">slug → <span style="color:#e0b066;">git-flow-metro</span> · imagem → <span style="color:#e0b066;">git-flow-metro.png</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+              <div><label style="display:block;font-size:12px;color:#a89576;margin-bottom:5px;">Modelo de texto</label><div data-fv style="font-family:ui-monospace,monospace;font-size:12.5px;color:#cdbb9a;background:rgba(42,28,16,.5);border:1px solid #6d5b47;border-radius:9px;padding:10px 12px;">deepseek-chat ▾</div></div>
+              <div><label style="display:block;font-size:12px;color:#a89576;margin-bottom:5px;">Modelo de imagem</label><div data-fv style="font-family:ui-monospace,monospace;font-size:12.5px;color:#cdbb9a;background:rgba(42,28,16,.5);border:1px solid #6d5b47;border-radius:9px;padding:10px 12px;">gemini-2.5-flash-image ▾</div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid #2a2018;"><span style="font-size:13px;color:#cdbb9a;">Aprovação humana antes do deploy</span><span style="width:40px;height:22px;border-radius:11px;background:#5fb3d9;position:relative;"><span style="position:absolute;right:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;"></span></span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid #2a2018;"><span style="font-size:13px;color:#cdbb9a;">Máx. de tentativas (loop de autocorreção)</span><span style="font-family:ui-monospace,monospace;font-size:13px;color:#e0b066;">3</span></div>
+            <button data-fv style="width:100%;margin-top:18px;font-family:Cinzel,serif;font-size:13.5px;letter-spacing:.05em;color:#1a120b;background:#f0d29a;border:none;border-radius:10px;padding:13px;cursor:pointer;font-weight:600;">▶ Iniciar geração</button>
+          </div>
+          <div style="border:1px solid #3a2c1e;border-radius:16px;background:rgba(20,13,7,.4);padding:20px;">
+            <div style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.06em;color:#b9925a;margin-bottom:14px;">O que vai acontecer</div>
+            <sc-for list="{{ passos }}" as="p" hint-placeholder-count="6">
+              <div style="display:flex;gap:11px;margin-bottom:13px;">
+                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(224,176,102,.14);border:1px solid #6d5b47;color:#e0b066;font-family:Cinzel,serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ p.n }}</span>
+                <div><div style="font-size:13px;color:#e8dcc4;">{{ p.t }}</div><div style="font-size:11.5px;color:#8a7350;margin-top:1px;">{{ p.d }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CONSOLE ============ -->
+      <sc-if value="{{ isConsole }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-family:ui-monospace,monospace;font-size:12.5px;color:#b9925a;">run <span style="color:#d9c4a0;">#a1f7</span> · thread <span style="color:#d9c4a0;">git-flow-metro</span></div>
+          <span style="display:inline-flex;align-items:center;gap:7px;font-family:Cinzel,serif;font-size:11.5px;padding:7px 13px;border-radius:9px;color:{{ pill.cor }};border:1px solid {{ pill.cor }};background:color-mix(in srgb,{{ pill.cor }} 14%,transparent);"><span aria-hidden="true">{{ pill.icone }}</span>{{ pill.texto }}</span>
+        </div>
+        <div style="display:flex;gap:22px;margin-bottom:20px;">
+          <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="7">
+            <div style="position:relative;flex:1;min-width:0;padding:12px 10px;border-radius:11px;background:linear-gradient(180deg,rgba(45,30,17,.85),rgba(20,13,7,.85));border:1px solid #3a2c1e;border-top:3px solid {{ n.cor }};">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><span style="font-size:16px;" aria-hidden="true">{{ n.icone }}</span><span style="width:8px;height:8px;border-radius:50%;background:{{ n.cor }};{{ n.dotAnim }}"></span></div>
+              <div style="font-family:ui-monospace,monospace;font-size:10px;color:#e8dcc4;word-break:break-all;">{{ n.nome }}</div>
+              <div style="font-size:10px;color:{{ n.cor }};margin-top:3px;">{{ n.label }}</div>
+              <sc-if value="{{ n.notLast }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position:absolute;top:50%;right:-16px;transform:translateY(-50%);font-size:14px;color:#6d5b47;">▶</span></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start;">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:15px 16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:11px;"><span style="font-family:Cinzel,serif;font-size:12px;color:#d9c4a0;">validar_objeto · §4.4</span><span style="font-size:11.5px;color:#7cb87c;font-weight:600;">8 / 8 · aprovado</span></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 16px;">
+                <sc-for list="{{ checks }}" as="c" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cdbb9a;"><span style="width:15px;height:15px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;background:color-mix(in srgb,#7cb87c 22%,transparent);color:#7cb87c;">✓</span>{{ c }}</div></sc-for>
+              </div>
+              <div style="margin-top:10px;font-size:11.5px;color:#a89576;border-top:1px solid #2a2018;padding-top:9px;"><span style="color:#e0b066;">↺ tentativa 1:</span> 3 estações sem aria-label → erro reinjetado → tentativa 2 corrigiu.</div>
+            </div>
+            <div style="border:1px solid #3a2c1e;border-radius:14px;background:#0c0703;padding:13px 15px;">
+              <div style="font-family:Cinzel,serif;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8a7350;margin-bottom:9px;">stream de eventos</div>
+              <div style="font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.7;">
+                <sc-for list="{{ log }}" as="l" hint-placeholder-count="6"><div style="display:flex;gap:9px;"><span style="color:#5a4633;">{{ l.t }}</span><span style="color:{{ l.cor }};">{{ l.msg }}</span></div></sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="border:1px solid #5fb3d9;border-radius:16px;background:linear-gradient(180deg,rgba(95,179,217,.1),rgba(20,13,7,.6));overflow:hidden;">
+            <div style="padding:15px 17px;border-bottom:1px solid rgba(95,179,217,.3);"><div style="font-family:Cinzel,serif;font-size:12.5px;color:#9fd4ea;">⏸ Aprovação antes do deploy</div><div style="font-size:12px;color:#cdbb9a;margin-top:5px;line-height:1.5;">Pausa em <span style="font-family:ui-monospace,monospace;color:#9fd4ea;">interrupt_before=["deploy"]</span>.</div></div>
+            <div style="padding:15px 17px;display:flex;flex-direction:column;gap:13px;">
+              <div style="font-family:ui-monospace,monospace;font-size:11px;line-height:1.8;">
+                <div><span style="color:#7cb87c;">+</span> git-flow-metro/index.html</div>
+                <div><span style="color:#7cb87c;">+</span> git-flow-metro/README.md</div>
+                <div><span style="color:#7cb87c;">+</span> git-flow-metro/git-flow-metro.png</div>
+                <div><span style="color:#e0b066;">~</span> index.html <span style="color:#8a7350;">(Atlas)</span> · README.md</div>
+              </div>
+              <div style="font-size:12px;color:#a89576;">🌿 <span style="font-family:ui-monospace,monospace;color:#9fd4ea;">git-flow-metro/objeto-educacional</span> → PR <span style="font-family:ui-monospace,monospace;color:#9fd4ea;">main</span></div>
+              <button data-fv style="font-family:Cinzel,serif;font-size:13px;color:#06121a;background:#5fb3d9;border:none;border-radius:10px;padding:12px;cursor:pointer;font-weight:600;">✓ Aprovar e abrir Pull Request</button>
+              <div style="display:flex;gap:9px;"><button data-fv style="flex:1;font-family:Cinzel,serif;font-size:11.5px;color:#e0b066;background:transparent;border:1px solid #6d5b47;border-radius:10px;padding:10px;cursor:pointer;">↺ Regenerar</button><button data-fv style="flex:1;font-family:Cinzel,serif;font-size:11.5px;color:#cf6a4a;background:transparent;border:1px solid #5a3a30;border-radius:10px;padding:10px;cursor:pointer;">✕ Descartar</button></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ OBJETOS / CATÁLOGO ============ -->
+      <sc-if value="{{ isObjetos }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:13px;color:#a89576;">Objetos gerados e seu estado de integração com o Atlas (<span style="color:#7cb87c;">16 de 18 linkados</span>).</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          <sc-for list="{{ objetos }}" as="o" hint-placeholder-count="6">
+            <div style="--c:{{ o.cor }};border:1px solid #3a2c1e;border-top:3px solid {{ o.cor }};border-radius:13px;background:linear-gradient(180deg,rgba(45,30,17,.7),rgba(20,13,7,.7));padding:15px 16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;"><span style="font-family:ui-monospace,monospace;font-size:11px;color:#8a7350;">{{ o.slug }}</span><span style="font-size:10.5px;color:{{ o.scor }};display:inline-flex;align-items:center;gap:5px;"><span style="width:6px;height:6px;border-radius:50%;background:{{ o.scor }};"></span>{{ o.status }}</span></div>
+              <div style="font-family:Cinzel,serif;font-size:16px;font-weight:600;color:#f0e6d2;">{{ o.nome }}</div>
+              <div style="font-size:11.5px;color:#b9925a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">{{ o.tema }}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding-top:11px;border-top:1px solid rgba(109,91,71,.25);"><span style="font-size:11.5px;color:#8a7350;">{{ o.n }} conceitos</span><span style="font-family:Cinzel,serif;font-size:11px;color:{{ o.cor }};">Abrir →</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ============ PULL REQUESTS ============ -->
+      <sc-if value="{{ isPrs }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);overflow:hidden;">
+          <div style="display:grid;grid-template-columns:auto 1.4fr 1.4fr 1fr auto;gap:14px;padding:11px 18px;font-family:Cinzel,serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a7350;border-bottom:1px solid #3a2c1e;"><span>PR</span><span>Slug</span><span>Branch</span><span>Status</span><span></span></div>
+          <sc-for list="{{ prs }}" as="p" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:auto 1.4fr 1.4fr 1fr auto;gap:14px;align-items:center;padding:13px 18px;border-bottom:1px solid #2a2018;">
+              <span style="font-family:ui-monospace,monospace;font-size:12.5px;color:#9fd4ea;">#{{ p.id }}</span>
+              <span style="font-family:ui-monospace,monospace;font-size:12px;color:#e8dcc4;">{{ p.slug }}</span>
+              <span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#a89576;">{{ p.branch }}</span>
+              <span style="font-size:11.5px;color:{{ p.cor }};display:inline-flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:{{ p.cor }};"></span>{{ p.status }}</span>
+              <button data-fv style="font-family:Cinzel,serif;font-size:11px;color:#e0b066;background:transparent;border:1px solid #6d5b47;border-radius:7px;padding:6px 12px;cursor:pointer;">GitHub ↗</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ============ MODELOS & CHAVES ============ -->
+      <sc-if value="{{ isModelos }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1080px;">
+          <sc-for list="{{ provedores }}" as="p" hint-placeholder-count="3">
+            <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-family:Cinzel,serif;font-size:14px;color:#f0d29a;">{{ p.nome }}</span><span style="font-size:10.5px;color:#7cb87c;display:inline-flex;align-items:center;gap:5px;"><span style="width:6px;height:6px;border-radius:50%;background:#7cb87c;"></span>{{ p.estado }}</span></div>
+              <label style="display:block;font-size:11px;color:#8a7350;margin-bottom:4px;">{{ p.campo }}</label>
+              <div data-fv style="font-family:ui-monospace,monospace;font-size:12px;color:#cdbb9a;background:#0c0703;border:1px solid #2a2018;border-radius:8px;padding:9px 11px;margin-bottom:13px;">{{ p.chave }}</div>
+              <div style="font-size:12px;color:#a89576;margin-bottom:6px;">{{ p.modelo }}</div>
+              <div style="font-size:11px;color:#8a7350;margin-bottom:8px;">{{ p.cotaTxt }}</div>
+              <div style="height:7px;border-radius:4px;background:#2a2018;overflow:hidden;"><div style="height:100%;width:{{ p.pct }};background:{{ p.cor }};border-radius:4px;"></div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:16px;font-size:12px;color:#6d5b47;max-width:1080px;line-height:1.6;">As chaves vêm do <span style="font-family:ui-monospace,monospace;color:#8a7350;">.env</span> (nunca commitadas). DeepSeek é OpenAI-compatible (<span style="font-family:ui-monospace,monospace;color:#8a7350;">base_url=api.deepseek.com</span>). GitHub via MCP <span style="font-family:ui-monospace,monospace;color:#8a7350;">create_pull_request</span>.</div>
+      </sc-if>
+
+      <!-- ============ PROMPTS & TEMPLATE ============ -->
+      <sc-if value="{{ isPrompts }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1080px;">
+          <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:17px 18px;">
+            <div style="font-family:Cinzel,serif;font-size:12.5px;color:#d9c4a0;margin-bottom:6px;">Prompt-fixo do objeto</div>
+            <div style="font-size:11.5px;color:#8a7350;margin-bottom:11px;">Injetado em gerar_objeto · de PIPELINE.md §5</div>
+            <pre style="margin:0;font-family:ui-monospace,monospace;font-size:11px;line-height:1.55;color:#bcd0b6;background:#0c0703;border:1px solid #2a2018;border-radius:9px;padding:12px;max-height:230px;overflow:auto;white-space:pre-wrap;">Crie um objeto educacional no formato mapa-metáfora,
+seguindo o template de arquitetura-de-software-caverna
+e as regras do CLAUDE.md.
+
+• slug = {tema}-{metafora}; imagem = {slug}.png
+• EMITA APENAS o JSON dos 12 conceitos + GEO + RELACOES
+  (o Python injeta no template fixo — evita truncamento)
+• corrija estes erros da rodada anterior: {erros}
+• atualize o array DATA do Atlas + catálogo do README</pre>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:17px 18px;">
+              <div style="font-family:Cinzel,serif;font-size:12.5px;color:#d9c4a0;margin-bottom:6px;">Contrato de composição da imagem</div>
+              <ul style="margin:8px 0 0;padding-left:18px;font-size:12.5px;color:#cdbb9a;line-height:1.8;"><li>16:9, preenchendo borda a borda</li><li>5 nichos em cima · 7 embaixo</li><li>separados por pilares de rocha</li><li>SEM TEXTO (símbolos abstratos)</li></ul>
+            </div>
+            <div style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:17px 18px;">
+              <div style="font-family:Cinzel,serif;font-size:12.5px;color:#d9c4a0;margin-bottom:10px;">Marcadores-sentinela (inserção determinística)</div>
+              <div style="font-family:ui-monospace,monospace;font-size:11.5px;color:#a89576;line-height:1.9;"><div>index.html → <span style="color:#e0b066;">/* __ATLAS_ENTRIES__ */</span></div><div>README.md → <span style="color:#e0b066;">&lt;!-- __CATALOGO__ --&gt;</span></div><div>template base → <span style="color:#e0b066;">arquitetura-de-software-caverna</span></div></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CONFIGURAÇÕES ============ -->
+      <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:760px;display:flex;flex-direction:column;gap:14px;">
+          <sc-for list="{{ configs }}" as="c" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid #3a2c1e;border-radius:12px;background:rgba(20,13,7,.5);padding:15px 18px;">
+              <div><div style="font-size:13.5px;color:#e8dcc4;">{{ c.lab }}</div><div style="font-size:11.5px;color:#8a7350;margin-top:2px;">{{ c.desc }}</div></div>
+              <div style="font-family:ui-monospace,monospace;font-size:12.5px;color:{{ c.cor }};white-space:nowrap;">{{ c.val }}</div>
+            </div>
+          </sc-for>
+          <button data-fv style="align-self:flex-start;margin-top:6px;font-family:Cinzel,serif;font-size:12.5px;color:#1a120b;background:#f0d29a;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;font-weight:600;">Salvar configurações</button>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:904},&quot;estadoConsole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Aguardando aprovação&quot;,&quot;Em execução&quot;,&quot;Falha (3 tentativas)&quot;],&quot;default&quot;:&quot;Aguardando aprovação&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Console&quot;}}">
+class Component extends DCLogic {
+  state = { view: 'dashboard' };
+
+  renderVals(){
+    const view = this.state.view;
+    const estadoConsole = this.props.estadoConsole ?? 'Aguardando aprovação';
+    const go = (v)=>()=>this.setState({ view:v });
+
+    const groups = [
+      { label:'Execução', items:[
+        { v:'dashboard', lab:'Visão geral', ic:'📊' },
+        { v:'runs', lab:'Execuções', ic:'📋' },
+        { v:'novo', lab:'Nova geração', ic:'✨' },
+        { v:'console', lab:'Console', ic:'🔭' },
+      ]},
+      { label:'Catálogo', items:[
+        { v:'objetos', lab:'Objetos', ic:'🗿' },
+        { v:'prs', lab:'Pull Requests', ic:'🔀' },
+      ]},
+      { label:'Administração', items:[
+        { v:'modelos', lab:'Modelos & Chaves', ic:'🔑' },
+        { v:'prompts', lab:'Prompts & Template', ic:'📜' },
+        { v:'config', lab:'Configurações', ic:'⚙️' },
+      ]},
+    ];
+    const navGroups = groups.map(g=>({
+      label:g.label,
+      items:g.items.map(it=>{
+        const active = it.v===view;
+        return { ...it, onClick:go(it.v),
+          bg: active?'rgba(240,210,154,.14)':'transparent',
+          cor: active?'#f0d29a':'#cdbb9a',
+          borda: active?'#6d5b47':'transparent' };
+      }),
+    }));
+
+    const titulos = {
+      dashboard:{h:'Visão geral',sub:'Saúde do pipeline e execuções recentes'},
+      runs:{h:'Execuções',sub:'Todos os runs do grafo'},
+      novo:{h:'Nova geração',sub:'Disparar um novo objeto educacional'},
+      console:{h:'Console do run',sub:'Grafo de estado, validação e aprovação'},
+      objetos:{h:'Objetos',sub:'Catálogo gerado e sincronização com o Atlas'},
+      prs:{h:'Pull Requests',sub:'PRs abertos pelo nó de deploy'},
+      modelos:{h:'Modelos & Chaves',sub:'Provedores de LLM, imagem e Git'},
+      prompts:{h:'Prompts & Template',sub:'Contratos, prompt-fixo e marcadores'},
+      config:{h:'Configurações',sub:'Servidor, checkpointer e HITL'},
+    };
+
+    // ---- console data
+    const COR = { ok:'#7cb87c', run:'#e0b066', wait:'#5fb3d9', fail:'#cf6a4a', pend:'#6d5b47', skip:'#4a3a2a' };
+    const LAB = { ok:'ok', run:'rodando', wait:'aguarda', fail:'falhou', pend:'pendente', skip:'ignorado' };
+    const base = [
+      { nome:'definir_slug', icone:'🧭' },{ nome:'gerar_prompt', icone:'✍️' },
+      { nome:'gerar_imagem', icone:'🖼️' },{ nome:'gerar_objeto', icone:'⚒️' },
+      { nome:'validar_objeto', icone:'🧪' },{ nome:'atualizar_atlas', icone:'🗺️' },
+      { nome:'deploy', icone:'🚀' },
+    ];
+    let sm;
+    if (estadoConsole==='Em execução') sm=['ok','ok','ok','run','pend','pend','pend'];
+    else if (estadoConsole==='Falha (3 tentativas)') sm=['ok','ok','ok','ok','fail','skip','skip'];
+    else sm=['ok','ok','ok','ok','ok','ok','wait'];
+    const nodes = base.map((n,i)=>({ ...n, cor:COR[sm[i]], label:LAB[sm[i]], notLast:i<base.length-1,
+      dotAnim:(sm[i]==='run'||sm[i]==='wait')?'animation:pulse 1.4s ease-in-out infinite;':'' }));
+    const pill = estadoConsole==='Em execução' ? {texto:'Em execução',cor:'#e0b066',icone:'●'}
+      : estadoConsole==='Falha (3 tentativas)' ? {texto:'Falhou · 3 tentativas',cor:'#cf6a4a',icone:'✕'}
+      : {texto:'Aguardando aprovação',cor:'#5fb3d9',icone:'⏸'};
+    const checks = ['Console sem erro','12 estações','Modais abrem','<progress> do tour',':focus-visible','reduced-motion','Teclado','Zero requisições'];
+    const log = [
+      {t:'00:22',cor:'#e0b066',msg:'gerar_objeto · tentativa 1'},
+      {t:'00:29',cor:'#cf6a4a',msg:'validar ✕ 3 sem aria-label'},
+      {t:'00:29',cor:'#e0b066',msg:'↺ reinjeta erros → tentativa 2'},
+      {t:'00:37',cor:'#7cb87c',msg:'validar ✓ 8/8 · 12/12 estações'},
+      {t:'00:38',cor:'#7cb87c',msg:'atualizar_atlas → DATA + catálogo'},
+      {t:'00:38',cor:'#5fb3d9',msg:'interrupt deploy · aguardando humano'},
+    ];
+
+    // ---- datasets
+    const runs = [
+      { slug:'git-flow-metro', tema:'Git Flow', met:'Metrô', status:'Aguardando aprovação', cor:'#5fb3d9', tent:'2/3', dur:'38s', quando:'agora' },
+      { slug:'kubernetes-cidade', tema:'Kubernetes', met:'Cidade', status:'Concluído', cor:'#7cb87c', tent:'1/3', dur:'41s', quando:'12min' },
+      { slug:'service-mesh-formigueiro', tema:'Service Mesh', met:'Formigueiro', status:'Falha', cor:'#cf6a4a', tent:'3/3', dur:'1m12', quando:'1h' },
+      { slug:'cache-distribuido-colmeia', tema:'Cache', met:'Colmeia', status:'Em execução', cor:'#e0b066', tent:'1/3', dur:'—', quando:'agora' },
+      { slug:'mensageria-correio-pombos', tema:'Mensageria', met:'Correio', status:'Concluído', cor:'#7cb87c', tent:'2/3', dur:'52s', quando:'3h' },
+      { slug:'feature-flags-disjuntores', tema:'Feature Flags', met:'Disjuntores', status:'Concluído', cor:'#7cb87c', tent:'1/3', dur:'36s', quando:'ontem' },
+    ];
+    const runFiltros = [
+      { lab:'Todos', n:6, on:true },{ lab:'Aguardando', n:1 },{ lab:'Em execução', n:1 },{ lab:'Concluído', n:3 },{ lab:'Falha', n:1 },
+    ].map(f=>({ ...f, bg:f.on?'#f0d29a':'rgba(58,44,30,.55)', cor:f.on?'#1a120b':'#d9c4a0', borda:f.on?'#f0d29a':'#6d5b47' }));
+
+    const kpis = [
+      { lab:'Execuções', val:'47', sub:'+6 esta semana', cor:'#f0d29a' },
+      { lab:'Taxa de sucesso', val:'87%', sub:'41 de 47 runs', cor:'#7cb87c' },
+      { lab:'Tentativas/run', val:'1.6', sub:'média do loop', cor:'#e0b066' },
+      { lab:'PRs abertos', val:'3', sub:'aguardando merge', cor:'#5fb3d9' },
+    ];
+    const saude = [
+      { nome:'slug', pct:'100%', h:'62px', cor:'#7cb87c' },
+      { nome:'prompt', pct:'100%', h:'62px', cor:'#7cb87c' },
+      { nome:'imagem', pct:'94%', h:'58px', cor:'#7cb87c' },
+      { nome:'objeto', pct:'81%', h:'50px', cor:'#e0b066' },
+      { nome:'validar', pct:'87%', h:'54px', cor:'#e0b066' },
+      { nome:'atlas', pct:'100%', h:'62px', cor:'#7cb87c' },
+      { nome:'deploy', pct:'100%', h:'62px', cor:'#7cb87c' },
+    ];
+    const cotas = [
+      { nome:'DeepSeek · grant', txt:'2.9M / 5M tokens', pct:'58%', cor:'#5fb3d9' },
+      { nome:'Gemini · imagens hoje', txt:'112 / 500', pct:'22%', cor:'#7cb87c' },
+    ];
+    const passos = [
+      { n:'1', t:'definir_slug', d:'git-flow-metro · cria a pasta' },
+      { n:'2', t:'gerar_prompt (DeepSeek)', d:'contrato 16:9, 5+7 nichos' },
+      { n:'3', t:'gerar_imagem (Gemini)', d:'salva git-flow-metro.png' },
+      { n:'4', t:'gerar_objeto + validar', d:'loop até passar (máx. 3)' },
+      { n:'5', t:'atualizar_atlas', d:'DATA + catálogo do README' },
+      { n:'6', t:'aprovação → deploy', d:'PR para main' },
+    ];
+    const objetos = [
+      { slug:'git-flow-metro', nome:'O Metrô do Git', tema:'Git Flow', n:12, status:'Aguardando', scor:'#5fb3d9', cor:'#5fb3d9' },
+      { slug:'kubernetes-cidade', nome:'A Cidade K8s', tema:'Kubernetes', n:12, status:'PR aberto', scor:'#e0b066', cor:'#6ba368' },
+      { slug:'qa-caverna', nome:'A Caverna da Qualidade', tema:'QA & Testes', n:12, status:'No Atlas', scor:'#7cb87c', cor:'#e0b066' },
+      { slug:'observabilidade-sala-de-controle', nome:'Sala de Controle', tema:'Observabilidade', n:6, status:'No Atlas', scor:'#7cb87c', cor:'#5fb3d9' },
+      { slug:'tech-squads-caverna', nome:'A Caverna dos Squads', tema:'Tech Squads', n:12, status:'No Atlas', scor:'#7cb87c', cor:'#c08457' },
+      { slug:'service-mesh-formigueiro', nome:'O Formigueiro', tema:'Service Mesh', n:9, status:'Falha', scor:'#cf6a4a', cor:'#cf6a4a' },
+    ];
+    const prs = [
+      { id:'214', slug:'kubernetes-cidade', branch:'kubernetes-cidade/objeto-educacional', status:'Aberto · checks ✓', cor:'#7cb87c' },
+      { id:'213', slug:'mensageria-correio-pombos', branch:'mensageria-correio-pombos/objeto-educacional', status:'Aberto', cor:'#5fb3d9' },
+      { id:'212', slug:'feature-flags-disjuntores', branch:'feature-flags-disjuntores/objeto-educacional', status:'Merged', cor:'#9b7ed6' },
+      { id:'210', slug:'cache-distribuido-colmeia', branch:'cache-distribuido-colmeia/objeto-educacional', status:'Aberto · em revisão', cor:'#5fb3d9' },
+      { id:'207', slug:'tech-squads-caverna', branch:'tech-squads-caverna/objeto-educacional', status:'Merged', cor:'#9b7ed6' },
+    ];
+    const provedores = [
+      { nome:'DeepSeek', estado:'conectado', campo:'DEEPSEEK_API_KEY', chave:'sk-•••••••••••• 4f2a', modelo:'deepseek-chat · base_url api.deepseek.com', cotaTxt:'grant 2.9M / 5M tokens', pct:'58%', cor:'#5fb3d9' },
+      { nome:'Gemini', estado:'conectado', campo:'GEMINI_API_KEY', chave:'AIza•••••••••• 9c1d', modelo:'gemini-2.5-flash-image', cotaTxt:'112 / 500 imagens hoje', pct:'22%', cor:'#7cb87c' },
+      { nome:'GitHub', estado:'conectado', campo:'MCP · OAuth', chave:'danzeroum/animacao_…', modelo:'create_pull_request', cotaTxt:'sem limite relevante', pct:'8%', cor:'#9b7ed6' },
+    ];
+    const configs = [
+      { lab:'Servidor', desc:'FastAPI + Uvicorn', val:'localhost:8000', cor:'#cdbb9a' },
+      { lab:'Eventos em tempo real', desc:'stream do grafo para o front', val:'SSE · /stream', cor:'#cdbb9a' },
+      { lab:'Checkpointer', desc:'persistência por thread_id (HITL cruza requisições)', val:'SqliteSaver · ./forja.db', cor:'#7cb87c' },
+      { lab:'Aprovação humana', desc:'interrupt_before antes do deploy', val:'ATIVO', cor:'#7cb87c' },
+      { lab:'Máx. de tentativas', desc:'loop de autocorreção', val:'3', cor:'#e0b066' },
+      { lab:'Padrão de branch', desc:'criado no deploy', val:'{slug}/objeto-educacional', cor:'#cdbb9a' },
+    ];
+
+    return {
+      navGroups, titulo: titulos[view], goNovo:go('novo'), goConsole:go('console'),
+      isDashboard:view==='dashboard', isRuns:view==='runs', isNovo:view==='novo',
+      isConsole:view==='console', isObjetos:view==='objetos', isPrs:view==='prs',
+      isModelos:view==='modelos', isPrompts:view==='prompts', isConfig:view==='config',
+      nodes, pill, checks, log, runs, runFiltros, kpis, saude, cotas, passos, objetos, prs, provedores, configs,
+    };
+  }
+}
+</script>
+</body>
+</html>

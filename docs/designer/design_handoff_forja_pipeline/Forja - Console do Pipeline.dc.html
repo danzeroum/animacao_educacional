@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0e0905}
+  [data-fv]:focus-visible{outline:3px solid #f0d29a;outline-offset:2px;border-radius:8px}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important}}
+</style>
+</helmet>
+
+<div style="width:1400px;margin:0 auto;min-height:900px;background:radial-gradient(120% 60% at 50% -10%, #241710 0%, #16100a 55%, #0e0905 100%);color:#f0e6d2;font-family:Spectral,Georgia,serif;">
+
+  <!-- ===== TOP BAR ===== -->
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 26px;border-bottom:1px solid #3a2c1e;background:rgba(16,10,5,.6);">
+    <div style="display:flex;align-items:center;gap:13px;">
+      <span style="font-size:22px;" aria-hidden="true">🔥</span>
+      <div>
+        <div style="font-family:Cinzel,serif;font-weight:700;font-size:17px;color:#f0d29a;letter-spacing:.02em;">A Forja · Console do Pipeline</div>
+        <div style="font-size:12px;color:#8a7350;">LangGraph · DeepSeek + Gemini · geração de objetos mapa-metáfora</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b9925a;">run <span style="color:#d9c4a0;">#a1f7</span> · thread <span style="color:#d9c4a0;">{{ slug }}</span></div>
+      <span style="display:inline-flex;align-items:center;gap:7px;font-family:Cinzel,serif;font-size:11.5px;letter-spacing:.06em;padding:7px 13px;border-radius:9px;color:{{ pill.cor }};border:1px solid {{ pill.cor }};background:color-mix(in srgb,{{ pill.cor }} 14%,transparent);"><span aria-hidden="true">{{ pill.icone }}</span>{{ pill.texto }}</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:248px 1fr;min-height:835px;">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside style="border-right:1px solid #3a2c1e;padding:20px 18px;background:rgba(20,13,7,.45);display:flex;flex-direction:column;gap:20px;">
+      <div>
+        <div style="font-family:Cinzel,serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#b9925a;margin-bottom:11px;">Nova geração</div>
+        <label style="display:block;font-size:11.5px;color:#a89576;margin-bottom:4px;">Tema</label>
+        <input data-fv value="{{ tema }}" readonly style="width:100%;font-family:Spectral,serif;font-size:13.5px;color:#f0e6d2;background:rgba(42,28,16,.5);border:1px solid #6d5b47;border-radius:8px;padding:9px 11px;margin-bottom:10px;">
+        <label style="display:block;font-size:11.5px;color:#a89576;margin-bottom:4px;">Metáfora</label>
+        <input data-fv value="{{ metafora }}" readonly style="width:100%;font-family:Spectral,serif;font-size:13.5px;color:#f0e6d2;background:rgba(42,28,16,.5);border:1px solid #6d5b47;border-radius:8px;padding:9px 11px;margin-bottom:10px;">
+        <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8a7350;margin-bottom:12px;">slug → <span style="color:#e0b066;">{{ slug }}</span></div>
+        <button data-fv style="width:100%;font-family:Cinzel,serif;font-size:12.5px;letter-spacing:.05em;color:#1a120b;background:#f0d29a;border:none;border-radius:9px;padding:11px;cursor:pointer;font-weight:600;">▶ Iniciar geração</button>
+      </div>
+
+      <div style="flex:1;">
+        <div style="font-family:Cinzel,serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#b9925a;margin-bottom:11px;">Execuções recentes</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <sc-for list="{{ historico }}" as="h" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;background:{{ h.bg }};border:1px solid {{ h.borda }};">
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ h.cor }};flex-shrink:0;" aria-hidden="true"></span>
+              <div style="min-width:0;"><div style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#e8dcc4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.slug }}</div><div style="font-size:10.5px;color:#8a7350;">{{ h.estado }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:#6d5b47;line-height:1.5;border-top:1px solid #3a2c1e;padding-top:12px;">
+        FastAPI orquestra o grafo · eventos via <span style="font-family:ui-monospace,monospace;color:#8a7350;">SSE</span> · checkpoint <span style="font-family:ui-monospace,monospace;color:#8a7350;">SQLite</span> por thread.
+      </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main style="padding:22px 26px;display:flex;flex-direction:column;gap:20px;">
+
+      <!-- pipeline rail -->
+      <section>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-family:Cinzel,serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#b9925a;">Grafo de estado</div>
+          <div style="font-size:12px;color:#8a7350;">loop de autocorreção · máx. 3 tentativas</div>
+        </div>
+        <div style="display:flex;gap:26px;align-items:stretch;">
+          <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="7">
+            <div style="position:relative;flex:1;min-width:0;padding:13px 11px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(45,30,17,.85),rgba(20,13,7,.85));border:1px solid #3a2c1e;border-top:3px solid {{ n.cor }};">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px;">
+                <span style="font-size:18px;" aria-hidden="true">{{ n.icone }}</span>
+                <span style="width:9px;height:9px;border-radius:50%;background:{{ n.cor }};{{ n.dotAnim }}" aria-hidden="true"></span>
+              </div>
+              <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#e8dcc4;line-height:1.2;word-break:break-all;">{{ n.nome }}</div>
+              <div style="font-size:10.5px;color:{{ n.cor }};margin-top:4px;">{{ n.label }}</div>
+              <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:6px;font-size:9.5px;font-family:Cinzel,serif;letter-spacing:.04em;color:#e0b066;background:rgba(224,176,102,.12);border:1px solid rgba(224,176,102,.35);border-radius:5px;padding:2px 6px;display:inline-block;">{{ n.badge }}</div>
+              </sc-if>
+              <sc-if value="{{ n.notLast }}" hint-placeholder-val="{{ true }}">
+                <span aria-hidden="true" style="position:absolute;top:50%;right:-19px;transform:translateY(-50%);font-size:16px;color:#6d5b47;z-index:2;">▶</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#8a7350;display:flex;align-items:center;gap:8px;">
+          <span style="color:#cf6a4a;" aria-hidden="true">↺</span> aresta condicional: <span style="font-family:ui-monospace,monospace;color:#a89576;">validar_objeto</span> → reinjeta <span style="font-family:ui-monospace,monospace;color:#a89576;">erros_validacao</span> em <span style="font-family:ui-monospace,monospace;color:#a89576;">gerar_objeto</span>
+        </div>
+      </section>
+
+      <!-- body: artifacts | hitl -->
+      <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start;">
+
+        <!-- LEFT: artifacts -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+
+          <!-- preview do objeto -->
+          <section style="border:1px solid #3a2c1e;border-radius:14px;overflow:hidden;background:rgba(20,13,7,.5);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid #3a2c1e;">
+              <span style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.06em;color:#d9c4a0;">Pré-visualização · <span style="font-family:ui-monospace,monospace;color:#b9925a;">{{ slug }}/index.html</span></span>
+              <span style="font-size:11px;color:#8a7350;">render Playwright · file://</span>
+            </div>
+            <div style="position:relative;height:178px;background:linear-gradient(150deg,color-mix(in srgb,#5fb3d9 30%,#1b1109),#130c06 80%);">
+              <span aria-hidden="true" style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 14px);opacity:.5;"></span>
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="12">
+                <span aria-hidden="true" style="position:absolute;left:{{ d.x }};top:{{ d.y }};width:18px;height:18px;border-radius:50%;background:rgba(95,179,217,.85);color:#06121a;font-family:Cinzel,serif;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px 1px rgba(95,179,217,.7);">{{ d.n }}</span>
+              </sc-for>
+              <span style="position:absolute;left:13px;bottom:10px;font-family:Cinzel,serif;font-size:11px;color:#cfe7f2;background:rgba(6,18,26,.5);padding:3px 9px;border-radius:6px;">12 estações sobre a ilustração · sem texto</span>
+            </div>
+          </section>
+
+          <!-- checklist validação -->
+          <section style="border:1px solid #3a2c1e;border-radius:14px;background:rgba(20,13,7,.5);padding:15px 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+              <span style="font-family:Cinzel,serif;font-size:12px;letter-spacing:.06em;color:#d9c4a0;">validar_objeto · checklist §4.4</span>
+              <span style="font-size:11.5px;color:{{ checkResumo.cor }};font-weight:600;">{{ checkResumo.txt }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;">
+              <sc-for list="{{ checks }}" as="c" hint-placeholder-count="8">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cdbb9a;">
+                  <span style="flex-shrink:0;width:16px;height:16px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;background:color-mix(in srgb,{{ c.cor }} 22%,transparent);color:{{ c.cor }};" aria-hidden="true">{{ c.mark }}</span>{{ c.txt }}
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ temNotaLoop }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:11px;font-size:11.5px;color:#a89576;border-top:1px solid #3a2c1e;padding-top:10px;line-height:1.5;"><span style="color:#e0b066;">↺ tentativa 1:</span> {{ notaLoop }}</div>
+            </sc-if>
+          </section>
+
+          <!-- log -->
+          <section style="border:1px solid #3a2c1e;border-radius:14px;background:#0c0703;padding:13px 15px;">
+            <div style="font-family:Cinzel,serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a7350;margin-bottom:9px;">stream de eventos</div>
+            <div style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.7;">
+              <sc-for list="{{ log }}" as="l" hint-placeholder-count="6">
+                <div style="display:flex;gap:9px;"><span style="color:#5a4633;flex-shrink:0;">{{ l.t }}</span><span style="color:{{ l.cor }};">{{ l.msg }}</span></div>
+              </sc-for>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT: HITL -->
+        <div>
+          <sc-if value="{{ modoAprovacao }}" hint-placeholder-val="{{ true }}">
+            <section style="border:1px solid #5fb3d9;border-radius:16px;background:linear-gradient(180deg,rgba(95,179,217,.1),rgba(20,13,7,.6));overflow:hidden;">
+              <div style="padding:16px 18px;border-bottom:1px solid rgba(95,179,217,.3);">
+                <div style="font-family:Cinzel,serif;font-size:13px;letter-spacing:.08em;color:#9fd4ea;display:flex;align-items:center;gap:8px;"><span aria-hidden="true">⏸</span> Human-in-the-loop · antes do deploy</div>
+                <div style="font-size:12.5px;color:#cdbb9a;margin-top:6px;line-height:1.5;">O grafo pausou em <span style="font-family:ui-monospace,monospace;color:#9fd4ea;">interrupt_before=["deploy"]</span>. Revise o que será publicado e aprove.</div>
+              </div>
+              <div style="padding:16px 18px;display:flex;flex-direction:column;gap:15px;">
+
+                <div>
+                  <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a7350;margin-bottom:8px;">Arquivos do commit</div>
+                  <div style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.8;">
+                    <div><span style="color:#7cb87c;">+</span> <span style="color:#d9c4a0;">{{ slug }}/index.html</span></div>
+                    <div><span style="color:#7cb87c;">+</span> <span style="color:#d9c4a0;">{{ slug }}/README.md</span></div>
+                    <div><span style="color:#7cb87c;">+</span> <span style="color:#d9c4a0;">{{ slug }}/{{ slug }}.png</span></div>
+                    <div><span style="color:#e0b066;">~</span> <span style="color:#d9c4a0;">index.html</span> <span style="color:#8a7350;">(raiz · Atlas)</span></div>
+                    <div><span style="color:#e0b066;">~</span> <span style="color:#d9c4a0;">README.md</span> <span style="color:#8a7350;">(raiz · catálogo)</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a7350;margin-bottom:8px;">Entrada no array DATA do Atlas</div>
+                  <pre style="margin:0;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.55;color:#bcd0b6;background:#0c0703;border:1px solid #2a2018;border-radius:9px;padding:11px 12px;overflow-x:auto;white-space:pre-wrap;">+ {{ atlasEntry }}</pre>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#a89576;">
+                  <span aria-hidden="true">🌿</span> branch <span style="font-family:ui-monospace,monospace;color:#9fd4ea;">{{ slug }}/objeto-educacional</span> → PR base <span style="font-family:ui-monospace,monospace;color:#9fd4ea;">main</span>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:9px;margin-top:2px;">
+                  <button data-fv style="font-family:Cinzel,serif;font-size:13px;letter-spacing:.05em;color:#06121a;background:#5fb3d9;border:none;border-radius:10px;padding:13px;cursor:pointer;font-weight:600;">✓ Aprovar e abrir Pull Request</button>
+                  <div style="display:flex;gap:9px;">
+                    <button data-fv style="flex:1;font-family:Cinzel,serif;font-size:12px;color:#e0b066;background:transparent;border:1px solid #6d5b47;border-radius:10px;padding:11px;cursor:pointer;">↺ Regenerar objeto</button>
+                    <button data-fv style="flex:1;font-family:Cinzel,serif;font-size:12px;color:#cf6a4a;background:transparent;border:1px solid #5a3a30;border-radius:10px;padding:11px;cursor:pointer;">✕ Descartar</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ modoRodando }}" hint-placeholder-val="{{ false }}">
+            <section style="border:1px solid #3a2c1e;border-radius:16px;background:rgba(20,13,7,.55);padding:20px 18px;text-align:center;">
+              <div style="width:40px;height:40px;margin:6px auto 14px;border-radius:50%;border:3px solid #3a2c1e;border-top-color:#e0b066;animation:spin 1s linear infinite;" aria-hidden="true"></div>
+              <div style="font-family:Cinzel,serif;font-size:14px;color:#f0d29a;">Gerando o objeto…</div>
+              <div style="font-size:12.5px;color:#a89576;margin-top:8px;line-height:1.5;">DeepSeek montando os 12 conceitos no template. A aprovação aparece quando o grafo pausar antes do deploy.</div>
+              <button data-fv style="margin-top:16px;font-family:Cinzel,serif;font-size:12px;color:#cf6a4a;background:transparent;border:1px solid #5a3a30;border-radius:9px;padding:10px 18px;cursor:pointer;">Cancelar execução</button>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ modoFalha }}" hint-placeholder-val="{{ false }}">
+            <section style="border:1px solid #cf6a4a;border-radius:16px;background:linear-gradient(180deg,rgba(207,106,74,.1),rgba(20,13,7,.6));padding:18px;">
+              <div style="font-family:Cinzel,serif;font-size:13px;color:#e58c72;display:flex;align-items:center;gap:8px;"><span aria-hidden="true">✕</span> Falhou após 3 tentativas</div>
+              <div style="font-size:12.5px;color:#cdbb9a;margin-top:8px;line-height:1.5;">O loop esgotou as tentativas sem passar na validação. Nada foi publicado. Erros acumulados:</div>
+              <ul style="margin:12px 0 0;padding-left:18px;font-size:12px;color:#d6a99a;line-height:1.7;">
+                <li>3 estações sem <span style="font-family:ui-monospace,monospace;">aria-label</span></li>
+                <li>nº de estações = 9 (esperado 12)</li>
+                <li><span style="font-family:ui-monospace,monospace;">&lt;progress&gt;</span> do tour ausente</li>
+              </ul>
+              <div style="display:flex;gap:9px;margin-top:16px;">
+                <button data-fv style="flex:1;font-family:Cinzel,serif;font-size:12px;color:#e0b066;background:transparent;border:1px solid #6d5b47;border-radius:10px;padding:11px;cursor:pointer;">Reabrir e ajustar</button>
+                <button data-fv style="flex:1;font-family:Cinzel,serif;font-size:12px;color:#d9c4a0;background:transparent;border:1px solid #6d5b47;border-radius:10px;padding:11px;cursor:pointer;">Ver objeto</button>
+              </div>
+            </section>
+          </sc-if>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:900},&quot;estado&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Aguardando aprovação&quot;,&quot;Em execução&quot;,&quot;Falha (3 tentativas)&quot;],&quot;default&quot;:&quot;Aguardando aprovação&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estado da execução&quot;},&quot;tema&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Git Flow&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Geração&quot;},&quot;metafora&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Metrô&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Geração&quot;}}">
+class Component extends DCLogic {
+  slugify(s){
+    return (s||'').toString().normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+
+  renderVals(){
+    const tema = this.props.tema ?? 'Git Flow';
+    const metafora = this.props.metafora ?? 'Metrô';
+    const estado = this.props.estado ?? 'Aguardando aprovação';
+    const slug = this.slugify(tema) + '-' + this.slugify(metafora);
+
+    const COR = { ok:'#7cb87c', run:'#e0b066', wait:'#5fb3d9', fail:'#cf6a4a', pend:'#6d5b47', skip:'#4a3a2a' };
+    const LAB = { ok:'concluído', run:'rodando…', wait:'aguardando', fail:'falhou', pend:'pendente', skip:'ignorado' };
+
+    const base = [
+      { key:'slug',   nome:'definir_slug',    icone:'🧭' },
+      { key:'prompt', nome:'gerar_prompt',    icone:'✍️' },
+      { key:'imagem', nome:'gerar_imagem',    icone:'🖼️' },
+      { key:'objeto', nome:'gerar_objeto',    icone:'⚒️' },
+      { key:'valid',  nome:'validar_objeto',  icone:'🧪' },
+      { key:'atlas',  nome:'atualizar_atlas', icone:'🗺️' },
+      { key:'deploy', nome:'deploy',          icone:'🚀' },
+    ];
+
+    let statusMap, badgeMap = {};
+    if (estado === 'Em execução'){
+      statusMap = { slug:'ok', prompt:'ok', imagem:'ok', objeto:'run', valid:'pend', atlas:'pend', deploy:'pend' };
+    } else if (estado === 'Falha (3 tentativas)'){
+      statusMap = { slug:'ok', prompt:'ok', imagem:'ok', objeto:'ok', valid:'fail', atlas:'skip', deploy:'skip' };
+      badgeMap = { objeto:'tentativa 3/3' };
+    } else {
+      statusMap = { slug:'ok', prompt:'ok', imagem:'ok', objeto:'ok', valid:'ok', atlas:'ok', deploy:'wait' };
+      badgeMap = { objeto:'tentativa 2/3' };
+    }
+
+    const nodes = base.map((n,i)=>{
+      const st = statusMap[n.key];
+      return {
+        ...n, status:st, cor:COR[st], label:LAB[st],
+        badge: badgeMap[n.key] || '',
+        notLast: i < base.length-1,
+        dotAnim: (st==='run'||st==='wait') ? 'animation:pulse 1.4s ease-in-out infinite;' : '',
+      };
+    });
+
+    const pill = estado === 'Em execução'
+      ? { texto:'Em execução', cor:'#e0b066', icone:'●' }
+      : estado === 'Falha (3 tentativas)'
+      ? { texto:'Falhou após 3 tentativas', cor:'#cf6a4a', icone:'✕' }
+      : { texto:'Aguardando aprovação', cor:'#5fb3d9', icone:'⏸' };
+
+    // checklist
+    const okChecks = [
+      'Abre sem erro no console','12 estações detectadas','Cada estação abre o modal',
+      '<progress> do tour presente',':focus-visible no CSS','prefers-reduced-motion',
+      'Navegação por teclado','Zero requisições externas',
+    ];
+    let checks, checkResumo, temNotaLoop=false, notaLoop='';
+    if (estado === 'Falha (3 tentativas)'){
+      const fails = { '12 estações detectadas':1, '<progress> do tour presente':1 };
+      const ariaIdx = 0;
+      checks = okChecks.map((t,i)=>{
+        const bad = fails[t] || t==='Navegação por teclado';
+        return { txt:t, mark: bad?'✕':'✓', cor: bad?COR.fail:COR.ok };
+      });
+      checkResumo = { txt:'5 / 8 · reprovado', cor:COR.fail };
+    } else if (estado === 'Em execução'){
+      checks = okChecks.map(t=>({ txt:t, mark:'·', cor:COR.pend }));
+      checkResumo = { txt:'pendente', cor:'#8a7350' };
+    } else {
+      checks = okChecks.map(t=>({ txt:t, mark:'✓', cor:COR.ok }));
+      checkResumo = { txt:'8 / 8 · aprovado', cor:COR.ok };
+      temNotaLoop = true;
+      notaLoop = '3 estações sem aria-label → erro reinjetado em gerar_objeto → tentativa 2 corrigiu.';
+    }
+
+    // hotspots preview (5 topo + 7 base)
+    const topX = ['8%','27%','46%','65%','84%'];
+    const botX = ['7%','20.5%','34%','47.5%','61%','74.5%','88%'];
+    const dots = [];
+    topX.forEach((x,i)=> dots.push({ x, y:'26%', n:i+1 }));
+    botX.forEach((x,i)=> dots.push({ x, y:'66%', n:i+6 }));
+
+    const log = estado === 'Falha (3 tentativas)' ? [
+      { t:'00:41', cor:'#7cb87c', msg:'gerar_objeto · tentativa 3 concluída' },
+      { t:'00:48', cor:'#cf6a4a', msg:'validar_objeto ✕ 9/12 estações, sem <progress>' },
+      { t:'00:48', cor:'#cf6a4a', msg:'rotear_apos_validacao → tentativas≥3 → notificar_falha' },
+      { t:'00:48', cor:'#a89576', msg:'status_final = "falha" · nada publicado' },
+    ] : estado === 'Em execução' ? [
+      { t:'00:03', cor:'#7cb87c', msg:'definir_slug → '+slug },
+      { t:'00:09', cor:'#7cb87c', msg:'gerar_prompt (DeepSeek) ok · 312 tokens' },
+      { t:'00:21', cor:'#7cb87c', msg:'gerar_imagem (Gemini) → '+slug+'.png' },
+      { t:'00:22', cor:'#e0b066', msg:'gerar_objeto · DeepSeek streaming…' },
+    ] : [
+      { t:'00:22', cor:'#e0b066', msg:'gerar_objeto · tentativa 1' },
+      { t:'00:29', cor:'#cf6a4a', msg:'validar_objeto ✕ 3 estações sem aria-label' },
+      { t:'00:29', cor:'#e0b066', msg:'↺ reinjeta erros → gerar_objeto · tentativa 2' },
+      { t:'00:37', cor:'#7cb87c', msg:'validar_objeto ✓ 8/8 · 12/12 estações' },
+      { t:'00:38', cor:'#7cb87c', msg:'atualizar_atlas → DATA + catálogo' },
+      { t:'00:38', cor:'#5fb3d9', msg:'interrupt_before deploy · aguardando humano' },
+    ];
+
+    const historico = [
+      { slug, estado: pill.texto, cor: pill.cor, bg:'rgba(95,179,217,.08)', borda:'#3a4a52' },
+      { slug:'kubernetes-cidade', estado:'PR aberto · #214', cor:'#7cb87c', bg:'rgba(20,13,7,.4)', borda:'#3a2c1e' },
+      { slug:'observabilidade-sala-de-controle', estado:'merge · main', cor:'#7cb87c', bg:'rgba(20,13,7,.4)', borda:'#3a2c1e' },
+      { slug:'service-mesh-formigueiro', estado:'falha · 3 tentativas', cor:'#cf6a4a', bg:'rgba(20,13,7,.4)', borda:'#3a2c1e' },
+    ];
+
+    const atlasEntry = `{ id:'${slug}', nome:'O Metrô do Git', tema:'${tema}',\n  cenario:'${metafora}', icone:'🚇', cor:'#5fb3d9', n:12,\n  cat:'qual', nivel:'Intermediário',\n  tags:['branch','merge','rebase'],\n  desc:'Ramos, merges e releases como linhas de metrô.' }`;
+
+    return {
+      tema, metafora, slug, pill, nodes, checks, checkResumo, temNotaLoop, notaLoop,
+      dots, log, historico, atlasEntry,
+      modoAprovacao: estado === 'Aguardando aprovação',
+      modoRodando: estado === 'Em execução',
+      modoFalha: estado === 'Falha (3 tentativas)',
+    };
+  }
+}
+</script>
+</body>
+</html>
