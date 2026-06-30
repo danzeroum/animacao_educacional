@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna da Mudança — Gestão de Mudanças e Cultura Organizacional</title>
+  <meta name="description" content="Objeto educacional interativo: uma caverna pré-histórica onde cada nicho representa um conceito de gestão de mudanças (Kotter) e cultura organizacional — urgência, coalizão, visão, empoderamento, ancoragem, cultura visível e invisível, pertencimento, comunicação, reconhecimento, liderança positiva e segurança psicológica.">
+  <meta property="og:title" content="A Caverna da Mudança — Gestão de Mudanças e Cultura Organizacional">
+  <meta property="og:description" content="Clique em cada nicho da caverna pré-histórica para aprender os 12 conceitos fundamentais de mudança organizacional e cultura — dos 8 passos de Kotter às forças invisíveis que fazem ou quebram transformações.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="gestao-de-mudancas-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Faixas de contexto ---------- */
+    .faixas-legend {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+      margin: 18px 0 10px;
+    }
+    .faixa-badge {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      border: 1px solid var(--borda-2);
+    }
+    .faixa-badge.macro { background: rgba(240,165,50,.12); color: #e8a842; border-color: #7a5c28; }
+    .faixa-badge.micro { background: rgba(100,190,140,.12); color: #6abf8c; border-color: #3a6b50; }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda-grupo { margin-top: 20px; }
+    .legenda-titulo {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px;
+      border-bottom: 1px solid var(--borda);
+    }
+    .legenda-titulo.macro { color: #e8a842; }
+    .legenda-titulo.micro { color: #6abf8c; }
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Gestão de Mudanças &amp; Cultura Organizacional</div>
+    <h1>🪨 A Caverna da Mudança</h1>
+    <p class="tese">Da <em>intenção de mudar</em> para a <strong>transformação que fica gravada na pedra</strong>. Cada nicho da caverna pré-histórica é um conceito vivo — dos 8 passos de Kotter às forças invisíveis que fazem ou quebram culturas.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="faixas-legend">
+      <span class="faixa-badge macro">Faixa Superior — Kotter em Ação (passos 1–5)</span>
+      <span class="faixa-badge micro">Faixa Inferior — Micro da Cultura (conceitos 6–12)</span>
+    </div>
+
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — a mudança inteira mora numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="gestao-de-mudancas-caverna.png" alt="Caverna pré-histórica em corte transversal dividida em duas faixas: faixa superior com 5 nichos representando os passos de Kotter (senso de urgência, coalizão de apoio, comunicação da visão, empoderamento para ação, consolidação e ancoragem na cultura); faixa inferior com 7 nichos representando conceitos de cultura organizacional (cultura visível, cultura invisível, comunidade e pertencimento, comunicação efetiva, reconhecimento e celebração, liderança positiva, eliminação do medo).">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <div id="legenda-macro" class="legenda-grupo">
+      <div class="legenda-titulo macro">Faixa Superior — Kotter em Ação</div>
+      <nav class="legenda" id="legenda-sup" aria-label="Legenda dos 5 conceitos de Kotter na faixa superior"></nav>
+    </div>
+    <div id="legenda-micro" class="legenda-grupo">
+      <div class="legenda-titulo micro">Faixa Inferior — Micro da Cultura</div>
+      <nav class="legenda" id="legenda-inf" aria-label="Legenda dos 7 conceitos de cultura na faixa inferior"></nav>
+    </div>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas e referências</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Liderança</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma cultura forte não é a que nunca muda, mas a que sabe transformar experiências em novos rituais gravados na pedra." A figura faz isso pelo aprendiz: mostra onde cada conceito mora dentro da transformação.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    sensourgencia: {
+      zona: 'Faixa Superior · Kotter em Ação — Passo 1',
+      titulo: 'Senso de Urgência — O Mamute se Aproxima',
+      icone: '🦣',
+      cor: '#e05a2b',
+      label: 'Senso de Urgência',
+      metafora: 'O troglodita aponta o mamute que avança — se a tribo não agir agora, é tarde demais. Urgência genuína não é pânico: é mostrar evidências reais do risco para que todos sintam a necessidade de mudar antes que ela seja forçada.',
+      bullets: [
+        'Urgência falsa (gritar "mamute!" sem mamute) desgasta a equipe e mina a credibilidade — mostre dados concretos, não alarmes vazios.',
+        'Um senso de urgência saudável mobiliza energia sem criar paralisia; o inimigo é a complacência disfarçada de estabilidade.',
+        'Pesquise a percepção do time: quem já sente urgência vira aliado natural; quem não sente precisa ver as evidências com os próprios olhos.'
+      ],
+      ferramentas: [
+        { nome: 'Kotter Internacional', url: 'https://www.kotter.com' },
+        { nome: 'Prosci ADKAR', url: 'https://www.prosci.com/methodology/adkar' },
+        { nome: 'McKinsey Change', url: 'https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/the-organization-blog/change-management' }
+      ],
+      dica: 'Converta dados abstratos em histórias concretas: "perdemos 3 clientes este mês porque o processo é lento" mobiliza muito mais do que "queda de 12% no NPS do trimestre".'
+    },
+    coalizao: {
+      zona: 'Faixa Superior · Kotter em Ação — Passo 2',
+      titulo: 'Coalizão de Apoio — A Aliança das Ferramentas',
+      icone: '🤝',
+      cor: '#d4915a',
+      label: 'Coalizão de Apoio',
+      metafora: 'Caçadores, artesãos e anciãos juntam suas ferramentas no centro — a aliança vale pela diversidade de quem a compõe. Sem uma coalizão de peso e credibilidade, a mudança morre no anúncio e não sai do chão.',
+      bullets: [
+        'A coalizão precisa de poder formal (cargo), expertise técnica (saber fazer) e credibilidade informal (confiança da tribo) — as três juntas.',
+        'Resistências escondidas dentro da coalizão são mais perigosas que oposição aberta — alinhe os comprometidos antes de anunciar o movimento.',
+        'Líderes informais (a pessoa que todo mundo consulta antes de decidir) costumam ser os membros mais valiosos — e os mais ignorados.'
+      ],
+      ferramentas: [
+        { nome: 'Stakeholder Mapping', url: 'https://www.mindtools.com/pages/article/newPPM_07.htm' },
+        { nome: 'RACI Matrix', url: 'https://www.projectmanagement.com/contentPages/wiki.cfm?ID=368897' },
+        { nome: 'Miro', url: 'https://miro.com' }
+      ],
+      dica: 'Mapeie quem influencia informalmente o time. Tê-los na coalizão antes do lançamento vale mais que dez aprovações formais na cadeia hierárquica.'
+    },
+    comunicacaovisao: {
+      zona: 'Faixa Superior · Kotter em Ação — Passo 3',
+      titulo: 'Comunicação da Visão — Os Pictogramas que Falam',
+      icone: '🌅',
+      cor: '#f0d05a',
+      label: 'Comunicação da Visão',
+      metafora: 'O líder faz os pictogramas falarem por si: sol nascendo, trilha, destino compartilhado. Uma visão que só o líder entende não é visão — é segredo. O teste: qualquer membro da tribo consegue explicar para outro sem consultar o mural?',
+      bullets: [
+        'A visão deve ser simples o suficiente para caber num pictograma: uma frase que qualquer pessoa consegue repetir e conectar ao próprio trabalho.',
+        'Consistência importa mais que frequência: comunicar a mesma visão em todos os rituais (reuniões, onboarding, demos) é o que cria convicção.',
+        'Mostre os comportamentos da visão, não só as palavras — o líder precisa viver o que prega para que os outros acreditem.'
+      ],
+      ferramentas: [
+        { nome: 'Golden Circle (Sinek)', url: 'https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action' },
+        { nome: 'OKR Framework', url: 'https://www.whatmatters.com/faqs/okr-meaning-definition-example' },
+        { nome: 'Notion', url: 'https://notion.so' }
+      ],
+      dica: 'Teste a visão com alguém completamente de fora do projeto: se precisar de mais de 30 segundos para explicar e a pessoa não entender, simplifique mais antes de lançar.'
+    },
+    empoderamento: {
+      zona: 'Faixa Superior · Kotter em Ação — Passo 4',
+      titulo: 'Empoderamento para Ação — Removendo as Pedras do Caminho',
+      icone: '⛏️',
+      cor: '#6ba368',
+      label: 'Empoderamento para Ação',
+      metafora: 'Trogloditas removem as pedras que bloqueiam o caminho e celebram a primeira ferramenta nova com braços erguidos. Empoderar não é dar permissão verbal — é eliminar ativamente os obstáculos estruturais que impedem a tribo de agir.',
+      bullets: [
+        'Identifique os bloqueadores reais: processos lentos, aprovações desnecessárias, falta de skill ou de recurso — não assuma que é falta de vontade.',
+        'Vitórias de curto prazo (short wins) são combustível: celebre-as publicamente para mostrar que a mudança funciona e vale a pena.',
+        'Autonomia sem capacitação é abandono — dê o kit de ferramentas antes de soltar a tribo para caçar sozinha.'
+      ],
+      ferramentas: [
+        { nome: 'Jira', url: 'https://www.atlassian.com/software/jira' },
+        { nome: 'Retrospectiva Agile', url: 'https://www.atlassian.com/team-playbook/plays/retrospective' },
+        { nome: '5 Whys', url: 'https://www.mindtools.com/pages/article/newTMC_5W.htm' }
+      ],
+      dica: 'Pergunte ao time "o que te impede de fazer X hoje?" — a resposta revela os obstáculos reais que precisam ser removidos antes de qualquer outro passo de capacitação.'
+    },
+    consolidacao: {
+      zona: 'Faixa Superior · Kotter em Ação — Passos 5 a 8',
+      titulo: 'Consolidação e Ancoragem na Cultura — Gravando na Pedra',
+      icone: '🪨',
+      cor: '#8fb8d6',
+      label: 'Consolidação e Ancoragem',
+      metafora: 'O artesão grava permanentemente os novos rituais na pedra enquanto os jovens observam e imitam — a mudança vira tradição. Transformação que não ancora na cultura volta ao ponto de partida assim que o líder sai ou muda o foco.',
+      bullets: [
+        'Mudança só é permanente quando os novos comportamentos entram nos critérios de contratação, avaliação e promoção — o que é medido é o que persiste.',
+        'Consolidar exige remover explicitamente os sistemas antigos: dois jeitos de fazer a mesma coisa é receita garantida para regressão.',
+        '"Nós sempre fizemos assim" é o maior inimigo da ancoragem — nomeie e celebre publicamente quem performa os novos comportamentos.'
+      ],
+      ferramentas: [
+        { nome: 'Culture Amp', url: 'https://www.cultureamp.com' },
+        { nome: 'Lattice', url: 'https://lattice.com' },
+        { nome: 'Kotter 8 Steps', url: 'https://www.kotterinc.com/methodology/8-steps/' }
+      ],
+      dica: 'Reescreva os critérios de avaliação de desempenho para refletir os novos comportamentos desejados — é o sinal mais claro que a organização dá de que a mudança é para valer.'
+    },
+    culturavisivel: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Cultura Visível — O Mural que a Tribo Consulta',
+      icone: '📋',
+      cor: '#e8a842',
+      label: 'Cultura Visível',
+      metafora: 'O mural com pictogramas sequenciais que a tribo consulta antes de agir — políticas, procedimentos e cerimônias formais. Cultura visível é o que você pode escrever, mostrar e auditar; é a camada superficial do iceberg organizacional.',
+      bullets: [
+        'Artefatos culturais visíveis (wikis, runbooks, rituais formais) sinalizam o que a organização valoriza — mesmo quando ninguém está olhando diretamente.',
+        'Inconsistência entre o mural e o comportamento real é mais danosa que não ter mural: destrói a confiança porque promete e não entrega.',
+        'Cerimônias (stand-ups, retrospectivas, all-hands) são murais vivos — reforçam cultura toda vez que acontecem da forma como foram projetadas.'
+      ],
+      ferramentas: [
+        { nome: 'Confluence', url: 'https://www.atlassian.com/software/confluence' },
+        { nome: 'Notion', url: 'https://notion.so' },
+        { nome: 'Tettra', url: 'https://tettra.com' }
+      ],
+      dica: 'Audite seus rituais: cada cerimônia recorrente deveria poder ser explicada em "fazemos isso porque valorizamos X" — se não conseguir, revise ou elimine o ritual.'
+    },
+    culturainvisivel: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Cultura Invisível — Os Valores ao Redor da Fogueira Pequena',
+      icone: '🔥',
+      cor: '#c0563a',
+      label: 'Cultura Invisível',
+      metafora: 'O círculo íntimo ao redor da fogueira pequena, com corações e mãos unidas flutuando — o que nunca é dito, mas todo mundo sente. Cultura invisível é o que rege o comportamento quando ninguém está observando e nenhuma câmera está ligada.',
+      bullets: [
+        'Pressupostos básicos compartilhados estão abaixo da consciência coletiva e são raramente questionados — são os mais difíceis de transformar.',
+        'A cultura real é revelada em crises: quem é sacrificado, quem é protegido e por quê diz mais que qualquer declaração de valores na parede.',
+        'Para tornar o invisível visível: pergunte "o que acontece aqui se alguém discorda do chefe em público?" — a resposta honesta é o diagnóstico cultural.'
+      ],
+      ferramentas: [
+        { nome: 'Culture Map (Erin Meyer)', url: 'https://erinmeyer.com/book/the-culture-map/' },
+        { nome: 'Competing Values Framework', url: 'https://www.ocai-online.com/about-the-Organizational-Culture-Assessment-Instrument-OCAI/Competing-Values-Framework' },
+        { nome: 'Team Topologies', url: 'https://teamtopologies.com' }
+      ],
+      dica: 'Observe o comportamento de novos membros nos primeiros 90 dias: é quando a cultura invisível fica mais evidente — o que ensinam, o que omitem, o que proíbem sem dizer.'
+    },
+    comunidade: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Comunidade e Pertencimento — A Refeição em Círculo',
+      icone: '🫂',
+      cor: '#9c6ba0',
+      label: 'Comunidade e Pertencimento',
+      metafora: 'A grande refeição em círculo onde cada um contribui com algo — frutas, peixe, lenha. Pertencimento não é todo mundo pensando igual; é cada pessoa se sentindo parte essencial e insubstituível do todo coletivo.',
+      bullets: [
+        'Times com forte senso de pertencimento têm menor turnover e maior engajamento — é um KPI de negócio concreto, não apenas um ideal de RH.',
+        'Inclusão ativa significa criar espaço intencional para vozes minorizadas, não apenas não excluir ativamente — são coisas diferentes.',
+        'Rituais de onboarding são a primeira experiência de pertencimento: definem se o novo membro se sente genuinamente bem-vindo ou apenas tolerado.'
+      ],
+      ferramentas: [
+        { nome: 'Donut (Slack app)', url: 'https://www.donut.com' },
+        { nome: 'Culture Amp', url: 'https://www.cultureamp.com' },
+        { nome: 'Gallup Q12', url: 'https://www.gallup.com/workplace/356063/gallup-q12-employee-engagement-survey.aspx' }
+      ],
+      dica: 'Identifique quem "come sozinho" — membros que nunca colaboram voluntariamente raramente são introvertidos; geralmente são desengajados. O silêncio crônico é o primeiro sinal de alarme.'
+    },
+    comunicacaoefetiva: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Comunicação Efetiva — As Cestas na Corda',
+      icone: '🧺',
+      cor: '#5fc8a0',
+      label: 'Comunicação Efetiva',
+      metafora: 'O sistema de cestas e cordas que garante a mensagem chegar sem ruído ao destino certo — e o mensageiro confirma que chegou. Comunicação não é o que o emissor diz; é o que o receptor compreende e consegue agir sobre.',
+      bullets: [
+        'Ruído organizacional (reuniões desnecessárias, threads intermináveis, notificações constantes) compete com a informação essencial pelo mesmo canal cognitivo.',
+        'Defina qual canal serve qual tipo de mensagem: urgente vs. assíncrono, decisão vs. informativo, público vs. privado — e respeite essa separação.',
+        'Feedback é comunicação bidirecional — um canal que só vai não é comunicação, é broadcast; requer retorno para saber se chegou certo.'
+      ],
+      ferramentas: [
+        { nome: 'Loom', url: 'https://www.loom.com' },
+        { nome: 'Linear', url: 'https://linear.app' },
+        { nome: 'Slack', url: 'https://slack.com' }
+      ],
+      dica: 'Antes de agendar qualquer reunião, pergunte honestamente: "isso poderia ser um Loom de 3 minutos?" — a resposta salva horas coletivas toda semana.'
+    },
+    reconhecimento: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Reconhecimento e Celebração — O Colar de Honra',
+      icone: '🏅',
+      cor: '#d4af37',
+      label: 'Reconhecimento e Celebração',
+      metafora: 'O colar de ossos polidos entregue publicamente diante de toda a tribo que aplaude. Reconhecimento sem visibilidade perde metade do poder: o que é celebrado publicamente é repetido coletivamente e se torna o padrão esperado.',
+      bullets: [
+        'Reconhecimento específico vale muito mais que elogios genéricos: "você antecipou o risco X na reunião Y salvando 3 dias de trabalho" vs. "bom trabalho".',
+        'Frequência importa mais que grandiosidade: rituais semanais de celebração constroem cultura de forma mais eficaz que premiações trimestrais isoladas.',
+        'Peer recognition (colegas reconhecendo colegas) tem impacto emocional maior que reconhecimento top-down — a tribo valida mais que o chefe.'
+      ],
+      ferramentas: [
+        { nome: 'Bonusly', url: 'https://bonus.ly' },
+        { nome: 'Kudos', url: 'https://www.kudos.com' },
+        { nome: 'Lattice', url: 'https://lattice.com' }
+      ],
+      dica: 'Crie um canal público de reconhecimento e use-o você mesmo primeiro — liderança modela o comportamento que quer ver multiplicado pelo time.'
+    },
+    liderancapositiva: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Liderança Positiva — As Pedras do Talento de Cada Um',
+      icone: '✨',
+      cor: '#7ab8d6',
+      label: 'Liderança Positiva',
+      metafora: 'O líder aponta gentilmente a pedra com o símbolo único de cada membro — a força do corredor, a habilidade do artesão, a intuição do caçador. Liderança positiva amplifica o que funciona em vez de obsessionar com o que falta.',
+      bullets: [
+        'Liderança baseada em forças (strengths-based) produz times mais engajados e produtivos que abordagens focadas em corrigir fraquezas continuamente.',
+        'Feedback positivo calibrado (específico, imediato, frequente) é o instrumento mais poderoso e menos utilizado na caixa de ferramentas da liderança.',
+        'Segurança psicológica é o pré-requisito de tudo: sem ela, as forças individuais ficam escondidas e os talentos nunca aparecem.'
+      ],
+      ferramentas: [
+        { nome: 'CliftonStrengths (Gallup)', url: 'https://www.gallup.com/cliftonstrengths/en/home.aspx' },
+        { nome: 'Radical Candor', url: 'https://www.radicalcandor.com' },
+        { nome: 'Google re:Work', url: 'https://rework.withgoogle.com' }
+      ],
+      dica: 'Em cada 1:1, comece com "o que está funcionando bem?" antes de "o que precisamos melhorar?" — inverta a ordem e observe o nível de energia e abertura da conversa mudar.'
+    },
+    eliminacaomedo: {
+      zona: 'Faixa Inferior · Micro da Cultura',
+      titulo: 'Eliminação do Medo — A Ferramenta Quebrada sem Punição',
+      icone: '🛡️',
+      cor: '#aab8c4',
+      label: 'Eliminação do Medo',
+      metafora: 'A ferramenta quebrada ao lado, o líder de braços abertos — ninguém repreende, todos aprendem. Medo de errar é o maior inimigo da inovação: transforma experimentação em paralisia e paralisia em estagnação que não aparece nos dashboards.',
+      bullets: [
+        'Psychological safety (Amy Edmondson) é o fator #1 de performance em times de alta eficácia — mais que talento individual ou recursos disponíveis.',
+        'A resposta do líder ao primeiro erro público define a cultura do time para os próximos anos: punição ou aprendizado coletivo.',
+        'Blameless postmortems (post-mortems sem culpa) transformam falhas em capital de conhecimento em vez de eventos a serem esquecidos e escondidos.'
+      ],
+      ferramentas: [
+        { nome: 'Fearless Organization (Edmondson)', url: 'https://fearlessorganization.com' },
+        { nome: 'Postmortem Template SRE', url: 'https://sre.google/sre-book/postmortem-culture/' },
+        { nome: 'Google re:Work', url: 'https://rework.withgoogle.com/guides/understanding-team-effectiveness/steps/introduction/' }
+      ],
+      dica: 'Compartilhe um erro seu em público e o que você aprendeu com ele — é o ato mais poderoso de liderança para criar segurança psicológica duradoura no time.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container [left, top, width, height]
+  // Faixa superior: 5 nichos de ~20% cada (top ~3%, height ~44%)
+  // Faixa inferior: 7 nichos de ~14% cada (top ~55%, height ~40%)
+  const GEO = {
+    sensourgencia:      [0.5,  3, 18.5, 44],
+    coalizao:           [20,   3, 19,   44],
+    comunicacaovisao:   [40,   3, 20,   44],
+    empoderamento:      [61,   3, 19,   44],
+    consolidacao:       [80.5, 3, 19,   44],
+    culturavisivel:     [0.5,  54, 13,  40],
+    culturainvisivel:   [14,   54, 13,  40],
+    comunidade:         [28,   54, 14.5,40],
+    comunicacaoefetiva: [43,   54, 14.5,40],
+    reconhecimento:     [58,   54, 13.5,40],
+    liderancapositiva:  [72,   54, 13.5,40],
+    eliminacaomedo:     [86,   54, 13.5,40]
+  };
+
+  const ORDEM = [
+    'sensourgencia','coalizao','comunicacaovisao','empoderamento','consolidacao',
+    'culturavisivel','culturainvisivel','comunidade','comunicacaoefetiva',
+    'reconhecimento','liderancapositiva','eliminacaomedo'
+  ];
+  const ORDEM_SUP = ORDEM.slice(0, 5);
+  const ORDEM_INF = ORDEM.slice(5);
+
+  const RELACOES = {
+    sensourgencia:      { ids: ['coalizao','comunicacaovisao','empoderamento'],
+      nota: 'A urgência mobiliza a aliança, exige uma visão clara para ser comunicada e só gera ação quando as pessoas são empoderadas a responder.' },
+    coalizao:           { ids: ['sensourgencia','liderancapositiva','comunidade'],
+      nota: 'A aliança nasce da urgência compartilhada, precisa de líderes positivos para se manter coesa e espelha os valores de comunidade da tribo.' },
+    comunicacaovisao:   { ids: ['comunicacaoefetiva','culturavisivel','coalizao'],
+      nota: 'A visão só chega se a comunicação for efetiva, precisa de artefatos visíveis (murais) para persistir e depende da coalizão para ser amplificada.' },
+    empoderamento:      { ids: ['eliminacaomedo','reconhecimento','consolidacao'],
+      nota: 'Empoderar requer eliminar o medo de errar, celebrar cada vitória e conectar as ações ao processo de consolidação da mudança.' },
+    consolidacao:       { ids: ['culturavisivel','culturainvisivel','empoderamento'],
+      nota: 'Ancorar exige gravar nos murais visíveis e mudar os pressupostos invisíveis — sem o empoderamento contínuo, a ancoragem é só decoração.' },
+    culturavisivel:     { ids: ['consolidacao','comunicacaovisao','comunidade'],
+      nota: 'O mural visível é o veículo da visão comunicada, o resultado gravado da consolidação e o espelho dos valores de comunidade da tribo.' },
+    culturainvisivel:   { ids: ['culturavisivel','eliminacaomedo','liderancapositiva'],
+      nota: 'O invisível molda o que o mural pode ou não conter, define se o medo pode ser eliminado e é revelado pelo estilo de liderança praticado.' },
+    comunidade:         { ids: ['reconhecimento','culturainvisivel','coalizao'],
+      nota: 'Pertencimento é alimentado por reconhecimento frequente, moldado pelos valores invisíveis e refletido na qualidade da coalizão construída.' },
+    comunicacaoefetiva: { ids: ['comunicacaovisao','culturavisivel','liderancapositiva'],
+      nota: 'A comunicação efetiva é o canal da visão, o mecanismo que mantém o mural vivo e o instrumento pelo qual a liderança positiva se manifesta.' },
+    reconhecimento:     { ids: ['empoderamento','liderancapositiva','comunidade'],
+      nota: 'Celebrar vitórias reforça o empoderamento, é uma expressão direta de liderança positiva e alimenta o senso de comunidade e pertencimento.' },
+    liderancapositiva:  { ids: ['eliminacaomedo','reconhecimento','coalizao'],
+      nota: 'Liderar pelo positivo cria o ambiente seguro para errar, naturalmente celebra forças e é o que mantém a coalizão comprometida ao longo do tempo.' },
+    eliminacaomedo:     { ids: ['culturainvisivel','liderancapositiva','empoderamento'],
+      nota: 'Segurança psicológica transforma a cultura invisível, é cultivada pela liderança positiva e é o pré-requisito para o empoderamento real.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legendaSup = document.getElementById('legenda-sup');
+  const legendaInf = document.getElementById('legenda-inf');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring" aria-hidden="true"></span><span class="cv-num" aria-hidden="true">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda: superior vs inferior
+    const container = ORDEM_SUP.includes(id) ? legendaSup : legendaInf;
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot" aria-hidden="true">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    container.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); abrir(atual.dataset.conceito);
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
