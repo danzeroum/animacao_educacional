@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna Protetora — Privacy by Design & LGPD para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde cada nicho representa um conceito de Privacy by Design e LGPD (7 princípios PbD, bases legais, dados pessoais vs sensíveis, consentimento, auditoria, resposta a incidentes e mais).">
+  <meta property="og:title" content="A Caverna Protetora — Privacy by Design & LGPD para Devs">
+  <meta property="og:description" content="Clique em cada nicho da caverna para aprender privacidade por design e LGPD. A própria ilustração é a interface — 12 conceitos essenciais para proteger dados de verdade.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="privacidade-design-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #1a1028;
+      --fundo-2: #0e0918;
+      --fundo-3: #080510;
+      --texto:   #f0e6f5;
+      --texto-2: #d4c4e2;
+      --texto-3: #c8b8d8;
+      --dourado: #d8b8f0;
+      --dourado-2: #b890d8;
+      --dourado-3: #9870b8;
+      --borda:   #2a1c38;
+      --borda-2: #5a4070;
+      --pergaminho: #f8f0ff;
+      --pergaminho-2: #f0e4ff;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #3d2a55; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #3a2050;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #0e0818;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(10,8,20,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #0e0818;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,3,12,.82); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #7a5a9a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #1e1428;
+    }
+    #btn-fechar {
+      background: #1e1428; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #382050; }
+    #btn-fechar:focus-visible { outline: 3px solid #1e1428; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #4a3263; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #2a1e38;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a5a9a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #5a2a8a; border: 1px solid #a87acc; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e2d4f5; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #5a2a8a; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #5a4070; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #1e1428;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #1e1428; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #5a0080; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #3a1060; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #6a4a88; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Privacy by Design & LGPD</div>
+    <h1>🔒 A Caverna Protetora</h1>
+    <p class="tese">Da <em>conformidade como remendo</em> para a <strong>privacidade como estrutura</strong>. A própria ilustração vira a interface — cada nicho da caverna é um princípio ou controle vivo, no seu lugar dentro do sistema de proteção de dados.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — privacidade por design mora numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="privacidade-design-caverna.png" alt="Caverna pré-histórica em corte transversal dividida em duas faixas: faixa superior com 5 nichos mostrando os 7 princípios de Privacy by Design (pilares com símbolos), o conselho de bases legais LGPD (anciãos com tábuas), a comparação entre dados pessoais e sensíveis (cofre duplo), Privacy by Default (porta fechada com alavanca) e transparência e consentimento (mural com tribo aprovando); faixa inferior com 7 nichos mostrando inspeção preventiva com lupa, corredor seguro com vigias, classificação de dados por artesão, proteção reforçada com cofre duplo e dois guardiões, cadeia de evidências lacrada em argila, plano de resposta a incidente com trogloditas em alerta e trilha de auditoria contínua com mural de pegadas.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas & referências reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Privacidade</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma caverna protetora não é a que tem mais trancas, mas a que foi construída desde o início para não precisar delas." Privacy by Design é isso: proteção como estrutura, não como remendo.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    principios: {
+      zona: 'Faixa Superior · A Tribo Protetora',
+      titulo: '7 Princípios de Privacy by Design',
+      icone: '🏛️',
+      cor: '#9b59b6',
+      label: '7 Princípios PbD',
+      metafora: 'Sete pilares de rocha sustentam a caverna: cada um gravado com um símbolo distinto. Sem todos os sete no lugar, a estrutura cede. Privacy by Design funciona igual — os sete princípios precisam estar presentes e integrados desde a fundação.',
+      bullets: [
+        'Proativo e Preventivo: antecipe problemas de privacidade antes que ocorram — o guardião inspeciona a entrada, não a saída.',
+        'Privacy as Default: a configuração padrão já protege. O usuário não precisa fazer nada para ter privacidade; precisa agir para abrir mão dela.',
+        'Privacidade no Design: incorpore proteção de dados na arquitetura do sistema, não como camada extra. Refazer depois custa dez vezes mais.',
+        'Soma Positiva: privacidade e funcionalidade não são opostos — projete para ambos. Dizer "não dá para ser seguro E usável" é desculpa, não arquitetura.',
+        'Segurança Ponta-a-Ponta: proteja dados durante todo o ciclo de vida — coleta, processamento, armazenamento, descarte — sem pontos cegos.',
+        'Visibilidade e Transparência: seja aberto sobre o que você coleta, por que coleta e como usa. Sistemas opacos geram desconfiança e multas.',
+        'Centrado no Usuário: coloque a pessoa no centro. Dê controle real sobre os próprios dados, com linguagem acessível e escolhas genuínas.'
+      ],
+      ferramentas: [
+        { nome: 'Privacy by Design (Ann Cavoukian)', url: 'https://www.ipc.on.ca/wp-content/uploads/resources/7foundationalprinciples.pdf' },
+        { nome: 'NIST Privacy Framework', url: 'https://www.nist.gov/privacy-framework' },
+        { nome: 'ISO 29100', url: 'https://www.iso.org/standard/45123.html' }
+      ],
+      dica: 'Faça uma checklist dos 7 princípios no início de cada projeto. Se um pilar faltar no design, coloque-o agora — reconstruir o teto depois que a caverna afundou é sempre mais caro.'
+    },
+
+    basesLegais: {
+      zona: 'Faixa Superior · A Tribo Protetora',
+      titulo: 'Bases Legais LGPD — O Conselho de Justificativas',
+      icone: '⚖️',
+      cor: '#e67e22',
+      label: 'Bases Legais LGPD',
+      metafora: 'O conselho de anciãos analisa cada pedra de dado que entra: contrato (laço de couro entrelaçado), obrigação legal (tábua com selo), interesse legítimo (olho com balança), consentimento (mão aberta). Sem justificativa aprovada, a pedra volta para fora. A LGPD exige o mesmo: toda coleta de dados precisa de base legal explícita.',
+      bullets: [
+        'A LGPD define 10 bases legais (art. 7º). As mais usadas: consentimento, cumprimento de obrigação legal, execução de contrato e interesse legítimo.',
+        'Consentimento é a mais conhecida, mas não é a única — e não é sempre a melhor. Um contrato de serviço dispensa consentimento para os dados necessários à execução.',
+        'Interesse legítimo exige teste de proporcionalidade: o benefício para o controlador deve superar o impacto sobre o titular, e deve ser documentado.',
+        'Dado sensível (raça, saúde, biometria, religião, opinião política) tem bases legais próprias e mais restritas — art. 11 da LGPD. Trate diferente do começo.'
+      ],
+      ferramentas: [
+        { nome: 'LGPD (Lei 13.709/2018)', url: 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm' },
+        { nome: 'Guia ANPD — Bases Legais', url: 'https://www.gov.br/anpd/pt-br/documentos-e-publicacoes' },
+        { nome: 'GDPR Lawful Basis', url: 'https://gdpr.eu/article-6-how-to-process-personal-data-legally/' }
+      ],
+      dica: 'Mapeie a base legal de cada finalidade de coleta no seu Data Map. Mudar de base legal depois é arriscado e pode exigir novo consentimento de milhares de titulares.'
+    },
+
+    dadosPessoaisSensiveis: {
+      zona: 'Faixa Superior · A Tribo Protetora',
+      titulo: 'Dados Pessoais vs. Dados Sensíveis',
+      icone: '🗃️',
+      cor: '#27ae60',
+      label: 'Pessoais vs. Sensíveis',
+      metafora: 'Duas caixas lado a lado: pedras comuns organizadas por símbolo (dados pessoais) e uma pedra rara brilhante trancada em cofre duplo de ossos com duas chaves separadas (dados sensíveis). Acesso restrito, justificado e rastreado. A diferença de tratamento é proporcional ao risco de discriminação.',
+      bullets: [
+        'Dado pessoal: qualquer informação que identifique ou torne identificável uma pessoa natural — nome, e-mail, IP, cookie de rastreamento.',
+        'Dado anonimizado não é dado pessoal — desde que a anonimização seja irreversível. Pseudonimização (como hashing reversível) ainda é dado pessoal.',
+        'Dado sensível: origem racial, convicção religiosa, opinião política, saúde, vida sexual, dado genético ou biométrico — art. 5º, II da LGPD. Exige proteção reforçada e bases legais específicas.',
+        'Dado de criança e adolescente tem proteção especial: coleta exige consentimento dos pais/responsáveis e deve respeitar o melhor interesse do menor.'
+      ],
+      ferramentas: [
+        { nome: 'LGPD art. 5º e 11º', url: 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm' },
+        { nome: 'GDPR Special Categories', url: 'https://gdpr-info.eu/art-9-gdpr/' },
+        { nome: 'OWASP Privacy Risks', url: 'https://owasp.org/www-project-top-10-privacy-risks/' }
+      ],
+      dica: 'Classifique seus dados no início do projeto usando um inventário (Data Map). Dados sensíveis merecem criptografia extra, acesso mais restrito e logs de auditoria obrigatórios.'
+    },
+
+    privacyDefault: {
+      zona: 'Faixa Superior · A Tribo Protetora',
+      titulo: 'Privacy by Default — Bloqueio como Regra',
+      icone: '🔐',
+      cor: '#2980b9',
+      label: 'Privacy by Default',
+      metafora: 'A passagem tem porta de pedra fechada por padrão. Um troglodita precisa ativamente girar uma alavanca e inserir uma chave-pedra para abrir — nunca o contrário. O acesso só ocorre mediante ação explícita; o fechamento é automático. Privacidade como padrão funciona exatamente assim.',
+      bullets: [
+        'A configuração mais privada deve ser o padrão sem que o usuário faça nada. "Opt-in" é mais difícil de implementar mas é o modelo correto.',
+        'Colete apenas o mínimo necessário para a finalidade declarada — princípio da minimização (art. 6º, III da LGPD). Dado não coletado não pode vazar.',
+        'Períodos de retenção devem ser definidos e cumpridos: dados devem ser deletados automaticamente quando a finalidade se encerra.',
+        'Interfaces de privacidade não podem usar dark patterns: aceitar tudo com um clique, recusar com seis cliques não é consentimento genuíno.'
+      ],
+      ferramentas: [
+        { nome: 'Dark Patterns — Deceptive Design', url: 'https://www.deceptive.design' },
+        { nome: 'GDPR Art. 25 — Data Protection by Design', url: 'https://gdpr-info.eu/art-25-gdpr/' },
+        { nome: 'Privacy Checkup Template', url: 'https://www.privacybydesign.ca/index.php/resources/' }
+      ],
+      dica: 'Revise os formulários e configurações da sua aplicação: quantos campos são "opcionais" mas ativados por padrão? Inverta a lógica — desativado por padrão, usuário ativa se quiser.'
+    },
+
+    consentimento: {
+      zona: 'Faixa Superior · A Tribo Protetora',
+      titulo: 'Transparência e Consentimento Informado',
+      icone: '🤝',
+      cor: '#16a085',
+      label: 'Transparência & Consentimento',
+      metafora: 'O líder apresenta um mural visualmente claro para toda a tribo reunida. Trogloditas levantam a mão em gesto de aprovação após entender o propósito — e outros consultam pictogramas antes de consentir. Decisão coletiva, visível, baseada em compreensão real, não em texto incompreensível.',
+      bullets: [
+        'Consentimento válido na LGPD: livre (sem coerção), informado (propósito claro), inequívoco (ação positiva) e específico (por finalidade, não genérico).',
+        'Política de privacidade não é consentimento — é transparência. O consentimento precisa ser um ato separado e claro.',
+        'Direitos do titular (art. 18 LGPD): acesso, correção, exclusão, portabilidade, revogação do consentimento. Você precisa de mecanismos técnicos para atender a cada um.',
+        'Transparência ativa: informe de forma proativa — não apenas quando perguntado — o que coleta, por que, com quem compartilha e por quanto tempo guarda.'
+      ],
+      ferramentas: [
+        { nome: 'ANPD — Direitos dos Titulares', url: 'https://www.gov.br/anpd/pt-br/assuntos/noticias/direitos-dos-titulares' },
+        { nome: 'Cookiebot — Gestão de Consentimento', url: 'https://www.cookiebot.com' },
+        { nome: 'GDPR Consent Checklist', url: 'https://gdpr.eu/checklist/' }
+      ],
+      dica: 'Implemente um canal de atendimento a direitos dos titulares (DSR — Data Subject Requests) com SLA definido. A LGPD exige resposta em 15 dias.'
+    },
+
+    proatividade: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Proatividade — Inspeção Preventiva',
+      icone: '🔍',
+      cor: '#8e44ad',
+      label: 'Proatividade & PIA',
+      metafora: 'O guardião posicionado na entrada examina cada pedra que entra com lupa e ímã, rejeitando pedras suspeitas antes que alcancem o interior. Uma pilha de pedras rejeitadas cresce ao lado. Antecipar é mais barato que remediar — sempre.',
+      bullets: [
+        'Privacy Impact Assessment (PIA / DPIA): avalie riscos de privacidade antes de lançar qualquer produto ou funcionalidade que envolva dados pessoais.',
+        'DPIA é obrigatória no GDPR para tratamentos de alto risco (art. 35); a LGPD não exige formalmente, mas a ANPD recomenda como boa prática.',
+        'Perguntas-chave no PIA: quais dados coletamos? Para quê? Quem acessa? Como são protegidos? O que acontece quando terminamos de usá-los?',
+        'Threat modeling aplicado a dados: mapeie quem poderia querer esses dados, como poderia obtê-los e qual o impacto para os titulares em caso de vazamento.'
+      ],
+      ferramentas: [
+        { nome: 'CNIL PIA Tool', url: 'https://www.cnil.fr/en/cnil-publishes-update-its-pia-tool' },
+        { nome: 'GDPR DPIA (art. 35)', url: 'https://gdpr-info.eu/art-35-gdpr/' },
+        { nome: 'OWASP Threat Dragon', url: 'https://owasp.org/www-project-threat-dragon/' }
+      ],
+      dica: 'Inclua o PIA como etapa obrigatória no seu Definition of Done para qualquer feature que toque dados pessoais. Uma hora de análise prévia evita semanas de remediação.'
+    },
+
+    segurancaPontaAPonta: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Segurança Ponta-a-Ponta — Corredor Protegido',
+      icone: '🛡️',
+      cor: '#c0392b',
+      label: 'Segurança End-to-End',
+      metafora: 'Um corredor com muralhas contínuas e vigias posicionados em ambas as extremidades: os dados percorrem todo o trajeto protegidos, sem pontos cegos entre cavernas. Segurança ponta-a-ponta significa que não basta criptografar o armazenamento — o transporte e o processamento também precisam ser seguros.',
+      bullets: [
+        'Em trânsito: use TLS 1.2+ para toda comunicação de rede. Nunca trafegue dados pessoais em texto claro, nem em logs de depuração.',
+        'Em repouso: criptografe bancos de dados, backups e arquivos que contenham dados pessoais. AES-256 é o padrão recomendado.',
+        'Em uso (em memória): minimize o tempo que dados sensíveis ficam desencriptados em memória. Limpe variáveis após o uso em linguagens que permitem.',
+        'Descarte seguro: dados deletados precisam ser de fato deletados — não apenas marcados como inativos. Use sobrescrita segura e confirme a destruição de mídias físicas.'
+      ],
+      ferramentas: [
+        { nome: 'OWASP Cryptographic Storage', url: 'https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html' },
+        { nome: "Let's Encrypt", url: 'https://letsencrypt.org' },
+        { nome: 'AWS KMS', url: 'https://aws.amazon.com/kms/' }
+      ],
+      dica: 'Nunca coloque dados pessoais em logs de aplicação. Um PII que vaza para o Splunk ou CloudWatch pode ficar exposto por anos — muito depois que o dado "foi deletado".'
+    },
+
+    classificacao: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Classificação de Dados Pessoais',
+      icone: '🏷️',
+      cor: '#f39c12',
+      label: 'Classificação de Dados',
+      metafora: 'O artesão etiqueta pedras com símbolos visuais que representam categorias — formato, cor, textura — organizando-as em compartimentos apropriados. Cada pedra carrega apenas a classificação necessária. Sem classificação, tudo vira um monte indistinto onde é impossível aplicar controles adequados.',
+      bullets: [
+        'Data mapping (inventário de dados): documente o que coleta, onde armazena, quem acessa, com quem compartilha e por quanto tempo retém.',
+        'Taxonomia prática: Público, Interno, Confidencial, Restrito. Dados pessoais são no mínimo Confidencial; dados sensíveis são Restrito por padrão.',
+        'Classifique na origem: aplique metadados de classificação no momento da coleta, não retroativamente. Banco de dados, arquivos e filas de mensagens devem carregar a tag.',
+        'Automatize onde possível: ferramentas de DLP (Data Loss Prevention) podem detectar e classificar dados pessoais automaticamente antes que saiam do perímetro.'
+      ],
+      ferramentas: [
+        { nome: 'Google Cloud DLP', url: 'https://cloud.google.com/sensitive-data-protection' },
+        { nome: 'Microsoft Purview', url: 'https://www.microsoft.com/en-us/security/business/microsoft-purview' },
+        { nome: 'OneTrust Data Mapping', url: 'https://www.onetrust.com/products/data-mapping/' }
+      ],
+      dica: 'Comece o Data Map numa planilha simples: tabela, campo, tipo de dado, base legal, retenção, quem acessa. É o mapa sem o qual nenhuma estratégia de privacidade funciona.'
+    },
+
+    protecaoSensivel: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Proteção Reforçada de Dados Sensíveis',
+      icone: '🦺',
+      cor: '#1abc9c',
+      label: 'Proteção Dados Sensíveis',
+      metafora: 'Um cofre duplo com duas fechaduras distintas: só a combinação de duas chaves (de guardiões diferentes) abre o compartimento. Um terceiro guardião registra em tábua cada acesso. Rastreabilidade e segregação de responsabilidades são inegociáveis para dados sensíveis.',
+      bullets: [
+        'Segregação de acesso: nenhum usuário único deve ter acesso irrestrito a dados sensíveis. Aplique o princípio dos quatro olhos — dois guardiões, duas chaves.',
+        'Criptografia adicional em campo: criptografe colunas sensíveis individualmente (ex.: CPF, dados de saúde) além da criptografia do banco — proteção em camadas.',
+        'Log de cada acesso: registre quem acessou, quando, de onde e por qual motivo. Dados sensíveis sem audit log são um risco regulatório e forense.',
+        'Tokenização: substitua o dado sensível real por um token que pode ser usado funcionalmente mas que não revela o dado original se exposto.'
+      ],
+      ferramentas: [
+        { nome: 'HashiCorp Vault', url: 'https://www.vaultproject.io' },
+        { nome: 'AWS Secrets Manager', url: 'https://aws.amazon.com/secrets-manager/' },
+        { nome: 'Privacera (Tokenização)', url: 'https://privacera.com' }
+      ],
+      dica: 'Implemente um canal de acesso de emergência ("break glass") com aprovação dupla para dados sensíveis críticos. Ele deve disparar alertas automáticos a cada uso.'
+    },
+
+    cadeiaEvidencias: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Cadeia de Evidências para Auditoria',
+      icone: '🏺',
+      cor: '#7f8c8d',
+      label: 'Cadeia de Evidências',
+      metafora: 'O ancião lacra uma pedra-prova em recipiente de argila com selo de cera, registrando hora e identidade do coletor. O recipiente vai para um mural organizado cronologicamente. Evidência sem cadeia de custódia não serve para investigação — nem para defesa legal.',
+      bullets: [
+        'Logs de auditoria são evidências legais: devem ser imutáveis, carimbados com timestamp confiável e protegidos contra adulteração.',
+        'O que logar: criação, leitura, alteração e exclusão de dados pessoais (CRUD com contexto), tentativas de acesso negadas e exportações de dados.',
+        'Cadeia de custódia digital: garanta que os logs não possam ser deletados por quem os gerou. Separe produtores de logs dos administradores de logs.',
+        'Retenção de logs: a LGPD não define prazo explícito, mas o Código Civil prevê prescrição de até 10 anos para algumas ações. Guarde logs de acesso por no mínimo 5 anos.'
+      ],
+      ferramentas: [
+        { nome: 'AWS CloudTrail', url: 'https://aws.amazon.com/cloudtrail/' },
+        { nome: 'Elastic SIEM', url: 'https://www.elastic.co/siem' },
+        { nome: 'Splunk', url: 'https://www.splunk.com' }
+      ],
+      dica: 'Use write-once storage (ex.: S3 Object Lock) para logs críticos de auditoria. Um invasor que comprometeu a infraestrutura não deve conseguir apagar os rastros que o incriminariam.'
+    },
+
+    respostaIncidente: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Plano de Resposta a Incidente de Privacidade',
+      icone: '🚨',
+      cor: '#e74c3c',
+      label: 'Resposta a Incidente',
+      metafora: 'Trogloditas em posição de alerta: um aciona o alarme de ossos (sinal sonoro), outro isola a área afetada com barreiras de pedra, e um terceiro documenta o incidente em tábua. Cada um tem papel definido — sem improviso, sem caos. Incidente de dados exige plano pronto, não improvisos na hora H.',
+      bullets: [
+        'A LGPD exige notificação à ANPD em "prazo razoável" após tomar conhecimento de incidente que possa acarretar risco — a ANPD indica até 2 dias úteis para notificação preliminar.',
+        'O plano deve definir papéis: DPO (coordena), TI (contém), Jurídico (avalia), Comunicação (notifica titulares). Sem responsável definido, todos esperam e o prazo vence.',
+        'Ciclo de resposta: Detecção → Contenção → Erradicação → Recuperação → Análise pós-incidente. Não pule etapas — contenção antes de erradicação evita recontaminação.',
+        'Notificação aos titulares: quando exigida, use linguagem clara e sem jargão técnico. Diga o que aconteceu, quais dados foram afetados e o que o titular pode fazer para se proteger.'
+      ],
+      ferramentas: [
+        { nome: 'ANPD — Comunicação de Incidentes', url: 'https://www.gov.br/anpd/pt-br/assuntos/noticias/comunicacao-de-incidente' },
+        { nome: 'NIST Incident Response (SP 800-61)', url: 'https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final' },
+        { nome: 'PagerDuty Incident Response', url: 'https://response.pagerduty.com' }
+      ],
+      dica: 'Faça um simulacro de incidente de privacidade pelo menos uma vez por ano. Descobrir no simulacro que o DPO não tem acesso aos logs é infinitamente melhor que descobrir num incidente real.'
+    },
+
+    auditoria: {
+      zona: 'Faixa Inferior · Os Controles em Detalhe',
+      titulo: 'Auditoria e Rastreabilidade Contínua',
+      icone: '👣',
+      cor: '#3498db',
+      label: 'Auditoria Contínua',
+      metafora: 'Um mural com trilha de pegadas documenta cada movimento de cada pedra: de onde veio, quem tocou, para onde foi. O auditor percorre a trilha com bastão, verificando consistência e identificando desvios. Rastreabilidade não é projeto — é disciplina operacional contínua.',
+      bullets: [
+        'Data lineage: rastreie o ciclo de vida completo do dado — da coleta ao descarte, passando por cada transformação, cópia e compartilhamento.',
+        'Revisões periódicas de acesso: quem ainda precisa ter acesso aos dados que tem? Revise permissões trimestralmente e remova acessos desnecessários.',
+        'Auditoria de terceiros: seus fornecedores e operadores também precisam cumprir a LGPD. Exija relatórios de conformidade (art. 46 LGPD) e cláusulas contratuais adequadas.',
+        'KPIs de privacidade: meça e reporte DSRs atendidas no prazo, incidentes por trimestre, cobertura do Data Map, e % de dados com base legal documentada.'
+      ],
+      ferramentas: [
+        { nome: 'OneTrust Privacy Management', url: 'https://www.onetrust.com' },
+        { nome: 'TrustArc', url: 'https://trustarc.com' },
+        { nome: 'BigID Data Intelligence', url: 'https://bigid.com' }
+      ],
+      dica: 'Automatize alertas quando dados pessoais excedem o período de retenção definido. Dado que deveria ter sido deletado e não foi é uma violação em potencial esperando para acontecer.'
+    }
+  };
+
+  // Geometria dos hotspots em % (left, top, width, height)
+  // Faixa superior: 5 nichos em ~0–48%; Faixa inferior: 7 nichos em ~52–100%
+  const GEO = {
+    principios:            [ 1,   3, 18, 44],
+    basesLegais:           [20,   3, 20, 44],
+    dadosPessoaisSensiveis:[40,   3, 19, 44],
+    privacyDefault:        [60,   3, 19, 44],
+    consentimento:         [79,   3, 20, 44],
+    proatividade:          [ 1,  53, 12, 43],
+    segurancaPontaAPonta:  [14,  53, 14, 43],
+    classificacao:         [28,  53, 14, 43],
+    protecaoSensivel:      [42,  53, 15, 43],
+    cadeiaEvidencias:      [57,  53, 14, 43],
+    respostaIncidente:     [71,  53, 14, 43],
+    auditoria:             [85,  53, 14, 43]
+  };
+
+  const ORDEM = [
+    'principios','basesLegais','dadosPessoaisSensiveis','privacyDefault','consentimento',
+    'proatividade','segurancaPontaAPonta','classificacao','protecaoSensivel','cadeiaEvidencias','respostaIncidente','auditoria'
+  ];
+
+  const RELACOES = {
+    principios:            { ids:['privacyDefault','consentimento','proatividade'], nota:'Os 7 Princípios são a teoria: Privacy by Default, Consentimento e Proatividade são três deles em ação prática.' },
+    basesLegais:           { ids:['consentimento','dadosPessoaisSensiveis','auditoria'], nota:'Cada base legal define quais dados podem ser coletados (Pessoais vs. Sensíveis), como o consentimento deve ser obtido e o que a auditoria precisa registrar.' },
+    dadosPessoaisSensiveis:{ ids:['protecaoSensivel','classificacao','segurancaPontaAPonta'], nota:'Saber o que é sensível guia a classificação, determina a proteção reforçada necessária e define os requisitos de segurança ponta-a-ponta.' },
+    privacyDefault:        { ids:['principios','consentimento','classificacao'], nota:'Default de privacidade é um dos 7 Princípios, precede o consentimento (mínimo coletado = mínimo para consentir) e direciona a classificação de dados.' },
+    consentimento:         { ids:['basesLegais','auditoria','respostaIncidente'], nota:'Consentimento é uma das bases legais; auditoria prova que foi coletado corretamente; plano de incidente trata o caso de violação do consentimento.' },
+    proatividade:          { ids:['principios','cadeiaEvidencias','respostaIncidente'], nota:'Proatividade é o primeiro princípio PbD em ação; a cadeia de evidências documenta a avaliação prévia; o plano de incidente é ativado quando a prevenção falha.' },
+    segurancaPontaAPonta:  { ids:['protecaoSensivel','cadeiaEvidencias','classificacao'], nota:'Segurança e2e protege os dados classificados em trânsito e repouso, e a cadeia de evidências registra quem tocou em quê ao longo de todo o caminho.' },
+    classificacao:         { ids:['dadosPessoaisSensiveis','protecaoSensivel','auditoria'], nota:'Classificar corretamente determina o nível de proteção necessário para dados sensíveis e o que a auditoria precisa rastrear mais de perto.' },
+    protecaoSensivel:      { ids:['dadosPessoaisSensiveis','segurancaPontaAPonta','cadeiaEvidencias'], nota:'Proteção reforçada é consequência direta de identificar dados sensíveis, usa segurança e2e e gera rastreabilidade via cadeia de evidências.' },
+    cadeiaEvidencias:      { ids:['auditoria','respostaIncidente','protecaoSensivel'], nota:'A cadeia de evidências alimenta a auditoria contínua, serve de prova no plano de incidente e registra cada acesso a dados sensíveis.' },
+    respostaIncidente:     { ids:['cadeiaEvidencias','auditoria','proatividade'], nota:'Um incidente sem cadeia de evidências não pode ser investigado; a auditoria detecta o desvio; a proatividade é o que previne o próximo.' },
+    auditoria:             { ids:['cadeiaEvidencias','basesLegais','respostaIncidente'], nota:'Auditoria contínua valida se as bases legais estão documentadas, usa a cadeia de evidências como fonte e alimenta métricas de prontidão para resposta a incidentes.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId  = null;
+  let tourActive = false;
+  let tourIdx   = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura      = document.getElementById('figura');
+  const legenda     = document.getElementById('legenda');
+  const overlay     = document.getElementById('modal-overlay');
+  const card        = document.getElementById('modal-card');
+  const elIcone     = document.getElementById('modal-icone');
+  const elZona      = document.getElementById('modal-zona');
+  const elTitulo    = document.getElementById('modal-titulo');
+  const elMetafora  = document.getElementById('modal-metafora');
+  const elBullets   = document.getElementById('modal-bullets');
+  const elFerr      = document.getElementById('modal-ferramentas');
+  const elConexSec  = document.getElementById('modal-conexao-sec');
+  const elConexNota = document.getElementById('modal-conexao-nota');
+  const elRelac     = document.getElementById('modal-relacionados');
+  const elDicaTxt   = document.getElementById('modal-dica-texto');
+  const btnFechar   = document.getElementById('btn-fechar');
+  const btnTour     = document.getElementById('btn-tour');
+  const tourLabel   = document.getElementById('tour-label');
+  const tourBar     = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1);  return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
