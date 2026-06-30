@@ -80,9 +80,16 @@ async def gerar_imagem(state: PipelineState, config) -> dict:
 
     try:
         await with_retry(lambda: _chamar_gemini(prompt, destino), on_retry=_aviso)
-    except QuotaError as e:
-        await emit(config, "gerar_imagem", "fail", f"Cota do Gemini esgotada: {e}")
-        raise
+    except QuotaError:
+        # Imagem é DEGRADÁVEL: cota esgotada não derruba o run — grava placeholder
+        # e segue (o resto do pipeline produz o objeto; troque {slug}.png depois).
+        _png_placeholder(destino)
+        await emit(config, "gerar_imagem", "ok",
+                   f"Cota do Gemini esgotada — usei placeholder. Troque {slug}.png depois "
+                   "(ou habilite billing no projeto Gemini).",
+                   {"caminho_imagem": str(destino), "placeholder": True})
+        return {"caminho_imagem": str(destino),
+                "tentativas_imagem": state.get("tentativas_imagem", 0) + 1}
     except Exception as e:  # noqa: BLE001
         await emit(config, "gerar_imagem", "fail", f"Falha no Gemini: {e}")
         raise
