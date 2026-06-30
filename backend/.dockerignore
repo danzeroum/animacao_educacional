@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+forja.db
+forja.db-*
+.env
+README_pipeline.md

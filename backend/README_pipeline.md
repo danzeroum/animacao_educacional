@@ -33,6 +33,23 @@ autocorreção**, **gate HITL** (`interrupt_before=["deploy"]`), `AsyncSqliteSav
 > Segurança: em dry-run nada é publicado. Para publicar de verdade (na sua máquina),
 > defina `FORJA_DRY_RUN=false` e um `GITHUB_TOKEN` no `.env`.
 
+## Rodar com Docker (recomendado)
+
+Sobe backend + frontend juntos. O `docker-compose.yml` está na **raiz do repo**.
+
+```bash
+cp backend/.env.example backend/.env     # preencha as chaves (opcional p/ stub)
+docker compose up --build
+# abra http://localhost:8080   (API direta em http://localhost:8000)
+```
+
+- O frontend (nginx) serve o build e faz proxy de `/api` → serviço `backend` (inclui SSE).
+- O repo é montado em `/repo` no backend: objetos gerados e a atualização do Atlas
+  caem direto na sua árvore de trabalho.
+- **`FORJA_DRY_RUN=true`** por padrão — nada é publicado. Para abrir PRs de verdade,
+  ponha `FORJA_DRY_RUN=false` + `GITHUB_TOKEN` no `backend/.env` (e configure
+  `git config user.name/email` no host, pois o deploy usa o git do repo montado).
+
 ## Backend (FastAPI)
 
 ```bash
