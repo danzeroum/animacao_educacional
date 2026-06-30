@@ -27,6 +27,10 @@ class Settings:
         self.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
         self.gemini_image_model = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
 
+        # Provedor de imagem: "pollinations" (grátis, sem chave) | "gemini" (pago/billing)
+        self.image_provider = os.getenv("IMAGE_PROVIDER", "pollinations").lower()
+        self.pollinations_model = os.getenv("POLLINATIONS_MODEL", "flux")
+
         repo = os.getenv("REPO_ROOT", "").strip()
         self.repo_root = Path(repo).resolve() if repo else _DEFAULT_REPO_ROOT
 
@@ -50,6 +54,13 @@ class Settings:
     @property
     def has_gemini(self) -> bool:
         return bool(self.gemini_api_key)
+
+    @property
+    def image_ready(self) -> bool:
+        """A imagem pode ser gerada de verdade? (Pollinations não precisa de chave.)"""
+        if self.image_provider == "gemini":
+            return self.has_gemini
+        return True  # pollinations
 
     @property
     def has_github_token(self) -> bool:

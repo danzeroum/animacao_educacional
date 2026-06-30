@@ -1,11 +1,16 @@
-"""Nó 2 — gerar_imagem: imagem de fundo via Gemini 2.5 Flash Image.
+"""Nó 2 — gerar_imagem: imagem de fundo do objeto.
 
-Real quando há GEMINI_API_KEY; senão, grava um PNG placeholder (offline).
-Trata retry + guardrail de cota.
+Provedor configurável por `IMAGE_PROVIDER`:
+- "pollinations" (default): grátis, sem chave/cartão.
+- "gemini": Gemini 2.5 Flash Image (exige billing/saldo no projeto).
+Sem provedor disponível (ex.: gemini sem chave) → grava um PNG placeholder.
+Trata retry + guardrail de cota (cota esgotada → placeholder, não derruba o run).
 """
 from __future__ import annotations
 
 import struct
+import urllib.parse
+import urllib.request
 import zlib
 from io import BytesIO
 from pathlib import Path
@@ -15,6 +20,30 @@ from .. import clients
 from ..state import PipelineState
 from ..util import QuotaError, with_retry
 from ._util import emit
+
+
+def _salvar_png(data: bytes, destino: Path) -> None:
+    try:
+        from PIL import Image
+        Image.open(BytesIO(data)).convert("RGB").save(destino, format="PNG")
+    except Exception:  # noqa: BLE001 — se já vier PNG, grava direto
+        destino.write_bytes(data)
+
+
+def _chamar_pollinations(prompt: str, destino: Path) -> None:
+    """Pollinations.ai — text-to-image grátis e sem chave (GET retorna a imagem)."""
+    s = settings()
+    params = urllib.parse.urlencode({
+        "width": 1280, "height": 720, "nologo": "true",
+        "model": s.pollinations_model, "seed": abs(hash(prompt)) % 100000,
+    })
+    url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt)}?{params}"
+    req = urllib.request.Request(url, headers={"User-Agent": "forja-pipeline"})
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        data = resp.read()
+    if not data:
+        raise RuntimeError("Pollinations retornou vazio.")
+    _salvar_png(data, destino)
 
 
 def _png_placeholder(path: Path) -> None:
@@ -53,48 +82,58 @@ def _chamar_gemini(prompt: str, destino: Path) -> None:
     if not data:
         # sem imagem (ex.: bloqueio de segurança) → erro transitório p/ retry
         raise RuntimeError("Gemini não retornou imagem (resposta sem inline_data).")
-    try:
-        from PIL import Image
-        Image.open(BytesIO(data)).convert("RGB").save(destino, format="PNG")
-    except Exception:  # noqa: BLE001 — se já vier PNG, grava direto
-        destino.write_bytes(data)
+    _salvar_png(data, destino)
+
+
+# provedor → (função, rótulo)
+_PROVIDERS = {
+    "pollinations": (_chamar_pollinations, "Pollinations"),
+    "gemini": (_chamar_gemini, "Gemini"),
+}
 
 
 async def gerar_imagem(state: PipelineState, config) -> dict:
-    await emit(config, "gerar_imagem", "running", "Gerando imagem de fundo (Gemini)…")
+    s = settings()
+    provider = s.image_provider if s.image_provider in _PROVIDERS else "pollinations"
+    fn, rotulo = _PROVIDERS[provider]
     slug = state["slug"]
-    destino = settings().repo_root / slug / f"{slug}.png"
+    destino = s.repo_root / slug / f"{slug}.png"
     destino.parent.mkdir(parents=True, exist_ok=True)
     prompt = state.get("prompt_imagem") or f"Ilustração mapa-metáfora para {slug}."
 
-    if not settings().has_gemini:
+    await emit(config, "gerar_imagem", "running", f"Gerando imagem de fundo ({rotulo})…")
+
+    def _placeholder(msg: str) -> dict:
         _png_placeholder(destino)
-        await emit(config, "gerar_imagem", "ok",
-                   f"Imagem salva: {slug}.png (placeholder — sem GEMINI_API_KEY).",
-                   {"caminho_imagem": str(destino)})
         return {"caminho_imagem": str(destino),
-                "tentativas_imagem": state.get("tentativas_imagem", 0) + 1}
+                "tentativas_imagem": state.get("tentativas_imagem", 0) + 1, "_msg": msg}
+
+    # Sem condição de gerar (gemini sem chave) → placeholder.
+    if not s.image_ready:
+        out = _placeholder(f"Imagem: placeholder ({rotulo} sem chave). Troque {slug}.png depois.")
+        await emit(config, "gerar_imagem", "ok", out.pop("_msg"),
+                   {"caminho_imagem": str(destino), "placeholder": True})
+        return out
 
     async def _aviso(i, exc):
         await emit(config, "gerar_imagem", "running", f"Tentativa {i} falhou ({exc}); repetindo…")
 
     try:
-        await with_retry(lambda: _chamar_gemini(prompt, destino), on_retry=_aviso)
+        await with_retry(lambda: fn(prompt, destino), on_retry=_aviso)
     except QuotaError:
-        # Imagem é DEGRADÁVEL: cota esgotada não derruba o run — grava placeholder
-        # e segue (o resto do pipeline produz o objeto; troque {slug}.png depois).
-        _png_placeholder(destino)
-        await emit(config, "gerar_imagem", "ok",
-                   f"Cota do Gemini esgotada — usei placeholder. Troque {slug}.png depois "
-                   "(ou habilite billing no projeto Gemini).",
+        # Imagem é DEGRADÁVEL: cota esgotada não derruba o run — placeholder e segue.
+        out = _placeholder(f"Cota do {rotulo} esgotada — usei placeholder. Troque {slug}.png depois.")
+        await emit(config, "gerar_imagem", "ok", out.pop("_msg"),
                    {"caminho_imagem": str(destino), "placeholder": True})
-        return {"caminho_imagem": str(destino),
-                "tentativas_imagem": state.get("tentativas_imagem", 0) + 1}
+        return out
     except Exception as e:  # noqa: BLE001
-        await emit(config, "gerar_imagem", "fail", f"Falha no Gemini: {e}")
-        raise
+        # Provedor grátis pode ficar instável; não derruba o run — placeholder + aviso.
+        out = _placeholder(f"Falha no {rotulo} ({e}) — usei placeholder. Troque {slug}.png depois.")
+        await emit(config, "gerar_imagem", "ok", out.pop("_msg"),
+                   {"caminho_imagem": str(destino), "placeholder": True})
+        return out
 
-    await emit(config, "gerar_imagem", "ok", f"Imagem salva: {slug}.png",
+    await emit(config, "gerar_imagem", "ok", f"Imagem salva: {slug}.png ({rotulo}).",
                {"caminho_imagem": str(destino)})
     return {"caminho_imagem": str(destino),
             "tentativas_imagem": state.get("tentativas_imagem", 0) + 1}

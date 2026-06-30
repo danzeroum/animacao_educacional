@@ -52,6 +52,9 @@ async def providers():
     return {
         "deepseek": {"model": s.deepseek_model, "base_url": s.deepseek_base_url,
                      "configurado": s.has_deepseek, "grant_usado": 2.9, "grant_total": 5.0},
+        "imagem": {"provider": s.image_provider, "pronto": s.image_ready,
+                   "model": (s.pollinations_model if s.image_provider == "pollinations"
+                             else s.gemini_image_model)},
         "gemini": {"model": s.gemini_image_model, "configurado": s.has_gemini,
                    "imagens_hoje": 0, "cota_diaria": 500},
         "github": {"repo": s.github_repo, "base": s.github_base_branch,
