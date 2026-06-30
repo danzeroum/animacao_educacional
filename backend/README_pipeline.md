@@ -47,8 +47,10 @@ docker compose up --build
 - O repo é montado em `/repo` no backend: objetos gerados e a atualização do Atlas
   caem direto na sua árvore de trabalho.
 - **`FORJA_DRY_RUN=true`** por padrão — nada é publicado. Para abrir PRs de verdade,
-  ponha `FORJA_DRY_RUN=false` + `GITHUB_TOKEN` no `backend/.env` (e configure
-  `git config user.name/email` no host, pois o deploy usa o git do repo montado).
+  basta `FORJA_DRY_RUN=false` + `GITHUB_TOKEN` (escopo Contents R/W + Pull requests R/W)
+  no `backend/.env`. O deploy usa o token tanto no `git push` (URL autenticada, token
+  mascarado nos logs) quanto na abertura do PR (REST) — **não** é preciso
+  `git remote set-url` nem configurar a identidade do git (há fallback automático).
 
 ## Backend (FastAPI)
 

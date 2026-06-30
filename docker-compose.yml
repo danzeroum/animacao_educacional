@@ -1,10 +1,11 @@
 # Forja — sobe backend (FastAPI+LangGraph+Playwright) e frontend (nginx) juntos.
 #   1) copie backend/.env.example → backend/.env e preencha as chaves (opcional)
 #   2) docker compose up --build
-#   3) abra http://localhost:8080   (API em http://localhost:8000)
+#   3) abra http://localhost:8002   (a app; a API é proxied internamente em /api)
 #
-# Segurança: FORJA_DRY_RUN=true por padrão — nada é publicado. Para abrir PRs de
-# verdade, defina FORJA_DRY_RUN=false e GITHUB_TOKEN no backend/.env.
+# Segurança: FORJA_DRY_RUN=true por padrão (definido no backend/.env) — nada é
+# publicado. Para abrir PRs de verdade, ponha FORJA_DRY_RUN=false e GITHUB_TOKEN
+# no backend/.env.
 
 services:
   backend:
@@ -13,15 +14,18 @@ services:
     environment:
       REPO_ROOT: /repo
       FORJA_DB: /app/forja.db
-      FORJA_DRY_RUN: "true"
     env_file:
       - path: ./backend/.env
         required: false
     volumes:
       # monta o repo dos objetos: o pipeline grava {slug}/ e atualiza o Atlas aqui.
       - ./:/repo
-    ports:
-      - "8000:8000"
+    # sem porta publicada: o frontend (nginx) fala com o backend pela rede interna.
+    # Para acessar a API direto do host, descomente e use uma porta livre:
+    # ports:
+    #   - "8001:8000"
+    expose:
+      - "8000"
 
   frontend:
     build:
@@ -29,4 +33,4 @@ services:
     depends_on:
       - backend
     ports:
-      - "8080:80"
+      - "8002:80"
