@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna DevOps — CI/CD, Observabilidade e Segurança para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma caverna pré-histórica em corte transversal onde cada nicho é um conceito de DevOps — CI/CD Pipeline, Observabilidade, DevSecOps, Microserviços, Testes Automatizados, SAMM e mais.">
+  <meta property="og:title" content="A Caverna DevOps — CI/CD, Observabilidade e Segurança para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna-tribo para aprender DevOps, CI/CD, Observabilidade, DevSecOps, Microserviços e Segurança de Software.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="caverna-devops.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #1e1710;
+      --fundo-2: #140f07;
+      --fundo-3: #0e0a04;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · DevOps & Engenharia de Software</div>
+    <h1>⛏️ A Caverna DevOps</h1>
+    <p class="tese">Da <em>ferramenta artesanal</em> à <strong>linha de montagem automatizada</strong>. A caverna pré-histórica revela como CI/CD, Observabilidade, DevSecOps, Microserviços e Segurança de Software funcionam juntos — cada nicho é um conceito vivo dentro do pipeline.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Clique em qualquer nicho da caverna para aprender o conceito — faixa superior é o macro, inferior é o micro do pipeline.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="caverna-devops.png" alt="Caverna pré-histórica em corte transversal dividida em duas faixas horizontais: na faixa superior, uma esteira de montagem contínua com estações de Build, Test, Stage e Deploy; um painel triplo de Logs, Métricas e Tracing; um guardião com escudo e lupa (DevSecOps); compartimentos autônomos separados por pilares (Microserviços); e um mecanismo de contrapeso para rollback automático. Na faixa inferior, nichos menores com artesão de peças modulares (Build), dispositivos de teste por força e calor (Testes Automatizados), área de simulação com chuva artificial (Stage), calha de distribuição para múltiplos destinos (Deploy), tambor de pedras com marcações de contexto (Logs Estruturados), painel com gráficos e relógio de areia (Métricas) e cinco pilares representando as dimensões do SAMM (Governança, Design, Implementação, Verificação, Operação).">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica DevOps/SRE</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma tribo forte não entrega sua ferramenta de qualquer jeito: testa, inspeciona, distribui e monitora cada passo. O pipeline DevOps é essa sabedoria ancestral aplicada ao código."</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    pipeline_cicd: {
+      zona: 'Macro · A Tribo Automatizada',
+      titulo: 'CI/CD Pipeline — A Linha de Montagem Contínua',
+      icone: '⚙️',
+      cor: '#e8853a',
+      label: 'CI/CD Pipeline',
+      metafora: 'A esteira de madeira e corda atravessa a caverna em estações sequenciais: cada ferramenta passa por Build, Test, Stage e Deploy antes de chegar ao usuário. Nenhuma peça avança sem aprovação — o portão só abre se a prova passou.',
+      bullets: [
+        'CI (Integração Contínua): cada mudança de código dispara testes automáticos. Peça ruim volta para o artesão antes de contaminar o lote.',
+        'CD (Entrega/Deploy Contínuo): o que passa nos testes é empacotado e entregue automaticamente — sem intervenção manual, sem "funciona na minha caverna".',
+        'A cadência curta de entregas reduz o tamanho do lote e o risco de cada deploy. Muitas entrega pequenas valem mais que uma entrega grande e arriscada.'
+      ],
+      ferramentas: [
+        { nome: 'GitHub Actions', url: 'https://github.com/features/actions' },
+        { nome: 'GitLab CI/CD', url: 'https://docs.gitlab.com/ee/ci/' },
+        { nome: 'Jenkins', url: 'https://www.jenkins.io' }
+      ],
+      dica: 'Meça o DORA Metrics do seu pipeline: frequência de deploy, lead time, taxa de falha e tempo de recuperação. Esses quatro números revelam a saúde real da sua linha de montagem.'
+    },
+    observabilidade: {
+      zona: 'Macro · A Tribo Automatizada',
+      titulo: 'Observabilidade — Os Três Pilares',
+      icone: '🔭',
+      cor: '#5fc8a0',
+      label: 'Observabilidade',
+      metafora: 'O sábio opera um painel triplo de pedra: o tambor registra cada evento com contexto (Logs), o mural de relevos mostra o ritmo do sistema (Métricas) e a corda com nós coloridos revela onde o gargalo se aperta (Tracing). Os três juntos revelam o que aconteceu, onde e por quê.',
+      bullets: [
+        'Logs são o registro cronológico de eventos com contexto — origem, tipo, timestamp. Sem contexto estruturado, logs são pedras sem rótulo numa pilha.',
+        'Métricas são séries temporais de números: latência, taxa de erro, throughput. São a "temperatura da fogueira" que informa se o sistema está saudável.',
+        'Tracing distribui IDs únicos por toda a cadeia de chamadas, revelando onde uma requisição ficou presa entre microserviços — o nó mais apertado da corda.'
+      ],
+      ferramentas: [
+        { nome: 'OpenTelemetry', url: 'https://opentelemetry.io' },
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'Prometheus', url: 'https://prometheus.io' }
+      ],
+      dica: 'Instrumente antes de precisar: adicione tracing desde o primeiro serviço, não depois do primeiro incidente. Um Correlation ID que passa por todos os sistemas transforma investigações de horas em minutos.'
+    },
+    devsecops: {
+      zona: 'Macro · A Tribo Automatizada',
+      titulo: 'DevSecOps — Segurança Integrada ao Pipeline',
+      icone: '🛡️',
+      cor: '#c05a3a',
+      label: 'DevSecOps',
+      metafora: 'O guardião com escudo e lupa não espera a ferramenta chegar ao depósito: ele inspeciona cada peça em toda estação da linha de montagem. Segurança não é um portão no final — é uma presença constante em cada etapa.',
+      bullets: [
+        '"Shift left": mover a segurança para o início do pipeline custa 30× menos do que corrigir uma vulnerabilidade em produção. SAST no commit, DAST no staging.',
+        'Dependency scanning verifica se as peças compradas (libs de terceiros) têm defeitos conhecidos (CVEs) antes de entrar no produto final.',
+        'Secrets scanning impede que senhas, tokens e chaves vazem no histórico do repositório — o maior vetor de vazamento de credenciais hoje.'
+      ],
+      ferramentas: [
+        { nome: 'Snyk', url: 'https://snyk.io' },
+        { nome: 'Trivy', url: 'https://trivy.dev' },
+        { nome: 'OWASP SAST', url: 'https://owasp.org/www-community/Source_Code_Analysis_Tools' }
+      ],
+      dica: 'Adicione pelo menos um scan de segurança no CI antes de habilitar merge: análise estática (SAST) + verificação de dependências. É o escudo mínimo viável para a linha de montagem.'
+    },
+    microsservicos: {
+      zona: 'Macro · A Tribo Automatizada',
+      titulo: 'Microserviços — Compartimentos Independentes',
+      icone: '🏛️',
+      cor: '#8fb8d6',
+      label: 'Microserviços',
+      metafora: 'A caverna é dividida em compartimentos por pilares robustos: cada grupo trabalha de forma autônoma, trocando mercadorias pelas pontes padronizadas (contratos de API). Nenhum nicho depende dos internos do vizinho — apenas da porta de entrada e saída.',
+      bullets: [
+        'Cada microserviço tem responsabilidade única, deploy independente e banco de dados próprio. Falha num compartimento não colapsa a caverna inteira.',
+        'Comunicação via contratos bem definidos (REST, gRPC, eventos): os compartimentos falam pela porta, nunca pelo buraco na parede.',
+        'O preço da independência é a complexidade de rede: você ganha resiliência e escala, mas precisa de service discovery, circuit breaker e tracing distribuído.'
+      ],
+      ferramentas: [
+        { nome: 'Kubernetes', url: 'https://kubernetes.io' },
+        { nome: 'Istio', url: 'https://istio.io' },
+        { nome: 'gRPC', url: 'https://grpc.io' }
+      ],
+      dica: 'Não comece com microserviços: comece com um monolito bem modularizado e extraia serviços quando a dor de escala ou deploy for real. Compartimentos prematuros custam sem entregar o benefício.'
+    },
+    rollback: {
+      zona: 'Macro · A Tribo Automatizada',
+      titulo: 'Rollback Automatizado — Reversão Mecânica',
+      icone: '↩️',
+      cor: '#b08cc4',
+      label: 'Rollback Automatizado',
+      metafora: 'Quando a ferramenta recém-entregue falha no uso, a alavanca de emergência é acionada automaticamente pelo sensor de anomalia: a peça defeituosa é puxada de volta ao estágio anterior enquanto o alarme de ossos soa. Ninguém precisa correr — o mecanismo age sozinho.',
+      bullets: [
+        'Rollback automatizado exige observabilidade: o mecanismo só aciona a alavanca se um sensor (métrica de erro, health check) detecta a falha em segundos.',
+        'Estratégias seguras de deploy (blue/green, canary) permitem rollback instantâneo: a versão anterior nunca foi desligada, basta redirecionar o tráfego.',
+        'Feature flags desacoplam deploy de release: você envia o código para produção mas só liga a funcionalidade quando tiver certeza — e desliga sem rollback de código.'
+      ],
+      ferramentas: [
+        { nome: 'Argo Rollouts', url: 'https://argoproj.github.io/rollouts/' },
+        { nome: 'LaunchDarkly', url: 'https://launchdarkly.com' },
+        { nome: 'Flagger', url: 'https://flagger.app' }
+      ],
+      dica: 'Teste o rollback antes de precisar dele. Inclua um "drill de reversão" no runbook de cada serviço crítico: simule a falha, acione o rollback e meça o tempo de recuperação. SRE chama isso de chaos engineering.'
+    },
+    build: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'Build — Montagem Modular',
+      icone: '🔨',
+      cor: '#d9a441',
+      label: 'Build',
+      metafora: 'O artesão encaixa peças padronizadas em uma estrutura maior, verificando compatibilidade em cada conexão. Uma pilha de peças-reserva ao lado garante que o processo não pare se uma peça estiver indisponível — dependências declaradas, não implícitas.',
+      bullets: [
+        'Build reproduzível: dado o mesmo código-fonte e as mesmas dependências, o artefato gerado deve ser idêntico — independente da máquina do artesão.',
+        'Declare dependências explicitamente (lockfile, pinning de versões): peças sem versão fixada mudam sozinhas e quebram a montagem sem aviso.',
+        'Artefatos imutáveis: o que foi construído e testado é o que vai para produção — nunca reconstrua o artefato no deploy. Uma ferramenta, um ID único, rastreável do início ao fim.'
+      ],
+      ferramentas: [
+        { nome: 'Docker', url: 'https://www.docker.com' },
+        { nome: 'Gradle', url: 'https://gradle.org' },
+        { nome: 'Bazel', url: 'https://bazel.build' }
+      ],
+      dica: 'Use multi-stage builds no Docker: a primeira etapa compila (com todas as ferramentas), a segunda copia só o binário para uma imagem mínima. Imagem menor = surface de ataque menor + deploy mais rápido.'
+    },
+    testes_automatizados: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'Testes Automatizados — Provas de Resistência',
+      icone: '🔬',
+      cor: '#6ba368',
+      label: 'Testes Automatizados',
+      metafora: 'A estação tem três dispositivos: o martelo de contrapeso testa resistência (testes de unidade), a fogueira controlada testa comportamento sob estresse (testes de integração) e a rampa de desgaste simula uso repetido (testes end-to-end). Só quem passa nos três recebe o selo de aprovação.',
+      bullets: [
+        'A pirâmide de testes guia o equilíbrio: muitos testes de unidade (rápidos e baratos), menos de integração, poucos E2E (lentos e frágeis). Inverta a pirâmide e o CI fica lento e flaky.',
+        'Testes de contrato (contract testing) verificam se o serviço A ainda respeita o que o serviço B espera — essencial em arquiteturas de microserviços para evitar quebras silenciosas.',
+        'Cobertura de código mede quantidade, não qualidade. 80% de cobertura com asserts fracos valem menos que 50% cobrindo os caminhos críticos de verdade.'
+      ],
+      ferramentas: [
+        { nome: 'Jest', url: 'https://jestjs.io' },
+        { nome: 'Pact', url: 'https://pact.io' },
+        { nome: 'Playwright', url: 'https://playwright.dev' }
+      ],
+      dica: 'Trate testes flaky como bugs críticos: um teste que falha aleatoriamente treina o time a ignorar falhas. Quando o alarme mente com frequência, ninguém ouve quando ele diz a verdade.'
+    },
+    stage: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'Stage — Validação em Ambiente Realista',
+      icone: '🌧️',
+      cor: '#7ab8d6',
+      label: 'Stage',
+      metafora: 'A área de simulação reproduz condições do ambiente externo — chuva artificial, pouca luz, terreno irregular. Trogloditas testam a ferramenta antes de distribuí-la. O ambiente de staging é a caverna que imita o mundo real para capturar o que os testes automáticos não pegam.',
+      bullets: [
+        'Staging deve espelhar produção em configuração, dados (anonimizados) e infraestrutura. Um staging muito diferente de produção dá falsa confiança.',
+        'Testes de fumaça (smoke tests) em staging validam se as funcionalidades críticas funcionam logo após o deploy — antes de liberar para usuários reais.',
+        'Environment parity (The Twelve-Factor App): quanto mais o ambiente de desenvolvimento, staging e produção diferem, maior a chance de "funciona aqui, quebra lá".'
+      ],
+      ferramentas: [
+        { nome: 'Terraform', url: 'https://www.terraform.io' },
+        { nome: 'Helm', url: 'https://helm.sh' },
+        { nome: '12-Factor App', url: 'https://12factor.net' }
+      ],
+      dica: 'Use Infrastructure as Code para garantir que staging e produção sejam cópias do mesmo "molde de pedra". Se você não pode recriar staging com um comando, a paridade vai derivar com o tempo.'
+    },
+    deploy: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'Deploy e Distribuição — Entrega em Massa',
+      icone: '🚀',
+      cor: '#e0b066',
+      label: 'Deploy & Distribuição',
+      metafora: 'O troglodita aciona a calha que distribui a ferramenta aprovada para múltiplos compartimentos simultaneamente. Cada destinatário confirma recebimento — deploy em múltiplos ambientes, verificado e rastreado em cada destino.',
+      bullets: [
+        'Blue/Green deploy mantém duas versões ativas (a atual e a nova): o tráfego é chaveado de uma para outra sem downtime e o rollback é instantâneo.',
+        'Canary release envia a nova versão para uma fatia pequena do tráfego (1%, 5%, 10%) e monitora métricas antes de abrir para todos. A "calha" distribui devagar antes de abrir totalmente.',
+        'GitOps trata o repositório como fonte da verdade para o estado da infraestrutura: o que está no Git é o que deve estar rodando. Qualquer desvio é um bug.'
+      ],
+      ferramentas: [
+        { nome: 'ArgoCD', url: 'https://argo-cd.readthedocs.io' },
+        { nome: 'Spinnaker', url: 'https://spinnaker.io' },
+        { nome: 'Flux', url: 'https://fluxcd.io' }
+      ],
+      dica: 'Faça deploys pequenos e frequentes. Um deploy com 10 mudanças tem 10× mais lugares para buscar quando algo quebra. Deploys diários de uma mudança cada são mais seguros que um deploy semanal de cinquenta.'
+    },
+    logs_estruturados: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'Logs Estruturados — Registro com Contexto',
+      icone: '📋',
+      cor: '#9ab8d4',
+      label: 'Logs Estruturados',
+      metafora: 'O tambor de pedras tem cada pedra com três marcas: origem (símbolo da estação), tipo (ícone da categoria) e timestamp (camada concêntrica). O ancião organiza por contexto — não por ordem de chegada. Log estruturado é isso: cada evento com campos consistentes que máquinas conseguem filtrar e humanos conseguem ler.',
+      bullets: [
+        'Logs em formato estruturado (JSON, logfmt) permitem filtros poderosos: "mostre todos os erros do serviço X nas últimas 2h para o usuário Y" — sem grep em texto livre.',
+        'Inclua sempre: timestamp em UTC, nível (DEBUG/INFO/WARN/ERROR), serviço, Correlation ID e contexto relevante (user_id, request_id). Campos ausentes são pedras sem rótulo.',
+        'Log levels têm custo: DEBUG em produção pode dobrar o volume e custo de storage. Use sampling para logs de alta frequência e reserve ERROR/WARN para o que realmente exige atenção.'
+      ],
+      ferramentas: [
+        { nome: 'OpenTelemetry Logs', url: 'https://opentelemetry.io/docs/concepts/signals/logs/' },
+        { nome: 'Loki', url: 'https://grafana.com/oss/loki/' },
+        { nome: 'Elasticsearch', url: 'https://www.elastic.co' }
+      ],
+      dica: 'Não logue dados pessoais nem segredos. Além do risco de segurança, você cria obrigações de conformidade (LGPD/GDPR) em sistemas difíceis de expurgar. Anonimize antes de escrever no tambor.'
+    },
+    metricas_performance: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'Métricas de Performance — Painel de Ritmo',
+      icone: '📊',
+      cor: '#e06b5a',
+      label: 'Métricas de Performance',
+      metafora: 'O mural tem colunas em relevo mostrando volume de entregas por ciclo e um relógio de areia duplo medindo tempo de build vs. tempo de deploy. A tribo consulta o painel para identificar desvios de ritmo antes que se tornem paradas.',
+      bullets: [
+        'As quatro métricas DORA: Deployment Frequency (quantas vezes você entrega), Lead Time (do commit ao produção), Change Failure Rate (% de deploys com problema) e Time to Restore (tempo de recuperação). São o termômetro de maturidade DevOps.',
+        'SLIs, SLOs e SLAs: define o indicador do que você mede (SLI), a meta que você se compromete (SLO) e o acordo formal com o cliente (SLA). Monitore SLOs antes de receber ligação do cliente.',
+        'Error budget: o "saldo de erros" permitido pelo SLO. Se gastou o budget do mês, congela deploys. Se sobra, pode arriscar mudanças maiores. Transforma confiabilidade em decisão de negócio.'
+      ],
+      ferramentas: [
+        { nome: 'Prometheus', url: 'https://prometheus.io' },
+        { nome: 'Grafana', url: 'https://grafana.com' },
+        { nome: 'DORA Metrics', url: 'https://dora.dev' }
+      ],
+      dica: 'Comece com quatro alertas críticos e nada mais: taxa de erro, latência p99, saturação e disponibilidade. Muitos alertas criam ruído — e ruído faz a tribo ignorar o sinal real quando importa.'
+    },
+    samm: {
+      zona: 'Micro · As Práticas do Pipeline',
+      titulo: 'SAMM — Segurança nas 5 Dimensões',
+      icone: '🗿',
+      cor: '#9a8cd4',
+      label: 'SAMM',
+      metafora: 'Cinco pilares de rocha representam as dimensões do Software Assurance Maturity Model: Governança (conselho de anciãos definindo regras), Design (planta antes da construção), Implementação (artesão executando conforme a planta), Verificação (guardião inspecionando a peça pronta) e Operação (engrenagem monitorada continuamente). Segurança não é um pilar — é os cinco.',
+      bullets: [
+        'SAMM avalia maturidade de segurança em 5 funções de negócio, cada uma com 3 práticas. Você mede onde está (nível 0-3) e define onde quer chegar — um roadmap concreto, não uma lista de checklist.',
+        'Governança define políticas e treina a tribo; Design integra modelagem de ameaças antes de codar; Implementação codifica com segurança; Verificação testa e audita; Operação monitora e responde a incidentes.',
+        'O valor do SAMM não é o score final, é o gap entre onde você está e onde precisa estar para o seu nível de risco. Um banco precisa de nível 3 em Implementação; uma startup pode começar no nível 1.'
+      ],
+      ferramentas: [
+        { nome: 'OWASP SAMM', url: 'https://owaspsamm.org' },
+        { nome: 'Threat Modeling (OWASP)', url: 'https://owasp.org/www-community/Threat_Modeling' },
+        { nome: 'NIST SSDF', url: 'https://csrc.nist.gov/projects/ssdf' }
+      ],
+      dica: 'Faça a avaliação SAMM honestamente com o time — não para agradar auditoria, mas para identificar os dois ou três gaps de maior risco. Priorize esses antes de subir de nível em áreas já sólidas.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container (calibrada para a ilustração 16:9)
+  // [left%, top%, width%, height%]
+  const GEO = {
+    // Faixa Superior — 5 nichos
+    pipeline_cicd:         [0,    2,   36,  46],
+    observabilidade:       [37,   3,   19,  44],
+    devsecops:             [57,   5,   15,  43],
+    microsservicos:        [73,   2,   14,  46],
+    rollback:              [88,   3,   12,  45],
+    // Faixa Inferior — 7 nichos
+    build:                 [0,   52,   13,  45],
+    testes_automatizados:  [14,  52,   14,  45],
+    stage:                 [28,  52,   14,  45],
+    deploy:                [42,  52,   14,  45],
+    logs_estruturados:     [56,  52,   12,  45],
+    metricas_performance:  [68,  52,   14,  45],
+    samm:                  [83,  52,   17,  45]
+  };
+
+  const ORDEM = [
+    'pipeline_cicd', 'observabilidade', 'devsecops', 'microsservicos', 'rollback',
+    'build', 'testes_automatizados', 'stage', 'deploy', 'logs_estruturados', 'metricas_performance', 'samm'
+  ];
+
+  // Laços entre conceitos (Macro ↔ Micro)
+  const RELACOES = {
+    pipeline_cicd:        { ids: ['build', 'testes_automatizados', 'deploy'], nota: 'O pipeline é a cola que une Build, Testes e Deploy num fluxo contínuo — cada estação da esteira é um desses conceitos micro.' },
+    observabilidade:      { ids: ['logs_estruturados', 'metricas_performance', 'rollback'], nota: 'Observabilidade é formada pelos Logs e Métricas que a compõem, e é ela quem aciona o Rollback quando algo dá errado.' },
+    devsecops:            { ids: ['samm', 'testes_automatizados', 'pipeline_cicd'], nota: 'O guardião com escudo age em todo o pipeline: o SAMM define a maturidade, os testes automatizados incluem checks de segurança e o pipeline carrega os scans.' },
+    microsservicos:       { ids: ['pipeline_cicd', 'deploy', 'observabilidade'], nota: 'Microserviços exigem pipelines independentes por serviço, estratégias de deploy seguras e observabilidade distribuída para funcionar de verdade.' },
+    rollback:             { ids: ['deploy', 'metricas_performance', 'observabilidade'], nota: 'Rollback só funciona se o Deploy suporta estratégias reversíveis e as Métricas e Observabilidade detectam a falha rápido o suficiente.' },
+    build:                { ids: ['pipeline_cicd', 'testes_automatizados'], nota: 'Build é a primeira estação do Pipeline e entrega o artefato que os Testes vão provar. Sem Build reproduzível, os testes não garantem nada.' },
+    testes_automatizados: { ids: ['build', 'stage', 'devsecops'], nota: 'Testes recebem o artefato do Build, validam no Stage e incluem os checks de segurança que o DevSecOps exige.' },
+    stage:                { ids: ['testes_automatizados', 'deploy', 'build'], nota: 'Stage é o ambiente que valida o que Build produziu e os Testes aprovaram — antes de liberar para o Deploy em produção.' },
+    deploy:               { ids: ['pipeline_cicd', 'rollback', 'microsservicos'], nota: 'Deploy é o passo final do Pipeline, precisa de estratégias de Rollback automático e entrega para cada serviço em arquiteturas de Microserviços.' },
+    logs_estruturados:    { ids: ['observabilidade', 'metricas_performance'], nota: 'Logs são um dos três pilares da Observabilidade e trabalham lado a lado com as Métricas para dar contexto ao que os números indicam.' },
+    metricas_performance: { ids: ['observabilidade', 'rollback', 'logs_estruturados'], nota: 'Métricas são o painel de ritmo da Observabilidade — quando o ponteiro passa do limite, acionam o Rollback e o contexto vem dos Logs.' },
+    samm:                 { ids: ['devsecops', 'pipeline_cicd', 'testes_automatizados'], nota: 'SAMM define o nível de maturidade que o DevSecOps aplica — suas cinco dimensões se materializam no Pipeline e nos Testes de segurança.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
