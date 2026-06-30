@@ -13,6 +13,7 @@ Repositório de objetos educacionais interativos no formato **mapa-metáfora** p
 | A Caverna das APIs | Design de API (Métodos HTTP, Nomeação de Recursos, Anti-Patterns, Observabilidade, Open Banking, Versionamento, Rate Limiting, Segurança, Plugins, Hooks, Ciclo de Vida, Respostas Claras) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`design-de-api-caverna/`](./design-de-api-caverna/) |
 | A Caverna do Código | Princípios e Padrões de Código (SOLID, Padrões Criacionais/Estruturais/Comportamentais, Big-O, SRP, OCP, LSP, ISP, DIP, Clean Code, 12-Factor App) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`principios-de-codigo-caverna/`](./principios-de-codigo-caverna/) |
 | A Caverna do UX | UX no Desenvolvimento de Software (Empatia, Avaliação Heurística, Prototipação, Arquitetura da Informação, Teste de Usabilidade, Facilidade de Aprender, Eficiência, Retenção, Prevenção e Recuperação de Erros, Satisfação, Co-criação) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`ux-caverna/`](./ux-caverna/) |
+| A Caverna da Mudança | Gestão de Mudanças e Cultura Organizacional (Kotter Passos 1–8: Senso de Urgência, Coalizão de Apoio, Comunicação da Visão, Empoderamento, Consolidação e Ancoragem; Cultura Visível e Invisível, Comunidade e Pertencimento, Comunicação Efetiva, Reconhecimento e Celebração, Liderança Positiva, Eliminação do Medo) | Caverna pré-histórica / Idade da Pedra | Líderes, gestores e profissionais de times | [`gestao-de-mudancas-caverna/`](./gestao-de-mudancas-caverna/) |
 
 ## Como usar
 
