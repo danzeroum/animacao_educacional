@@ -28,6 +28,7 @@ O arquivo [`index.html`](./index.html) na raiz é o **acervo navegável** de tod
 | A Tribo Analítica | Analytics e Tomada de Decisão (Análise Descritiva, Inferência e Teste de Hipótese, Regressão Linear, Amostragem, Dashboard Analítico, Média, Mediana, Moda, Desvio Padrão, Erro Tipo I, Erro Tipo II, R²) | Caverna pré-histórica / Idade da Pedra | Devs juniores e analistas de dados | [`analytics-caverna/`](./analytics-caverna/) |
 | A Caverna dos Processos | Automação & Orquestração / BPM-BPMS (BPMN, Gateways XOR/OR/AND, DMN, Process Mining, Orquestração BPMS, Low-Code, Subprocessos, REST/Mensageria, Retry e Fallback, Bots/RPA, Monitoramento, Automação End-to-End) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`automacao-processos-caverna/`](./automacao-processos-caverna/) |
 | Métodos Ágeis na Caverna | Métodos Ágeis (Kanban/WIP, BDD/Given-When-Then, Burndown, WSJF/Custo do Atraso, Definition of Done, Product Backlog, Critérios de Aceite, Lead Time, Cycle Time, Throughput, Gargalos, Inception) | Caverna pré-histórica / Idade da Pedra | Devs juniores | [`metodos-ageis-caverna/`](./metodos-ageis-caverna/) |
+| Arquitetura C4 como Planeta Terra | Arquitetura C4 como Planeta Terra | Caverna | Devs juniores | [`arquitetura-c4-planeta-terra/`](./arquitetura-c4-planeta-terra/) |
 <!-- __CATALOGO__ -->
 
 ## Como usar
