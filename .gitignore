@@ -1,0 +1,16 @@
+# Forja backend
+backend/.env
+backend/forja.db
+backend/forja.db-*
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Forja frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
