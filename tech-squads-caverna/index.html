@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna dos Squads — Formação e Gestão de Tech Squads para Devs</title>
+  <meta name="description" content="Objeto educacional interativo: uma ilustração de caverna pré-histórica onde cada nicho representa um conceito de formação e gestão de tech squads — OKR, Tuckman, liderança situacional, skills matrix e mais.">
+  <meta property="og:title" content="A Caverna dos Squads — Formação e Gestão de Tech Squads para Devs">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna para aprender como formar, gerir e evoluir tech squads. Faixa superior: visão macro do squad; faixa inferior: dinâmica e competências.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="tech-squads-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Formação e Gestão de Tech Squads</div>
+    <h1>🪨 A Caverna dos Squads</h1>
+    <p class="tese">Da <em>tribo dispersa</em> para o <strong>squad de alta performance</strong>. Cada nicho da caverna revela como montar, alinhar e evoluir uma equipe de tecnologia — dos objetivos compartilhados ao mapeamento de competências.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — a jornada do squad mora numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="tech-squads-caverna.png" alt="Caverna pré-histórica em corte transversal dividida em duas faixas horizontais: na faixa superior (visão macro) um círculo de trogloditas com ferramentas distintas, um mural com alvo e trilhas de pegadas, um líder trocando chapéus de pedra, uma roda de votação e um mural de zonas de responsabilidade; na faixa inferior (dinâmica micro) trogloditas se apresentando junto a uma fogueira, outros discutindo com ferramentas apontadas, acordando sobre um mural compartilhado, passando pedras em linha sincronizada, fazendo revisão em dupla com lupa, observando um mural de símbolos de habilidades e buscando uma pedra de treinamento numa pilha de recursos.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Tech Lead</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Uma caverna forte não é a que tem mais guerreiros, mas a que sabe o que cada guerreiro faz melhor." O squad certo resolve o problema certo — esta figura mostra como chegar lá.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    squad_multifuncional: {
+      zona: 'Macro · O Squad Completo',
+      titulo: 'Squad Multifuncional — A Tribo Completa',
+      icone: '🔥',
+      cor: '#d9a441',
+      label: 'Squad Multifuncional',
+      metafora: 'Cada troglodita traz uma ferramenta diferente ao círculo: o artesão molda a pedra (front-end), o caçador provê a carne (back-end), o curandeiro cuida da saúde do grupo (QA), o estrategista planeja a próxima caçada (PO) e o contador de histórias mantém o registro (UX). Juntos, o círculo é completo — ninguém depende de outra tribo para entregar.',
+      bullets: [
+        'Um squad multifuncional contém todas as competências necessárias para entregar valor de ponta a ponta, sem depender de times externos.',
+        'O tamanho ideal é de 6 a 10 pessoas — pequeno o suficiente para comunicar com uma pizza, grande o suficiente para cobrir as especialidades críticas.',
+        'Diversidade de perfil (T-shaped professionals) reduz gargalos: todos têm uma especialidade profunda e um conhecimento superficial das demais áreas.'
+      ],
+      ferramentas: [
+        { nome: 'Team Topologies', url: 'https://teamtopologies.com' },
+        { nome: 'Spotify Model', url: 'https://engineering.atspotify.com/2014/03/spotify-engineering-culture-part-1/' },
+        { nome: 'Shape Up', url: 'https://basecamp.com/shapeup' }
+      ],
+      dica: 'Antes de contratar, mapeie o que falta no círculo. Um squad sem QA entrega rápido mas paga caro depois; um squad sem DevOps nunca consegue colocar nada em produção sozinho.'
+    },
+
+    okr: {
+      zona: 'Macro · O Squad Completo',
+      titulo: 'OKR — O Alvo e as Trilhas',
+      icone: '🎯',
+      cor: '#c0563a',
+      label: 'OKR',
+      metafora: 'No mural da caverna: um alvo de pedra no centro é o Objetivo — ambicioso, inspirador, qualitativo. Três trilhas de pegadas convergem a ele, cada uma com pedras opacas (o esforço, o output) e uma pedra brilhante no alvo (o resultado, o outcome). O sábio segura as duas categorias como uma balança: fazer não é o mesmo que impactar.',
+      bullets: [
+        'OKR separa o Objetivo (onde queremos chegar — qualitativo, motivador) dos Key Results (como medimos que chegamos — quantitativos, verificáveis).',
+        'Output é o que você entregou (a funcionalidade, o relatório); outcome é a mudança real que isso causou (mais usuários ativos, menor churn). OKRs medem outcome.',
+        'Ciclos curtos (trimestrais) com OKRs ambiciosos criam foco: o squad sabe o que importa e pode dizer "não" para tudo que não move a pedra brilhante.'
+      ],
+      ferramentas: [
+        { nome: 'Google re:Work OKR', url: 'https://rework.withgoogle.com/guides/set-goals-with-okrs/' },
+        { nome: 'Linear', url: 'https://linear.app' },
+        { nome: 'Notion', url: 'https://www.notion.so' }
+      ],
+      dica: 'Escreva o Key Result como uma afirmação falsificável: "NPS passa de 32 para 45" — não "melhorar o NPS". Se você não consegue medir no final do ciclo se alcançou, o KR não está pronto.'
+    },
+
+    lideranca_situacional: {
+      zona: 'Macro · O Squad Completo',
+      titulo: 'Liderança Situacional — O Líder que Troca de Chapéu',
+      icone: '🪖',
+      cor: '#6ba368',
+      label: 'Liderança Situacional',
+      metafora: 'O líder não usa sempre o mesmo chapéu: coloca a lupa (mentor) quando o membro ainda está aprendendo a ferramenta; abre a mão (facilitador) quando o grupo precisa convergir sozinho; ergue o martelo (decisório) quando a decisão é urgente e o squad está travado. Cada chapéu é uma postura diferente para um momento diferente.',
+      bullets: [
+        'Liderança situacional (Hersey & Blanchard) adapta o estilo ao nível de maturidade do colaborador: diretivo para iniciantes, coaching para quem está crescendo, apoio para quem sabe mas inseguro, delegação para quem é autônomo.',
+        'Errar o chapéu custa caro: microgerenciar um sênior o sufoca; delegar sem suporte a um júnior o abandona.',
+        'O bom líder técnico sabe quando parar de resolver e começar a perguntar — o squad cresce quando o líder resiste ao impulso de dar a resposta.'
+      ],
+      ferramentas: [
+        { nome: 'Situational Leadership II', url: 'https://www.kenblanchard.com/Solutions/Situational-Leadership' },
+        { nome: '1:1 Guide (GitLab)', url: 'https://handbook.gitlab.com/handbook/leadership/1-1/' },
+        { nome: 'Manager Tools', url: 'https://www.manager-tools.com' }
+      ],
+      dica: 'Pergunte antes de assumir o chapéu: "Você quer que eu te oriente ou prefere resolver e me mostrar depois?" A resposta define o estilo certo para aquele momento.'
+    },
+
+    autogestao: {
+      zona: 'Macro · O Squad Completo',
+      titulo: 'Autogestão — A Roda de Votação',
+      icone: '🗳️',
+      cor: '#8fb8d6',
+      label: 'Autogestão',
+      metafora: 'Sem líder central no círculo: cada troglodita deposita uma pedra no recipiente — brilhante para sim, opaca para não. A decisão emerge da contagem, vista por todos simultaneamente. Não há quem mande; há quem sistematize o consenso. É assim que squads autônomos tomam decisões técnicas sem travar esperando aprovação.',
+      bullets: [
+        'Autogestão não é ausência de liderança — é distribuição de responsabilidade. Cada membro responde por seu domínio sem precisar de aprovação para cada passo.',
+        'Decisões por consenso (não unanimidade) são mais rápidas: o grupo avança quando ninguém tem objeção bloqueadora, mesmo que a proposta não seja a favorita de todos.',
+        'Ferramentas como ADR (Architecture Decision Record) permitem que decisões técnicas sejam tomadas no squad sem perder rastreabilidade — qualquer um pode propor, o grupo aprova ou rebate com dados.'
+      ],
+      ferramentas: [
+        { nome: 'ADR (Architecture Decision Records)', url: 'https://adr.github.io' },
+        { nome: 'DACI Framework', url: 'https://www.atlassian.com/team-playbook/plays/daci' },
+        { nome: 'Working Agreements', url: 'https://www.agilealliance.org/glossary/working-agreements/' }
+      ],
+      dica: 'Defina um "tempo limite de decisão" para discussões técnicas. Se o grupo não chegou a consenso em dois dias, quem tem mais contexto decide e documenta o porquê — paralisia também é uma escolha, e a pior delas.'
+    },
+
+    alinhamento: {
+      zona: 'Macro · O Squad Completo',
+      titulo: 'Alinhamento de Responsabilidades — As Zonas do Mural',
+      icone: '📋',
+      cor: '#b08cc4',
+      label: 'Alinhamento de Responsabilidades',
+      metafora: 'O mural da caverna está dividido em zonas por pilares de rocha: cada nicho tem um símbolo de domínio (ferramenta, território, tarefa) e a marca pessoal do troglodita guardião. Não há zona sem dono nem zona com dois donos. Quando a presa desaparece, todos sabem quem foi o último a cuidar daquela armadilha.',
+      bullets: [
+        'Responsabilidade clara evita o "eu achei que era você" — cada domínio técnico (serviço, dado, infraestrutura) tem um guardião identificado.',
+        'RACI (Responsável, Aprovador, Consultado, Informado) é o mapa das zonas: define quem age, quem decide, quem sabe e quem precisa ser avisado.',
+        'Dependências entre zonas são as juntas entre os pilares de rocha: precisam ser explícitas e acordadas, nunca assumidas — um serviço que depende de outro precisa ter um contrato de interface documentado.'
+      ],
+      ferramentas: [
+        { nome: 'RACI Matrix', url: 'https://www.projectmanagement.com/wikis/233138/RACI-matrix' },
+        { nome: 'Backstage (Service Catalog)', url: 'https://backstage.io' },
+        { nome: 'Confluence', url: 'https://www.atlassian.com/software/confluence' }
+      ],
+      dica: 'Revise o mural a cada trimestre ou a cada nova entrada no squad. Zonas sem dono ativo acumulam dívida técnica e incidentes sem responsável — e isso sempre explode na pior hora.'
+    },
+
+    forming: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Forming — A Primeira Fogueira',
+      icone: '🌱',
+      cor: '#e8c547',
+      label: 'Forming',
+      metafora: 'Trogloditas recém-apresentados se reúnem ao redor de uma fogueira pela primeira vez: inspecionam as ferramentas uns dos outros com curiosidade, trocam gestos de apresentação, ainda sem saber quem caça o quê. É o momento mais delicado — a tribo ainda não é tribo.',
+      bullets: [
+        'Forming (Tuckman) é a fase de formação: o grupo é educado, evita conflitos e ainda não sabe como trabalhar junto. A produtividade é baixa — e está tudo bem.',
+        'O papel do líder aqui é estruturar: definir como o grupo vai se comunicar, quem faz o quê e quais são as regras da caverna (working agreements).',
+        'Investir em rituais de integração — reuniões de "sobre mim", documentação do "guia de uso de cada membro", primeiras retrospectivas — encurta o tempo nessa fase.'
+      ],
+      ferramentas: [
+        { nome: 'Tuckman Model', url: 'https://en.wikipedia.org/wiki/Tuckman%27s_stages_of_group_development' },
+        { nome: 'Team Canvas', url: 'https://theteamcanvas.com' },
+        { nome: 'Miro', url: 'https://miro.com' }
+      ],
+      dica: 'No primeiro mês de um novo squad, priorize clareza sobre velocidade. Working agreements documentados, papéis definidos e um canal de comunicação único valem mais do que a primeira feature entregue.'
+    },
+
+    storming: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Storming — O Conflito Produtivo',
+      icone: '⚡',
+      cor: '#e07050',
+      label: 'Storming',
+      metafora: 'Ferramentas apontadas em direções opostas, pedras espalhadas pelo chão, expressões de frustração nos rostos — a tensão é real. Mas o sábio ao fundo observa: é exatamente aqui que as ideias mais fortes sobrevivem. O conflito não é o inimigo do squad; é o teste que fortalece a estrutura.',
+      bullets: [
+        'Storming é a fase de conflito saudável: opiniões divergem, papéis são contestados, o método de trabalho é questionado. É sinal de que as pessoas se importam o suficiente para brigar.',
+        'O perigo não é o conflito — é o conflito pessoal. Redirecione o atrito para ideias e dados: "a abordagem X tem o problema Y" em vez de "você está errado".',
+        'Não queime o storming com falso consenso. Um grupo que nunca discorda está evitando o problema, não resolvendo — e ele vai explodir mais tarde com mais estragos.'
+      ],
+      ferramentas: [
+        { nome: 'Nonviolent Communication', url: 'https://www.nonviolentcommunication.com' },
+        { nome: 'Retro Techniques (Retromat)', url: 'https://retromat.org' },
+        { nome: 'Crucial Conversations', url: 'https://cruciallearning.com/crucial-conversations-book/' }
+      ],
+      dica: 'Quando o storming parecer pesado demais, facilite uma retrospectiva de "o que está travando o grupo" — não sobre o produto, sobre a dinâmica. Nomear o conflito em voz alta já reduz metade da temperatura.'
+    },
+
+    norming: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Norming — O Acordo da Tribo',
+      icone: '🤝',
+      cor: '#6ba890',
+      label: 'Norming',
+      metafora: 'Os trogloditas alinham suas ferramentas num padrão comum: o mesmo formato de ponta, o mesmo ângulo de cabo, o mesmo ritmo de uso. Um mural compartilhado de regras visuais aparece na parede. Gestos de concordância e sorrisos — a tribo encontrou o seu jeito de caçar junto.',
+      bullets: [
+        'Norming é quando o grupo começa a criar suas próprias normas: estilo de código, rituais de cerimônia, tom de comunicação, processo de revisão.',
+        'Working agreements surgem organicamente aqui — e precisam ser escritos antes que sejam esquecidos. "O que funciona" só dura se ficar registrado.',
+        'A produtividade começa a crescer no norming, mas ainda é frágil: a entrada de um novo membro pode jogar o squad de volta para o storming temporariamente.'
+      ],
+      ferramentas: [
+        { nome: 'Working Agreements Template', url: 'https://www.agilealliance.org/glossary/working-agreements/' },
+        { nome: 'Definition of Done', url: 'https://www.scrum.org/resources/blog/definition-done-done' },
+        { nome: 'GitHub Branch Policies', url: 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches' }
+      ],
+      dica: 'Documente os acordos num lugar que todos vejam toda semana — não numa ata esquecida. Um Readme de "como trabalhamos" no repositório principal é o mural da tribo: todos passam por ele.'
+    },
+
+    performing: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Performing — O Fluxo de Alta Performance',
+      icone: '🚀',
+      cor: '#d4915a',
+      label: 'Performing',
+      metafora: 'Uma linha sincronizada de trogloditas passa pedras de mão em mão com precisão e velocidade — ninguém hesita, ninguém segura, o fluxo é contínuo. Cada membro sabe exatamente quando agir. É o squad em estado de flow: alta autonomia, alta confiança, entrega consistente.',
+      bullets: [
+        'Performing é a fase de alto desempenho: o squad opera de forma autônoma, resolve conflitos internamente e entrega com consistência — o líder pode focar mais no contexto externo.',
+        'Flow de equipe (análogo ao flow individual de Csikszentmihalyi) acontece quando desafios e capacidade estão equilibrados: desafio muito baixo entedia; muito alto, paralisa.',
+        'Métricas DORA (Deployment Frequency, Lead Time, MTTR, Change Failure Rate) são o termômetro de um squad em performing — meça-as para saber se o fluxo é real ou percebido.'
+      ],
+      ferramentas: [
+        { nome: 'DORA Metrics', url: 'https://dora.dev' },
+        { nome: 'Four Keys (Google)', url: 'https://github.com/dora-team/fourkeys' },
+        { nome: 'LinearB', url: 'https://linearb.io' }
+      ],
+      dica: 'Não confunda velocidade com performing. Um squad que entrega rápido mas quebra produção toda semana está no storming disfarçado. O marcador real do performing é a consistência preditível da entrega.'
+    },
+
+    code_review: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Code Review e Pair Programming — A Caça em Dupla',
+      icone: '🔍',
+      cor: '#7ab8d4',
+      label: 'Code Review & Pair',
+      metafora: 'Dois trogloditas lado a lado: um trabalha na ferramenta enquanto o outro observa com lupa, apontando ajustes com gesto preciso. Depois trocam: quem observava agora cria, quem criava agora revisa. A rotação é visível — e com ela, o conhecimento da técnica se espalha pela tribo inteira.',
+      bullets: [
+        'Code review não é um portão de qualidade apenas — é a principal ferramenta de transferência de conhecimento dentro do squad. Um PR bem comentado ensina mais do que uma sprint inteira de treinamento.',
+        'Pair programming reduz defeitos em até 15% e aumenta o conhecimento compartilhado: o "ônibus factor" (quantas pessoas podem sair antes de o projeto parar) cresce quando mais pessoas entendem o código.',
+        'Reviews devem focar em lógica, segurança e arquitetura — não em estilo. Estilo é responsabilidade do linter; a atenção humana é cara demais para gastar em tabs vs spaces.'
+      ],
+      ferramentas: [
+        { nome: 'GitHub Pull Requests', url: 'https://docs.github.com/en/pull-requests' },
+        { nome: 'GitLab Merge Requests', url: 'https://docs.gitlab.com/ee/user/project/merge_requests/' },
+        { nome: 'VSCode Live Share', url: 'https://visualstudio.microsoft.com/services/live-share/' }
+      ],
+      dica: 'Defina um SLA de revisão: sem resposta em 24h úteis, o autor pode mesclar. Review que leva dias trava o fluxo tanto quanto código ruim. Velocidade de revisão é uma métrica de saúde do squad.'
+    },
+
+    skills_matrix: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Skills Matrix — O Mural de Competências',
+      icone: '🧠',
+      cor: '#c4a86a',
+      label: 'Skills Matrix',
+      metafora: 'No mural da caverna: o perfil pictórico de cada membro tem símbolos únicos — o olho com lupa (análise), a boca falante (comunicação), a engrenagem (automação), o cérebro (arquitetura), o braço forte (implementação). Cada combinação de símbolos é diferente, e juntas formam o perfil completo da tribo.',
+      bullets: [
+        'Skills matrix é o inventário honesto das competências do squad: o que cada pessoa sabe fazer bem, o que está aprendendo e o que ainda é ponto cego.',
+        'T-shaped vs Pi-shaped: T tem profundidade em uma área e superfície nas demais; Pi tem profundidade em duas. Squads modernos precisam de mais Pi-shapes para reduzir gargalos.',
+        'A matriz revela o "ônibus factor": se só uma pessoa sabe operar um serviço crítico, o squad tem um ponto único de falha humano — mais perigoso que qualquer bug.'
+      ],
+      ferramentas: [
+        { nome: 'Skills Matrix Template (Miro)', url: 'https://miro.com/templates/skills-matrix/' },
+        { nome: 'Pluralsight Skill IQ', url: 'https://www.pluralsight.com/product/skill-iq' },
+        { nome: 'Growth Framework (Progression.fyi)', url: 'https://progression.fyi' }
+      ],
+      dica: 'Atualize a matriz a cada trimestre — não só durante o onboarding. Competências mudam, tecnologias evoluem, e o mural desatualizado dá uma falsa sensação de segurança sobre quem sabe o quê.'
+    },
+
+    gap_competencias: {
+      zona: 'Micro · Dinâmica e Competências',
+      titulo: 'Gap de Competências — A Pedra que Falta',
+      icone: '📚',
+      cor: '#9a8a6a',
+      label: 'Gap de Competências',
+      metafora: 'Uma lacuna no mural de skills: um espaço vazio onde deveria haver um símbolo. Um troglodita busca ativamente uma "pedra de treinamento" numa pilha de recursos educacionais enquanto o mentor aponta para a lacuna, indicando prioridade. A lacuna não é fraqueza — é o próximo passo mapeado.',
+      bullets: [
+        'Gap de competências é a diferença entre o que o squad sabe hoje e o que o próximo desafio vai exigir. Identificar a tempo é mais barato que descobrir durante um incidente.',
+        'Planos de desenvolvimento individual (PDI) ligam o gap de cada pessoa a ações concretas: curso, projeto-prático, mentoria, pair programming com quem já sabe.',
+        'Gaps estratégicos (ex: segurança, observabilidade, ML) valem mais contratar ou treinar do que terceirizar para sempre — dependência externa em competência crítica é risco de squad.'
+      ],
+      ferramentas: [
+        { nome: 'Coursera for Teams', url: 'https://www.coursera.org/business' },
+        { nome: 'A Cloud Guru', url: 'https://acloudguru.com' },
+        { nome: 'IDP Template (Lattice)', url: 'https://lattice.com/library/individual-development-plan-template' }
+      ],
+      dica: 'Transforme o gap em item de backlog com priority e owner. "Aprender Kubernetes" sem deadline e sem contexto de projeto nunca acontece. "Operar o cluster de staging sozinho até o final do trimestre" acontece.'
+    }
+  };
+
+  // Geometria dos hotspots em % do container (calibrada para a arte 16:9, 2 faixas)
+  // Formato: [left%, top%, width%, height%]
+  // Faixa superior (y: 3%–47%): 5 nichos
+  // Faixa inferior (y: 53%–95%): 7 nichos
+  const GEO = {
+    squad_multifuncional:   [1,   3,  18, 44],
+    okr:                    [21,  3,  18, 44],
+    lideranca_situacional:  [40,  3,  19, 44],
+    autogestao:             [60,  3,  18, 44],
+    alinhamento:            [79,  3,  19, 44],
+    forming:                [1,  53,  13, 42],
+    storming:               [15, 53,  13, 42],
+    norming:                [29, 53,  13, 42],
+    performing:             [43, 53,  14, 42],
+    code_review:            [58, 53,  13, 42],
+    skills_matrix:          [72, 53,  13, 42],
+    gap_competencias:       [86, 53,  13, 42]
+  };
+
+  const ORDEM = [
+    'squad_multifuncional', 'okr', 'lideranca_situacional', 'autogestao', 'alinhamento',
+    'forming', 'storming', 'norming', 'performing', 'code_review', 'skills_matrix', 'gap_competencias'
+  ];
+
+  const RELACOES = {
+    squad_multifuncional:  { ids: ['lideranca_situacional', 'alinhamento', 'performing'],    nota: 'O círculo completo só funciona quando o líder adapta seu chapéu para cada membro, as zonas de responsabilidade estão claras e o grupo atingiu o estado de flow.' },
+    okr:                   { ids: ['alinhamento', 'performing', 'autogestao'],               nota: 'As trilhas de pedra (KRs) só fazem sentido se as zonas de responsabilidade apontam para o alvo — e o grupo em performing é quem consegue percorrer as trilhas com consistência.' },
+    lideranca_situacional: { ids: ['forming', 'storming', 'autogestao'],                     nota: 'O chapéu certo para cada fase: diretivo no forming, facilitador no storming, delegador quando o squad é autônomo.' },
+    autogestao:            { ids: ['norming', 'performing', 'okr'],                          nota: 'A roda de votação funciona plenamente no norming e no performing — é quando o grupo tem regras suficientes para decidir sem líder e objetivos claros para medir o impacto.' },
+    alinhamento:           { ids: ['skills_matrix', 'gap_competencias', 'okr'],              nota: 'As zonas do mural mostram quem guarda o quê — e a skills matrix revela se os guardiões têm os símbolos certos para cuidar do seu nicho.' },
+    forming:               { ids: ['storming', 'lideranca_situacional', 'squad_multifuncional'], nota: 'A primeira fogueira precisa de um líder diretivo e de um círculo claro — quem está aqui e o que cada ferramenta faz.' },
+    storming:              { ids: ['norming', 'lideranca_situacional', 'forming'],            nota: 'O conflito bem facilitado conduz ao norming; o líder que usa o chapéu certo transforma a tensão em acordo.' },
+    norming:               { ids: ['performing', 'autogestao', 'storming'],                  nota: 'O acordo da tribo é a ponte entre o conflito e o flow — e é ele que viabiliza a autogestão sustentável.' },
+    performing:            { ids: ['okr', 'code_review', 'squad_multifuncional'],            nota: 'O flow só é real quando o alvo é claro (OKR), o código circula com qualidade (code review) e o círculo está completo.' },
+    code_review:           { ids: ['skills_matrix', 'performing', 'norming'],                nota: 'A caça em dupla distribui o conhecimento do mural de competências e só flui bem quando as regras do norming estão vivas.' },
+    skills_matrix:         { ids: ['gap_competencias', 'alinhamento', 'code_review'],        nota: 'O mural de símbolos revela a lacuna, guia quem cuida de cada zona e é a matéria-prima da rotação de revisão de código.' },
+    gap_competencias:      { ids: ['skills_matrix', 'alinhamento', 'lideranca_situacional'], nota: 'A pedra que falta no mural vira um item de responsabilidade numa zona e um plano de coaching do líder situacional.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {};
+  const legendEls  = {};
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent    = c.icone;
+    elZona.textContent     = c.zona;
+    elTitulo.textContent   = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
