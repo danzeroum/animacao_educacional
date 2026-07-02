@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitetura C4 — Planeta Terra</title>
+  <meta name="description" content="Explore a arquitetura C4 através da metáfora do planeta Terra: do núcleo ao espaço, cada camada representa um nível de abstração.">
+  <meta property="og:title" content="Arquitetura C4 — Planeta Terra">
+  <meta property="og:description" content="Visualize a arquitetura C4 como camadas da Terra, do sistema ao código.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="arquitetura-c4-planeta-terra.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      /* Sem CDN: stack serif do sistema evocando Cinzel/Spectral */
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 2752 / 1536;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · Arquitetura C4 como Planeta Terra</div>
+    <h1>🌍 Arquitetura C4 como Planeta Terra</h1>
+    <p class="tese">Assim como o planeta Terra é composto por camadas concêntricas, a arquitetura C4 organiza o software em níveis de abstração, do contexto geral ao código.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Clique nos hotspots para explorar cada camada da metáfora.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="arquitetura-c4-planeta-terra.png" alt="Ilustração do planeta Terra em corte transversal, mostrando núcleo, manto, crosta, atmosfera e espaço, com hotspots numerados.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Arquiteto</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>Construa sistemas sólidos, camada por camada.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS (preservados verbatim do handoff) =====================
+  const CONCEITOS = {
+  "nucleo_interno": {
+    "zona": "Núcleo Interno",
+    "titulo": "Código — Núcleo Interno Sólido",
+    "icone": "🔴",
+    "cor": "#D32F2F",
+    "label": "Código",
+    "metafora": "O núcleo interno é a parte mais densa e fundamental da Terra; corresponde ao código fonte, a base de tudo.",
+    "bullets": [
+      "Menor nível de abstração: funções, classes, módulos.",
+      "Escreva código limpo e testável.",
+      "Aqui residem os detalhes de implementação."
+    ],
+    "ferramentas": [
+      {
+        "nome": "VS Code",
+        "url": "https://code.visualstudio.com"
+      },
+      {
+        "nome": "IntelliJ IDEA",
+        "url": "https://www.jetbrains.com/idea"
+      }
+    ],
+    "dica": "Mantenha o núcleo coeso: aplique princípios SOLID e refatore regularmente."
+  },
+  "nucleo_externo": {
+    "zona": "Núcleo Externo",
+    "titulo": "Componentes — Núcleo Externo Líquido",
+    "icone": "🟠",
+    "cor": "#F57C00",
+    "label": "Componentes",
+    "metafora": "O núcleo externo líquido envolve o interno; representa os componentes que interagem dentro de um container.",
+    "bullets": [
+      "Componentes são grupos coesos de código (ex: classes, módulos).",
+      "Definem interfaces e dependências internas.",
+      "Diagrama de componentes: mostra como eles se relacionam."
+    ],
+    "ferramentas": [
+      {
+        "nome": "PlantUML",
+        "url": "https://plantuml.com"
+      },
+      {
+        "nome": "Structurizr",
+        "url": "https://structurizr.com"
+      }
+    ],
+    "dica": "Desenhe diagramas de componentes para visualizar a estrutura interna de cada container."
+  },
+  "manto_inferior": {
+    "zona": "Manto Inferior",
+    "titulo": "Containers — Manto Inferior Pastoso",
+    "icone": "🟡",
+    "cor": "#FFB300",
+    "label": "Containers",
+    "metafora": "O manto inferior é plástico e moldável; corresponde aos containers (aplicações, bancos de dados, filas) que executam os componentes.",
+    "bullets": [
+      "Container = unidade executável: app web, API, banco, message broker.",
+      "Cada container tem seu próprio processo e comunicação.",
+      "Diagrama de container: mostra os grandes blocos do sistema."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Docker",
+        "url": "https://www.docker.com"
+      },
+      {
+        "nome": "Kubernetes",
+        "url": "https://kubernetes.io"
+      }
+    ],
+    "dica": "Use diagramas de container para comunicar a arquitetura de alto nível para times não técnicos."
+  },
+  "manto_superior": {
+    "zona": "Manto Superior",
+    "titulo": "Sistemas — Manto Superior Rígido",
+    "icone": "🟢",
+    "cor": "#388E3C",
+    "label": "Sistemas",
+    "metafora": "O manto superior é mais rígido e forma a base da crosta; representa os sistemas internos que compõem o ecossistema de software.",
+    "bullets": [
+      "Sistema = conjunto de containers que entregam valor.",
+      "Ex: sistema de pedidos, sistema de pagamento.",
+      "Diagrama de contexto: mostra o sistema e seus relacionamentos externos."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Draw.io",
+        "url": "https://app.diagrams.net"
+      },
+      {
+        "nome": "Lucidchart",
+        "url": "https://www.lucidchart.com"
+      }
+    ],
+    "dica": "Comece pelo diagrama de contexto para alinhar stakeholders sobre o escopo do sistema."
+  },
+  "crosta": {
+    "zona": "Crosta",
+    "titulo": "Contexto — Crosta Terrestre",
+    "icone": "🔵",
+    "cor": "#1976D2",
+    "label": "Contexto",
+    "metafora": "A crosta é a camada externa sólida que interage com o ambiente; simboliza o diagrama de contexto, mostrando o sistema e seus atores externos.",
+    "bullets": [
+      "Visão geral: sistema como uma caixa preta, interagindo com usuários e outros sistemas.",
+      "Útil para apresentar a arquitetura para não-técnicos.",
+      "Foco em quem usa e com quem se comunica."
+    ],
+    "ferramentas": [
+      {
+        "nome": "C4-PlantUML",
+        "url": "https://github.com/plantuml-stdlib/C4-PlantUML"
+      },
+      {
+        "nome": "Miro",
+        "url": "https://miro.com"
+      }
+    ],
+    "dica": "Mantenha o diagrama de contexto simples: no máximo 5-6 elementos externos."
+  },
+  "atmosfera_baixa": {
+    "zona": "Atmosfera Baixa",
+    "titulo": "APIs — Troposfera",
+    "icone": "☁️",
+    "cor": "#00BCD4",
+    "label": "APIs",
+    "metafora": "A troposfera é onde ocorre o clima; representa as APIs que permitem a comunicação entre containers e sistemas.",
+    "bullets": [
+      "APIs REST, GraphQL, gRPC: interfaces de comunicação.",
+      "Definem contratos entre serviços.",
+      "Documentação clara é essencial para integração."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Swagger/OpenAPI",
+        "url": "https://swagger.io"
+      },
+      {
+        "nome": "Postman",
+        "url": "https://www.postman.com"
+      }
+    ],
+    "dica": "Projete APIs pensando em versionamento e evolução."
+  },
+  "atmosfera_media": {
+    "zona": "Atmosfera Média",
+    "titulo": "Mensageria — Estratosfera",
+    "icone": "📨",
+    "cor": "#0097A7",
+    "label": "Mensageria",
+    "metafora": "A estratosfera contém a camada de ozônio que filtra radiação; simboliza a mensageria assíncrona que desacopla componentes.",
+    "bullets": [
+      "Filas e tópicos (Kafka, RabbitMQ) para comunicação assíncrona.",
+      "Aumenta resiliência e escalabilidade.",
+      "Eventos representam mudanças de estado."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Apache Kafka",
+        "url": "https://kafka.apache.org"
+      },
+      {
+        "nome": "RabbitMQ",
+        "url": "https://www.rabbitmq.com"
+      }
+    ],
+    "dica": "Prefira mensageria para operações que não precisam de resposta imediata."
+  },
+  "atmosfera_alta": {
+    "zona": "Atmosfera Alta",
+    "titulo": "Gateway — Mesosfera",
+    "icone": "🌐",
+    "cor": "#673AB7",
+    "label": "Gateway",
+    "metafora": "A mesosfera é onde meteoros queimam; representa o gateway de API que filtra e roteia requisições.",
+    "bullets": [
+      "Ponto único de entrada para o sistema.",
+      "Funcionalidades: autenticação, rate limiting, roteamento.",
+      "Simplifica a segurança e o gerenciamento de tráfego."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Kong",
+        "url": "https://konghq.com"
+      },
+      {
+        "nome": "NGINX",
+        "url": "https://nginx.org"
+      }
+    ],
+    "dica": "Use gateway para centralizar cross-cutting concerns como logging e métricas."
+  },
+  "espaco_proximo": {
+    "zona": "Espaço Próximo",
+    "titulo": "Infraestrutura — Órbita Terrestre",
+    "icone": "🛰️",
+    "cor": "#3F51B5",
+    "label": "Infraestrutura",
+    "metafora": "A órbita terrestre abriga satélites; corresponde à infraestrutura (cloud, servidores, redes) que suporta o sistema.",
+    "bullets": [
+      "Cloud providers (AWS, Azure, GCP), servidores, balanceadores.",
+      "Provisionamento automatizado com IaC (Terraform, CloudFormation).",
+      "Monitoramento e escalabilidade são chave."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Terraform",
+        "url": "https://www.terraform.io"
+      },
+      {
+        "nome": "AWS",
+        "url": "https://aws.amazon.com"
+      }
+    ],
+    "dica": "Automatize a infraestrutura para evitar configurações manuais e drift."
+  },
+  "espaco_profundo": {
+    "zona": "Espaço Profundo",
+    "titulo": "Observabilidade — Sistema Solar",
+    "icone": "🔭",
+    "cor": "#9C27B0",
+    "label": "Observabilidade",
+    "metafora": "O sistema solar é vasto e precisa ser observado; representa ferramentas de logging, métricas e tracing para entender o sistema.",
+    "bullets": [
+      "Logs centralizados (ELK, Loki), métricas (Prometheus), tracing (Jaeger).",
+      "Permite depuração e monitoramento proativo.",
+      "Three pillars: logs, métricas, traces."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Prometheus",
+        "url": "https://prometheus.io"
+      },
+      {
+        "nome": "Grafana",
+        "url": "https://grafana.com"
+      }
+    ],
+    "dica": "Implemente correlação entre logs, métricas e traces para troubleshooting rápido."
+  },
+  "satelites": {
+    "zona": "Satélites",
+    "titulo": "Serviços Externos — Lua e Satélites",
+    "icone": "🌙",
+    "cor": "#607D8B",
+    "label": "Externos",
+    "metafora": "A Lua e satélites orbitam a Terra; representam serviços terceiros (pagamento, autenticação, mapas) que o sistema consome.",
+    "bullets": [
+      "APIs de terceiros, SaaS, bancos externos.",
+      "Gerencie dependências com fallbacks e timeouts.",
+      "Considere custos e latência."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Stripe",
+        "url": "https://stripe.com"
+      },
+      {
+        "nome": "Auth0",
+        "url": "https://auth0.com"
+      }
+    ],
+    "dica": "Use circuit breakers para evitar falhas em cascata quando um serviço externo cai."
+  },
+  "estrelas": {
+    "zona": "Estrelas",
+    "titulo": "Usuários — Estrelas Distantes",
+    "icone": "⭐",
+    "cor": "#FFC107",
+    "label": "Usuários",
+    "metafora": "Estrelas são fontes de luz distantes; representam os usuários finais que interagem com o sistema, guiando o design.",
+    "bullets": [
+      "Personas: quem usa o sistema e por quê.",
+      "UX e acessibilidade são fundamentais.",
+      "Feedbacks dos usuários direcionam melhorias."
+    ],
+    "ferramentas": [
+      {
+        "nome": "Figma",
+        "url": "https://www.figma.com"
+      },
+      {
+        "nome": "Hotjar",
+        "url": "https://www.hotjar.com"
+      }
+    ],
+    "dica": "Envolva usuários reais nos testes de usabilidade desde cedo."
+  }
+};
+
+  // Geometria dos hotspots em % do container (já calibrada para a arte)
+  const GEO = {
+  "nucleo_interno": [
+    2,
+    13,
+    16,
+    28
+  ],
+  "nucleo_externo": [
+    22,
+    13,
+    16,
+    28
+  ],
+  "manto_inferior": [
+    42,
+    13,
+    16,
+    28
+  ],
+  "manto_superior": [
+    62,
+    13,
+    16,
+    28
+  ],
+  "crosta": [
+    82,
+    13,
+    16,
+    28
+  ],
+  "atmosfera_baixa": [
+    2,
+    54,
+    12,
+    22
+  ],
+  "atmosfera_media": [
+    16,
+    54,
+    12,
+    22
+  ],
+  "atmosfera_alta": [
+    30,
+    54,
+    12,
+    22
+  ],
+  "espaco_proximo": [
+    44,
+    54,
+    12,
+    22
+  ],
+  "espaco_profundo": [
+    58,
+    54,
+    12,
+    22
+  ],
+  "satelites": [
+    72,
+    54,
+    12,
+    22
+  ],
+  "estrelas": [
+    86,
+    54,
+    12,
+    22
+  ]
+};
+
+  const ORDEM = [
+  "nucleo_interno",
+  "nucleo_externo",
+  "manto_inferior",
+  "manto_superior",
+  "crosta",
+  "atmosfera_baixa",
+  "atmosfera_media",
+  "atmosfera_alta",
+  "espaco_proximo",
+  "espaco_profundo",
+  "satelites",
+  "estrelas"
+];
+
+  // Fase 2 — laços que a figura torna visíveis (Macro ↔ Micro)
+  const RELACOES = {
+  "nucleo_interno": {
+    "ids": [
+      "nucleo_externo"
+    ],
+    "nota": "Código implementa componentes."
+  },
+  "nucleo_externo": {
+    "ids": [
+      "manto_inferior"
+    ],
+    "nota": "Componentes residem em containers."
+  },
+  "manto_inferior": {
+    "ids": [
+      "manto_superior"
+    ],
+    "nota": "Containers agrupam-se em sistemas."
+  },
+  "manto_superior": {
+    "ids": [
+      "crosta"
+    ],
+    "nota": "Sistemas são vistos no contexto."
+  },
+  "crosta": {
+    "ids": [
+      "atmosfera_baixa",
+      "atmosfera_media",
+      "atmosfera_alta"
+    ],
+    "nota": "Contexto expõe APIs, mensageria e gateway."
+  },
+  "atmosfera_baixa": {
+    "ids": [
+      "espaco_proximo",
+      "satelites"
+    ],
+    "nota": "APIs consomem infraestrutura e serviços externos."
+  },
+  "atmosfera_media": {
+    "ids": [
+      "espaco_profundo"
+    ],
+    "nota": "Mensageria alimenta observabilidade."
+  },
+  "atmosfera_alta": {
+    "ids": [
+      "espaco_proximo",
+      "satelites"
+    ],
+    "nota": "Gateway roteia para infraestrutura e externos."
+  },
+  "espaco_proximo": {
+    "ids": [
+      "espaco_profundo"
+    ],
+    "nota": "Infraestrutura gera dados de observabilidade."
+  },
+  "espaco_profundo": {
+    "ids": [
+      "estrelas"
+    ],
+    "nota": "Observabilidade ajuda a entender usuários."
+  },
+  "satelites": {
+    "ids": [
+      "estrelas"
+    ],
+    "nota": "Serviços externos atendem usuários."
+  },
+  "estrelas": {
+    "ids": [
+      "crosta"
+    ],
+    "nota": "Usuários interagem com o sistema no nível de contexto."
+  }
+};
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {}; // id -> button
+  const legendEls  = {}; // id -> button
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    // Fase 2 — Conecta-se com
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  // Aplica halos/atenuação na figura e destaque na legenda
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {           // ação do usuário (hotspot, legenda ou chip)
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    // navegação por setas entre hotspots quando o foco está num deles (e sem modal aberto)
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>

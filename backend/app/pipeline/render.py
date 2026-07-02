@@ -28,6 +28,62 @@ _CONC_OBRIG = ["zona", "titulo", "icone", "cor", "label", "metafora", "bullets",
                "ferramentas", "dica"]
 
 
+def _sobreposicao(a: list, b: list) -> float:
+    """Fração de área sobreposta entre duas caixas [left,top,width,height]
+    relativa à menor delas (0 = disjuntas, 1 = uma contém a outra)."""
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    ix = max(0.0, min(ax + aw, bx + bw) - max(ax, bx))
+    iy = max(0.0, min(ay + ah, by + bh) - max(ay, by))
+    inter = ix * iy
+    menor = min(aw * ah, bw * bh)
+    return inter / menor if menor > 0 else 0.0
+
+
+def validar_geo_layout(ordem: list, geo: dict, n: int) -> list[str]:
+    """Checa a DISTRIBUIÇÃO dos hotspots (não só o formato de cada geo).
+
+    Sem isto, uma geometria concêntrica/sobreposta gerada pela LLM (todas as
+    caixas no mesmo centro) passa despercebida: os 12 hotspots renderizam, mas
+    os discos numerados se empilham num ponto só. Aqui a validação reprova e o
+    pipeline reinjeta no gerar_objeto para corrigir.
+    """
+    erros: list[str] = []
+    # só considera ids com geo bem-formado (o formato já é checado antes)
+    caixas = {cid: geo[cid] for cid in ordem
+              if isinstance(geo.get(cid), list) and len(geo[cid]) == 4
+              and all(isinstance(v, (int, float)) for v in geo[cid])}
+    if len(caixas) < 2:
+        return erros
+
+    # 1) largura fora da faixa recomendada (o sintoma clássico do layout concêntrico)
+    for cid, (l, t, w, h) in caixas.items():
+        if not (8 <= w <= 26):
+            erros.append(f"geo['{cid}'] com width={w} fora de 8-26 (nichos lado a lado, não concêntricos)")
+
+    # 2) caixas sobrepostas: cada hotspot deve ficar no seu nicho
+    ids = list(caixas)
+    for i in range(len(ids)):
+        for j in range(i + 1, len(ids)):
+            if _sobreposicao(caixas[ids[i]], caixas[ids[j]]) > 0.4:
+                erros.append(f"geo['{ids[i]}'] e geo['{ids[j]}'] se sobrepõem — "
+                             f"espalhe os hotspots (5 na faixa de cima, 7 embaixo)")
+                if len([e for e in erros if "se sobrepõem" in e]) >= 3:
+                    break
+        else:
+            continue
+        break
+
+    # 3) para o layout padrão (12), exige a divisão 5 em cima / 7 embaixo
+    if n == 12:
+        cima = sum(1 for (l, t, w, h) in caixas.values() if (t + h / 2) < 42)
+        baixo = len(caixas) - cima
+        if (cima, baixo) != (5, 7):
+            erros.append(f"distribuição das faixas é {cima} em cima / {baixo} embaixo; "
+                         f"o padrão é 5 (top≈3-30) e 7 (top≈54-75)")
+    return erros
+
+
 def validar_schema(objeto: dict, n: int) -> list[str]:
     """Valida o objeto_json contra o contrato. Retorna lista de erros (vazia = ok)."""
     erros: list[str] = []
@@ -62,6 +118,10 @@ def validar_schema(objeto: dict, n: int) -> list[str]:
         erros.append(f"metadados sem campos: {', '.join(falt_meta)}")
     if meta.get("cat") not in {"arq", "qual", "dados", "prod", "seg"}:
         erros.append(f"metadados.cat inválido: {meta.get('cat')!r}")
+
+    # geometria: só checa distribuição se cada geo tem o formato certo
+    if isinstance(ordem, list) and not any("[left,top,width,height]" in e for e in erros):
+        erros.extend(validar_geo_layout(ordem, geo, n))
     return erros
 
 

@@ -68,6 +68,9 @@ Schema:
 
 Regras de GEO (em % do container): faixa superior top≈3-30 para 5 ids; faixa
 inferior top≈54-75 para 7 ids; left distribuído 1→90; width 10-22; height 20-42.
+Cada hotspot fica no SEU nicho, lado a lado — NUNCA use caixas concêntricas,
+empilhadas ou sobrepostas (mesmo para metáforas radiais/de camadas como planeta,
+órbitas ou círculos): as caixas não podem se sobrepor e nenhuma width passa de 22.
 Todos os ids de "ordem" devem existir em "conceitos", "geo" e (idealmente) "relacoes".
 """
 
