@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Caverna do Engenheiro de IA — MLOps para Devs Juniores</title>
+  <meta name="description" content="Objeto educacional interativo: uma única ilustração de caverna pré-histórica onde o troglodita enfrenta a 'entrevista de IA' — escolha de modelo, dados e APIs, treinamento, métricas, gargalos, quantização, gestão de experimentos, observabilidade e pesquisa de modelos.">
+  <meta property="og:title" content="A Caverna do Engenheiro de IA — MLOps para Devs Juniores">
+  <meta property="og:description" content="A própria ilustração é a interface: clique em cada nicho da caverna para aprender o ciclo de vida prático de um modelo de IA, do dado bruto à observabilidade em produção.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="mlops-caverna.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --fundo-1: #2a1c10;
+      --fundo-2: #160e07;
+      --fundo-3: #100a05;
+      --texto:   #f0e6d2;
+      --texto-2: #d9c4a0;
+      --texto-3: #cdbb9a;
+      --dourado: #f0d29a;
+      --dourado-2: #e0b066;
+      --dourado-3: #b9925a;
+      --borda:   #3a2c1e;
+      --borda-2: #6d5b47;
+      --pergaminho: #f4ecde;
+      --pergaminho-2: #f3e4c4;
+      /* Sem CDN: stack serif do sistema evocando Cinzel/Spectral */
+      --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+      --font-body: "Spectral", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(120% 80% at 50% 0%, var(--fundo-1) 0%, var(--fundo-2) 55%, var(--fundo-3) 100%);
+      background-attachment: fixed;
+      color: var(--texto);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 64px;
+    }
+
+    .wrap { width: 100%; max-width: 1180px; padding-left: 24px; padding-right: 24px; }
+
+    /* ---------- Cabeçalho ---------- */
+    header { padding-top: 40px; padding-bottom: 10px; text-align: center; }
+    .kicker {
+      font-family: var(--font-display);
+      font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+      color: var(--dourado-3); margin-bottom: 14px;
+    }
+    header h1 {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(28px, 5vw, 52px); line-height: 1.05;
+      color: var(--dourado); letter-spacing: 0.01em;
+    }
+    header .tese {
+      font-size: clamp(15px, 2.2vw, 20px); color: var(--texto-2);
+      margin: 14px auto 0; max-width: 760px; line-height: 1.5;
+    }
+    header .tese strong { color: var(--dourado); }
+
+    /* ---------- Barra de controles ---------- */
+    .figura-topo {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .figura-dica { font-size: 14px; color: var(--dourado-3); font-style: italic; }
+    .controles { display: flex; gap: 8px; }
+    .btn {
+      font-family: var(--font-display); font-size: 12.5px; letter-spacing: 0.08em;
+      background: var(--borda); color: var(--dourado);
+      border: 1px solid var(--borda-2); border-radius: 8px; padding: 9px 16px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn:hover { background: #57442e; }
+    .btn:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+
+    /* ---------- Figura interativa ---------- */
+    .figura {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; border: 1px solid #4a3826;
+      box-shadow: 0 24px 60px -20px rgba(0,0,0,.8);
+    }
+    .figura img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .hotspot {
+      position: absolute; border: 2px solid transparent; border-radius: 14px;
+      background: transparent; cursor: pointer; padding: 0; margin: 0;
+      transition: background .18s, box-shadow .18s, border-color .18s;
+    }
+    .hotspot:hover {
+      border-color: var(--c);
+      background: color-mix(in srgb, var(--c) 15%, transparent);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot:focus-visible {
+      outline: 3px solid var(--dourado); outline-offset: 3px;
+      border-color: var(--c);
+      box-shadow: 0 0 30px 2px color-mix(in srgb, var(--c) 60%, transparent);
+    }
+    .hotspot.is-active {
+      border: 3px solid var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+      box-shadow: 0 0 34px 4px var(--c), inset 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .hotspot.is-related {
+      border: 2px dashed var(--c);
+      box-shadow: 0 0 20px 1px color-mix(in srgb, var(--c) 55%, transparent);
+      animation: cvhalo 1.8s ease-in-out infinite;
+    }
+
+    /* marcador: disco numerado + anel pulsante */
+    .cv-num {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 3px rgba(20,18,11,.55), 0 2px 8px rgba(0,0,0,.5);
+      pointer-events: none; transition: transform .18s, opacity .18s;
+    }
+    .cv-ring {
+      position: absolute; left: 50%; top: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--c);
+      animation: cvring 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot.is-active .cv-num { transform: translate(-50%, -50%) scale(1.25); }
+    .hotspot.is-active .cv-ring,
+    .hotspot.is-related .cv-ring { display: none; }
+    .hotspot.is-dimmed .cv-num,
+    .hotspot.is-dimmed .cv-ring { opacity: 0.3; }
+
+    /* ---------- Legenda numerada (rota acessível) ---------- */
+    .legenda {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+      gap: 6px 16px; margin-top: 16px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 9px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      padding: 5px 4px; border-radius: 8px;
+    }
+    .leg-item:hover { opacity: 0.78; }
+    .leg-item:focus-visible { outline: 2px solid var(--dourado); outline-offset: 2px; }
+    .leg-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--c); color: #1a120b;
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .leg-label { font-size: 13px; color: var(--texto-3); line-height: 1.2; }
+    .leg-item.is-active .leg-label { color: var(--dourado); font-weight: 600; }
+
+    /* ---------- Modal ---------- */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,5,2,.8); backdrop-filter: blur(3px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    #modal-overlay.aberto { display: flex; }
+    #modal-card {
+      background: var(--pergaminho); border-radius: 16px; padding: 24px;
+      max-width: 540px; width: 100%; max-height: 88vh; overflow-y: auto;
+      border-top: 6px solid #ccc; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+      animation: cvslide .26s ease;
+    }
+    .modal-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    #modal-icone { font-size: 34px; line-height: 1; }
+    .modal-head-txt { flex: 1; }
+    #modal-zona {
+      font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9a7b4a; margin-bottom: 3px;
+    }
+    #modal-titulo {
+      font-family: var(--font-display); font-weight: 700; font-size: 21px;
+      line-height: 1.15; color: #2a2018;
+    }
+    #btn-fechar {
+      background: #2a2018; color: var(--pergaminho); border: none; border-radius: 8px;
+      width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
+    }
+    #btn-fechar:hover { background: #48372a; }
+    #btn-fechar:focus-visible { outline: 3px solid #2a2018; outline-offset: 2px; }
+    #modal-metafora {
+      font-style: italic; color: #5a4633; font-size: 14.5px; line-height: 1.6;
+      border-left: 3px solid #ccc; padding-left: 14px; margin-bottom: 16px;
+    }
+    #modal-bullets { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+    #modal-bullets li {
+      position: relative; padding-left: 22px; font-size: 14px; line-height: 1.55; color: #3a2e22;
+    }
+    #modal-bullets li::before {
+      content: ""; position: absolute; left: 4px; top: 7px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cor-ativa, #ccc);
+    }
+    .modal-sec { margin-bottom: 14px; }
+    .modal-sec-label {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a7b4a;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+    #modal-ferramentas a {
+      font-size: 12.5px; color: #6b4a17; border: 1px solid #cdab6b; border-radius: 7px;
+      padding: 4px 10px; text-decoration: none; background: var(--pergaminho-2);
+    }
+    #modal-ferramentas a:hover { background: #e6d2a6; }
+    #modal-ferramentas a:focus-visible { outline: 2px solid #6b4a17; outline-offset: 1px; }
+    #modal-conexao-nota {
+      font-size: 12.5px; color: #6a5640; font-style: italic; margin: 5px 0 8px; line-height: 1.45;
+    }
+    #modal-relacionados button {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; font-weight: 600; color: #2a2018;
+      border: none; border-left: 4px solid var(--rc); border-radius: 6px;
+      padding: 5px 11px; cursor: pointer;
+      background: color-mix(in srgb, var(--rc) 22%, var(--pergaminho-2));
+      font-family: var(--font-body);
+    }
+    #modal-relacionados button:hover { filter: brightness(.94); }
+    #modal-relacionados button:focus-visible { outline: 2px solid #2a2018; outline-offset: 1px; }
+    #modal-dica {
+      background: var(--pergaminho-2); border-left: 4px solid #ccc;
+      padding: 12px 14px; border-radius: 0 8px 8px 0;
+    }
+    #modal-dica strong {
+      display: block; font-family: var(--font-display); font-size: 12px;
+      letter-spacing: 0.05em; color: #7a4f00; margin-bottom: 4px;
+    }
+    #modal-dica-texto { font-size: 13.5px; line-height: 1.55; color: #5a3d0a; }
+
+    /* ---------- Rodapé ---------- */
+    footer { padding-top: 40px; text-align: center; }
+    footer p {
+      font-size: 13.5px; color: #8a6f43; font-style: italic; line-height: 1.6;
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* ---------- Tour: barra de progresso ---------- */
+    #tour-progress {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      min-height: 2rem; margin-top: 14px;
+    }
+    #tour-label { font-size: 0.8rem; color: var(--dourado-3); font-family: var(--font-display); letter-spacing: 0.04em; }
+    #tour-bar {
+      width: 240px; height: 6px; border-radius: 3px; appearance: none; -webkit-appearance: none;
+      border: none; background: var(--borda);
+    }
+    #tour-bar::-webkit-progress-bar  { background: var(--borda); border-radius: 3px; }
+    #tour-bar::-webkit-progress-value { background: var(--dourado); border-radius: 3px; }
+    #tour-bar::-moz-progress-bar     { background: var(--dourado); border-radius: 3px; }
+
+    /* ---------- Animações ---------- */
+    @keyframes cvring { 0% { transform: translate(-50%,-50%) scale(.6); opacity: .9; } 100% { transform: translate(-50%,-50%) scale(2.4); opacity: 0; } }
+    @keyframes cvhalo { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+    @keyframes cvslide { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .cv-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="wrap">
+    <div class="kicker">Objeto educacional · MLOps &amp; Engenharia de Modelos de IA</div>
+    <h1>🦴 A Caverna do Engenheiro de IA</h1>
+    <p class="tese">O troglodita foi chamado para a <em>entrevista de IA</em> e a caverna virou o roteiro das perguntas: escolha de modelo, dados, treino, métricas, gargalos, quantização, experimentos e observabilidade. A própria ilustração é o quadro-negro — cada nicho é uma resposta que ele precisa saber.</p>
+  </header>
+
+  <!-- ===================== FIGURA INTERATIVA ===================== -->
+  <section class="wrap" style="padding-top:18px">
+    <div class="figura-topo">
+      <p class="figura-dica">Passe o mouse e clique em qualquer nicho da caverna — o ciclo de vida de um modelo de IA mora numa imagem só.</p>
+      <div class="controles">
+        <button class="btn" id="btn-tour">▶ Tour guiado</button>
+        <button class="btn" id="btn-fullscreen" title="Tela cheia">⛶ Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="figura" id="figura">
+      <img src="mlops-caverna.png" alt="Caverna pré-histórica em duas faixas: na faixa superior (macro), um troglodita comparando um tigre-dentes-de-sabre e um mamute para escolher um modelo, uma matriz de confusão gravada em pedra, um ferreiro martelando um ídolo até virar uma lasca de quantização, e uma árvore de ossos marcados representando o versionamento de experimentos; na faixa inferior (micro), dois mamutes conectados por um osso representando fontes de dados e APIs, uma fogueira assando pedras de dados durante o treinamento, uma pedra gigante travando a passagem estreita (gargalo), um xamã lendo a fumaça de uma fogueira-servidor (observabilidade), um troglodita comparando peles de animais (pesquisa de modelos) e uma balança pesando falso positivo contra acurácia.">
+      <!-- hotspots inseridos via JS -->
+    </div>
+
+    <!-- Tour: progresso -->
+    <div id="tour-progress" aria-live="polite" aria-atomic="true">
+      <span id="tour-label"></span>
+      <progress id="tour-bar" max="12" value="0" style="display:none"></progress>
+    </div>
+
+    <!-- Legenda numerada (rota acessível alternativa) -->
+    <nav class="legenda" id="legenda" aria-label="Legenda numerada dos 12 conceitos — rota alternativa aos hotspots da figura"></nav>
+  </section>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div id="modal-card">
+      <div class="modal-head">
+        <span id="modal-icone"></span>
+        <div class="modal-head-txt">
+          <div id="modal-zona"></div>
+          <h2 id="modal-titulo" aria-live="polite"></h2>
+        </div>
+        <button id="btn-fechar" aria-label="Fechar">✕</button>
+      </div>
+      <p id="modal-metafora"></p>
+      <ul id="modal-bullets"></ul>
+      <div class="modal-sec">
+        <span class="modal-sec-label">Ferramentas reais</span>
+        <div class="chips" id="modal-ferramentas"></div>
+      </div>
+      <div class="modal-sec" id="modal-conexao-sec">
+        <span class="modal-sec-label">🔗 Conecta-se com</span>
+        <p id="modal-conexao-nota"></p>
+        <div class="chips" id="modal-relacionados"></div>
+      </div>
+      <div id="modal-dica">
+        <strong>💡 Dica de Engenheiro de IA</strong>
+        <span id="modal-dica-texto"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="wrap">
+    <p>"Todo mamute bom começa numa boa pergunta: que dado, que modelo, que métrica?" A entrevista na caverna não termina na contratação — ela se repete a cada experimento, a cada deploy, a cada fumaça estranha saindo do servidor.</p>
+  </footer>
+
+<script>
+  // ===================== DADOS =====================
+  const CONCEITOS = {
+    escolha_modelo: { zona:'Macro · Faixa Superior', titulo:'Escolha de Modelo — Tigre ou Mamute?', icone:'🐅', cor:'#c0563a', label:'Escolha de Modelo',
+      metafora:'O troglodita encara o tigre-dentes-de-sabre e o mamute, sem saber qual caçar. BERT (o tigre) é rápido e especializado; um modelo generalista (o mamute) é mais versátil, porém mais pesado. Escolher o bicho certo para a caça certa é a primeira decisão de qualquer projeto de IA.',
+      bullets:['Modelos menores/especializados (estilo BERT) são rápidos e baratos, mas geralmente exigem fine-tuning para a tarefa.','Modelos grandes e generalistas (LLMs) resolvem mais tarefas fora da caixa, porém custam mais em latência, memória e inferência.','A escolha certa depende do orçamento de inferência, da latência exigida e do volume de dados de treino disponível.'],
+      ferramentas:[{nome:'Hugging Face Models',url:'https://huggingface.co/models'},{nome:'Papers with Code',url:'https://paperswithcode.com'},{nome:'Model Cards',url:'https://huggingface.co/docs/hub/model-cards'}],
+      dica:'Comece pelo modelo mais simples que resolve o problema. Só suba para o "mamute" quando o "tigre" provar, com dados, que não dá conta da caça.' },
+    arquitetura_bert: { zona:'Macro · Faixa Superior', titulo:'Arquitetura Transformer — As Camadas do Tigre', icone:'🧬', cor:'#d4915a', label:'Arquitetura Transformer',
+      metafora:'A pintura na parede mostra o tigre em camadas empilhadas — cada faixa se comunica com a de baixo. É assim que um Transformer como o BERT é montado: blocos de atenção empilhados, cada um refinando o entendimento do texto.',
+      bullets:['Transformers usam atenção (self-attention) para pesar a importância de cada palavra em relação às demais na frase.','BERT é bidirecional: lê o contexto antes e depois de cada palavra, o que o torna ótimo para entender texto (não para gerar).','Empilhar mais camadas aumenta a capacidade do modelo, mas também o custo de treino e o risco de overfitting.'],
+      ferramentas:[{nome:'Hugging Face Transformers',url:'https://huggingface.co/docs/transformers'},{nome:'The Illustrated Transformer',url:'https://jalammar.github.io/illustrated-transformer/'},{nome:'Attention Is All You Need (paper)',url:'https://arxiv.org/abs/1706.03762'}],
+      dica:'Antes de treinar do zero, veja se um modelo pré-treinado com fine-tuning já resolve 80% do problema gastando 20% do esforço.' },
+    metricas_confusao: { zona:'Macro · Faixa Superior', titulo:'Métricas — A Tábua de Acertos e Erros', icone:'📊', cor:'#e0c04a', label:'Métricas & Matriz de Confusão',
+      metafora:'Uma pedra gravada cruza "verdadeiro" e "falso" com "positivo" e "negativo" — o oráculo que diz se a caça foi bem-sucedida. Sem essa tábua, o caçador acha que está acertando quando só está tendo sorte.',
+      bullets:['A matriz de confusão cruza previsão x realidade: Verdadeiro Positivo, Falso Positivo, Verdadeiro Negativo, Falso Negativo.','Acurácia sozinha engana em dados desbalanceados; precisão, recall e F1 revelam o erro escondido atrás do número bonito.','Escolha a métrica pelo custo do erro: um falso negativo em diagnóstico médico dói muito mais que um falso positivo.'],
+      ferramentas:[{nome:'scikit-learn metrics',url:'https://scikit-learn.org/stable/modules/model_evaluation.html'},{nome:'Confusion Matrix (explicação)',url:'https://en.wikipedia.org/wiki/Confusion_matrix'},{nome:'Weights & Biases',url:'https://wandb.ai'}],
+      dica:'Sempre publique a matriz de confusão completa, não só a acurácia — ela mostra exatamente onde o modelo mais erra.' },
+    quantizacao: { zona:'Macro · Faixa Superior', titulo:'Quantização — Esculpir o Ídolo em Pedra Pequena', icone:'🔨', cor:'#9aa0a6', label:'Quantização',
+      metafora:'O ferreiro martela o ídolo gigante (modelo em FP32) até virar uma lasca pequena e afiada (INT8). Perde um pouco de detalhe no talhe, mas cabe na mochila da tribo e é muito mais rápido de carregar.',
+      bullets:['Quantização reduz a precisão numérica dos pesos (FP32 → INT8 ou menor), diminuindo o tamanho e a latência do modelo.','Existe custo: menos precisão numérica pode reduzir levemente a acurácia — sempre valide antes de colocar em produção.','Técnicas como pruning (poda) e destilação (o aluno aprende com o mestre) complementam a quantização para modelos ainda menores.'],
+      ferramentas:[{nome:'ONNX Runtime',url:'https://onnxruntime.ai'},{nome:'NVIDIA TensorRT',url:'https://developer.nvidia.com/tensorrt'},{nome:'Hugging Face Optimum',url:'https://huggingface.co/docs/optimum'}],
+      dica:'Quantize só depois de validar a acurácia do modelo cheio. Otimizar performance antes de ter um modelo correto é energia jogada fora.' },
+    gestao_experimentos: { zona:'Macro · Faixa Superior', titulo:'Gestão de Experimentos — A Árvore de Ossos Marcados', icone:'🌳', cor:'#6ba368', label:'Gestão de Experimentos',
+      metafora:'Cada experimento vira um osso etiquetado pendurado na árvore genealógica da tribo. A árvore git mostra de qual ramo cada versão do modelo nasceu — e permite voltar a qualquer galho quando um ramo dá errado.',
+      bullets:['Versionar dados, código e hiperparâmetros juntos é o que torna um experimento reproduzível meses depois.','Branches (ramos) permitem testar ideias em paralelo sem estragar o modelo que já funciona em produção.','Registrar métricas de cada rodada evita repetir o mesmo experimento sem saber que ele já falhou antes.'],
+      ferramentas:[{nome:'MLflow',url:'https://mlflow.org'},{nome:'Weights & Biases',url:'https://wandb.ai'},{nome:'DVC (Data Version Control)',url:'https://dvc.org'}],
+      dica:'Trate cada treino como um commit — com mensagem clara do que mudou e por quê. Sem isso, ninguém lembra qual osso é qual.' },
+    dados_fontes: { zona:'Micro · Faixa Inferior', titulo:'Dados & Fontes — Os Mamutes Conectados', icone:'🦣', cor:'#8fb8d6', label:'Dados & Fontes',
+      metafora:'Dois mamutes ligados por um osso representam as fontes de dados conversando entre si. A qualidade da caça final (o modelo) começa na qualidade dos mamutes que a alimentam.',
+      bullets:['"Garbage in, garbage out": nenhum modelo supera a qualidade dos dados usados para treiná-lo.','Combine fontes internas (banco de dados da tribo) e externas (APIs) com cuidado para evitar vieses e duplicidades.','Documente origem, data de coleta e licença dos dados — o que não é documentado vira dívida técnica depois.'],
+      ferramentas:[{nome:'Great Expectations',url:'https://greatexpectations.io'},{nome:'Apache Airflow',url:'https://airflow.apache.org'},{nome:'Kaggle Datasets',url:'https://www.kaggle.com/datasets'}],
+      dica:'Antes de treinar, faça uma auditoria rápida dos dados (nulos, duplicatas, outliers) — isso economiza semanas de depuração depois.' },
+    apis_integracao: { zona:'Micro · Faixa Inferior', titulo:'APIs — O Osso que Liga as Tribos', icone:'🔗', cor:'#5fc8a0', label:'APIs & Integração',
+      metafora:'A pilha de ossos com um "?" é a pergunta que todo troglodita faz: como conectar a inteligência da caverna com o mundo lá fora? APIs são a corda que amarra sistemas diferentes sem que eles precisem se conhecer por dentro.',
+      bullets:['Uma API bem desenhada expõe o modelo sem expor os detalhes internos de implementação.','Defina contratos claros (request/response, limites de taxa, autenticação) antes de qualquer integração.','Latência e custo por chamada devem ser medidos — um modelo ótimo atrás de uma API lenta ainda é uma experiência ruim.'],
+      ferramentas:[{nome:'FastAPI',url:'https://fastapi.tiangolo.com'},{nome:'Swagger / OpenAPI',url:'https://swagger.io'},{nome:'Postman',url:'https://www.postman.com'}],
+      dica:'Versione a API do modelo (v1, v2…) desde o primeiro dia — trocar o modelo por trás não deveria quebrar quem consome.' },
+    treinamento: { zona:'Micro · Faixa Inferior', titulo:'Treinamento — A Fogueira que Assa os Dados', icone:'🔥', cor:'#ff7a18', label:'Treinamento',
+      metafora:'As pedras de dados são assadas na fogueira até virarem conhecimento — os pesos do modelo. Treinar é esse processo repetido de ajuste, iteração após iteração, até o ponto de cocção certo.',
+      bullets:['O treinamento ajusta os pesos do modelo minimizando uma função de perda a cada iteração (epoch).','Assar demais (treinar demais) causa overfitting; assar de menos causa underfitting — o ponto certo se monitora com dados de validação.','Hiperparâmetros como taxa de aprendizado e batch size controlam o "fogo": forte demais queima, fraco demais não cozinha.'],
+      ferramentas:[{nome:'PyTorch',url:'https://pytorch.org'},{nome:'TensorFlow',url:'https://www.tensorflow.org'},{nome:'Optuna',url:'https://optuna.org'}],
+      dica:'Sempre separe um conjunto de validação e pare o treino (early stopping) quando a métrica parar de melhorar — comida queimada não se resgata.' },
+    gargalos: { zona:'Micro · Faixa Inferior', titulo:'Gargalos — A Pedra que Trava a Passagem', icone:'🪨', cor:'#b0894d', label:'Gargalos',
+      metafora:'Uma pedra gigante entala a passagem estreita da caverna. É o gargalo que impede o fluxo de continuar — seja no dado, na CPU/GPU ou na rede — e nenhuma força extra do lado errado destrava a caça.',
+      bullets:['Meça antes de otimizar: profiling revela se o gargalo é I/O, CPU, GPU ou rede — adivinhar desperdiça esforço.','Gargalos de dados (I/O lento carregando o dataset) muitas vezes pesam mais que o próprio cálculo do modelo.','Escalar processamento em paralelo (batching, workers) só ajuda se o gargalo real for throughput, não latência.'],
+      ferramentas:[{nome:'PyTorch Profiler',url:'https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html'},{nome:'NVIDIA Nsight Systems',url:'https://developer.nvidia.com/nsight-systems'},{nome:'cProfile (Python)',url:'https://docs.python.org/3/library/profile.html'}],
+      dica:'Ataque sempre o maior gargalo primeiro. Destravar uma pedra pequena enquanto a grande continua lá não move a caça um palmo.' },
+    observabilidade_ia: { zona:'Micro · Faixa Inferior', titulo:'Observabilidade — A Fumaça que o Xamã Lê', icone:'👁️', cor:'#81b29a', label:'Observabilidade',
+      metafora:'O xamã lê os padrões de fumaça saindo da fogueira-servidor para saber se algo vai mal antes que a tribo perceba. Observabilidade em produção é isso: sinais que avisam antes do desastre, não depois.',
+      bullets:['Monitore drift: quando os dados de produção mudam em relação aos dados de treino, a performance do modelo cai em silêncio.','Logue previsões, confiança (confidence score) e latência — sem esses sinais, um modelo ruim parece "funcionando".','Alertas automáticos poupam a tribo de descobrir o problema só quando o cliente reclama.'],
+      ferramentas:[{nome:'Grafana',url:'https://grafana.com'},{nome:'Prometheus',url:'https://prometheus.io'},{nome:'Evidently AI',url:'https://www.evidentlyai.com'}],
+      dica:'Defina de antemão o que é "fumaça normal" (baseline). Sem baseline, todo sinal parece alarme falso — ou nenhum parece alarme.' },
+    pesquisa_modelos: { zona:'Micro · Faixa Inferior', titulo:'Pesquisa de Modelos — Comparando Peles de Animais', icone:'🧪', cor:'#d9a441', label:'Pesquisa de Modelos',
+      metafora:'O troglodita estende diferentes peles de animais lado a lado para comparar qual serve melhor à tribo. Pesquisa de modelos é esse benchmark lado a lado, sob as mesmas condições, antes de escolher com quem seguir.',
+      bullets:['Benchmarks padronizados (mesmo dataset, mesma métrica) são a única forma justa de comparar modelos diferentes.','Considere não só a métrica principal, mas custo, latência e facilidade de manutenção na decisão final.','Acompanhar papers e leaderboards evita reinventar uma solução que já existe pronta e testada.'],
+      ferramentas:[{nome:'Papers with Code',url:'https://paperswithcode.com'},{nome:'Hugging Face Leaderboards',url:'https://huggingface.co/spaces'},{nome:'MLPerf',url:'https://mlcommons.org/benchmarks/'}],
+      dica:'Teste sempre com os dados reais da tribo, não só com o benchmark público — a pele que ganhou lá fora pode não servir aqui dentro.' },
+    tradeoffs_precisao: { zona:'Micro · Faixa Inferior', titulo:'Trade-offs — A Balança entre Falso Positivo e Acurácia', icone:'⚖️', cor:'#b08cc4', label:'Trade-offs de Métricas',
+      metafora:'A balança pré-histórica pesa de um lado o falso positivo, do outro a acurácia. Toda decisão de modelo é um equilíbrio assim: puxar demais para um lado sempre custa do outro.',
+      bullets:['Precisão e recall puxam para lados opostos: subir um geralmente desce o outro — o ponto de corte (threshold) decide o equilíbrio.','O trade-off certo depende do custo de cada tipo de erro no negócio, não de uma regra universal.','Viés e variância são outro par em tensão: modelo simples demais erra sistematicamente, complexo demais erra por instabilidade.'],
+      ferramentas:[{nome:'Curva ROC/AUC (scikit-learn)',url:'https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_curve.html'},{nome:'Precision-Recall Curve',url:'https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html'},{nome:'Fairlearn (viés)',url:'https://fairlearn.org'}],
+      dica:'Desenhe a curva precisão-recall antes de fixar um threshold. Escolher no escuro é jogar a balança para o lado errado sem perceber.' }
+  };
+
+  // Geometria dos hotspots em % do container — calibrar ao publicar a arte final
+  // (5 nichos na faixa superior, 7 na faixa inferior, separados por pilares de rocha)
+  const GEO = {
+    escolha_modelo:[1,3,17,35], arquitetura_bert:[20,3,17,35], metricas_confusao:[39,3,17,35],
+    quantizacao:[58,3,17,35], gestao_experimentos:[79,3,18,35],
+    dados_fontes:[1,56,12.5,36], apis_integracao:[14.5,56,12.5,36], treinamento:[28,56,12.5,36],
+    gargalos:[41.5,56,12.5,36], observabilidade_ia:[55,56,12.5,36], pesquisa_modelos:[68.5,56,12.5,36],
+    tradeoffs_precisao:[82,56,17,36]
+  };
+
+  const ORDEM = ['escolha_modelo','arquitetura_bert','metricas_confusao','quantizacao','gestao_experimentos',
+    'dados_fontes','apis_integracao','treinamento','gargalos','observabilidade_ia','pesquisa_modelos','tradeoffs_precisao'];
+
+  // Laços que a figura torna visíveis (Macro ↔ Micro)
+  const RELACOES = {
+    escolha_modelo:      { ids:['arquitetura_bert','tradeoffs_precisao','pesquisa_modelos'], nota:'Escolher entre o tigre e o mamute depende de conhecer a arquitetura de cada um, comparar seus benchmarks e entender o trade-off de métricas que cada bicho carrega.' },
+    arquitetura_bert:     { ids:['escolha_modelo','quantizacao','treinamento'], nota:'A arquitetura em camadas define o que dá para escolher, o que dá para comprimir na quantização e como o treino ajusta cada camada.' },
+    metricas_confusao:    { ids:['tradeoffs_precisao','treinamento','observabilidade_ia'], nota:'A tábua de acertos e erros nasce do treino, orienta o trade-off entre falso positivo e acurácia, e continua sendo lida na observabilidade em produção.' },
+    quantizacao:          { ids:['arquitetura_bert','gargalos','pesquisa_modelos'], nota:'Esculpir o ídolo em pedra pequena parte da arquitetura original, ataca gargalos de performance e é comparado com outras técnicas na pesquisa de modelos.' },
+    gestao_experimentos:  { ids:['treinamento','observabilidade_ia','pesquisa_modelos'], nota:'A árvore de ossos registra cada fogueira de treino, alimenta o que se observa em produção e organiza a pesquisa de modelos ao longo do tempo.' },
+    dados_fontes:         { ids:['apis_integracao','treinamento','metricas_confusao'], nota:'Os mamutes conectados alimentam as APIs, viram lenha para a fogueira do treino e definem, lá na frente, o que a tábua de métricas vai medir.' },
+    apis_integracao:      { ids:['dados_fontes','gargalos','observabilidade_ia'], nota:'O osso que liga as tribos depende da qualidade dos mamutes de dados, pode virar gargalo se for lento e precisa ser observado como qualquer outro elo da caverna.' },
+    treinamento:          { ids:['dados_fontes','metricas_confusao','gestao_experimentos'], nota:'A fogueira assa os mamutes de dados, produz a tábua de métricas e cada rodada vira um osso novo pendurado na árvore de experimentos.' },
+    gargalos:             { ids:['apis_integracao','quantizacao','observabilidade_ia'], nota:'A pedra que trava a passagem pode estar no osso da API, ser aliviada pela quantização, ou aparecer primeiro na fumaça lida pelo xamã.' },
+    observabilidade_ia:   { ids:['gargalos','metricas_confusao','gestao_experimentos'], nota:'A fumaça do servidor denuncia gargalos escondidos, reflete as mesmas métricas vistas no treino e alimenta a árvore de experimentos com sinais do mundo real.' },
+    pesquisa_modelos:     { ids:['escolha_modelo','quantizacao','gestao_experimentos'], nota:'Comparar peles de animais é o que sustenta a escolha do modelo, avalia o ganho da quantização e vira mais um galho registrado na árvore de experimentos.' },
+    tradeoffs_precisao:   { ids:['metricas_confusao','escolha_modelo','dados_fontes'], nota:'A balança nasce da tábua de métricas, pesa contra a escolha do modelo e é moldada pela qualidade dos mamutes de dados que entraram no treino.' }
+  };
+
+  // ===================== ESTADO =====================
+  let activeId = null;
+  let tourActive = false;
+  let tourIdx = -1;
+  let tourTimer = null;
+
+  // ===================== ELEMENTOS =====================
+  const figura     = document.getElementById('figura');
+  const legenda    = document.getElementById('legenda');
+  const overlay    = document.getElementById('modal-overlay');
+  const card       = document.getElementById('modal-card');
+  const elIcone    = document.getElementById('modal-icone');
+  const elZona     = document.getElementById('modal-zona');
+  const elTitulo   = document.getElementById('modal-titulo');
+  const elMetafora = document.getElementById('modal-metafora');
+  const elBullets  = document.getElementById('modal-bullets');
+  const elFerr     = document.getElementById('modal-ferramentas');
+  const elConexSec = document.getElementById('modal-conexao-sec');
+  const elConexNota= document.getElementById('modal-conexao-nota');
+  const elRelac    = document.getElementById('modal-relacionados');
+  const elDicaTxt  = document.getElementById('modal-dica-texto');
+  const btnFechar  = document.getElementById('btn-fechar');
+  const btnTour    = document.getElementById('btn-tour');
+  const tourLabel  = document.getElementById('tour-label');
+  const tourBar    = document.getElementById('tour-bar');
+
+  const hotspotEls = {}; // id -> button
+  const legendEls  = {}; // id -> button
+
+  // ===================== CONSTRUÇÃO DA FIGURA + LEGENDA =====================
+  ORDEM.forEach((id, i) => {
+    const c = CONCEITOS[id];
+    const g = GEO[id];
+    const num = i + 1;
+
+    // hotspot
+    const btn = document.createElement('button');
+    btn.className = 'hotspot';
+    btn.dataset.conceito = id;
+    btn.style.cssText = `left:${g[0]}%;top:${g[1]}%;width:${g[2]}%;height:${g[3]}%`;
+    btn.style.setProperty('--c', c.cor);
+    btn.setAttribute('aria-label', `${num}. ${c.titulo}`);
+    btn.innerHTML = `<span class="cv-ring"></span><span class="cv-num">${num}</span>`;
+    btn.addEventListener('click', () => abrir(id));
+    figura.appendChild(btn);
+    hotspotEls[id] = btn;
+
+    // legenda
+    const li = document.createElement('button');
+    li.className = 'leg-item';
+    li.dataset.conceito = id;
+    li.style.setProperty('--c', c.cor);
+    li.setAttribute('aria-label', `${num}. ${c.label}`);
+    li.innerHTML = `<span class="leg-dot">${num}</span><span class="leg-label">${c.label}</span>`;
+    li.addEventListener('click', () => abrir(id));
+    legenda.appendChild(li);
+    legendEls[id] = li;
+  });
+
+  // ===================== MODAL =====================
+  function preencherModal(id) {
+    const c = CONCEITOS[id];
+    const rel = RELACOES[id];
+
+    card.style.borderTopColor = c.cor;
+    card.style.setProperty('--cor-ativa', c.cor);
+
+    elIcone.textContent   = c.icone;
+    elZona.textContent    = c.zona;
+    elTitulo.textContent  = c.titulo;
+    elMetafora.textContent = c.metafora;
+    elMetafora.style.borderLeftColor = c.cor;
+
+    elBullets.innerHTML = c.bullets.map(b => `<li>${b}</li>`).join('');
+
+    elFerr.innerHTML = c.ferramentas
+      .map(f => `<a href="${f.url}" target="_blank" rel="noopener">${f.nome}</a>`).join('');
+
+    // Conecta-se com
+    if (rel && rel.ids && rel.ids.length) {
+      elConexSec.style.display = '';
+      elConexNota.textContent = rel.nota || '';
+      elRelac.innerHTML = '';
+      rel.ids.forEach(rid => {
+        const rc = CONCEITOS[rid];
+        const chip = document.createElement('button');
+        chip.style.setProperty('--rc', rc.cor);
+        chip.setAttribute('aria-label', `Ir para ${rc.label}`);
+        chip.innerHTML = `<span aria-hidden="true">${rc.icone}</span>${rc.label}`;
+        chip.addEventListener('click', () => abrir(rid));
+        elRelac.appendChild(chip);
+      });
+    } else {
+      elConexSec.style.display = 'none';
+    }
+
+    elDicaTxt.textContent = c.dica;
+    document.getElementById('modal-dica').style.borderLeftColor = c.cor;
+  }
+
+  // Aplica halos/atenuação na figura e destaque na legenda
+  function aplicarRealces() {
+    const rel = activeId ? RELACOES[activeId] : null;
+    const relSet = new Set(rel ? rel.ids : []);
+    ORDEM.forEach(id => {
+      const btn = hotspotEls[id];
+      const leg = legendEls[id];
+      const isActive  = id === activeId;
+      const isRelated = relSet.has(id);
+      const isDimmed  = activeId && !isActive && !isRelated;
+      btn.classList.toggle('is-active',  isActive);
+      btn.classList.toggle('is-related', isRelated);
+      btn.classList.toggle('is-dimmed',  !!isDimmed);
+      leg.classList.toggle('is-active',  isActive);
+    });
+  }
+
+  function mostrarModal(id) {
+    preencherModal(id);
+    overlay.classList.add('aberto');
+    btnFechar.focus();
+  }
+
+  function abrir(id) {           // ação do usuário (hotspot, legenda ou chip)
+    pararTour();
+    activeId = id;
+    aplicarRealces();
+    mostrarModal(id);
+  }
+
+  function fechar() {
+    pararTour();
+    const anterior = activeId;
+    activeId = null;
+    aplicarRealces();
+    overlay.classList.remove('aberto');
+    if (anterior && hotspotEls[anterior]) hotspotEls[anterior].focus();
+  }
+
+  btnFechar.addEventListener('click', fechar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) fechar(); });
+
+  // ===================== TOUR GUIADO =====================
+  function atualizarBotaoTour() {
+    btnTour.textContent = tourActive ? '⏹ Parar tour' : '▶ Tour guiado';
+  }
+
+  function pararTour() {
+    if (tourTimer) { clearInterval(tourTimer); tourTimer = null; }
+    tourActive = false;
+    atualizarBotaoTour();
+    tourLabel.textContent = '';
+    tourBar.style.display = 'none';
+    tourBar.value = 0;
+  }
+
+  function tourPasso(dir) {
+    tourIdx = (tourIdx + dir + ORDEM.length) % ORDEM.length;
+    activeId = ORDEM[tourIdx];
+    aplicarRealces();
+    preencherModal(activeId);
+    overlay.classList.add('aberto');
+    const c = CONCEITOS[activeId];
+    tourLabel.textContent = `Tour: ${tourIdx + 1} de ${ORDEM.length} — ${c.label}`;
+    tourBar.value = tourIdx + 1;
+  }
+
+  btnTour.addEventListener('click', () => {
+    if (tourActive) { pararTour(); fechar(); return; }
+    tourActive = true;
+    tourIdx = -1;
+    atualizarBotaoTour();
+    tourBar.style.display = 'block';
+    tourPasso(1);
+    btnFechar.focus();
+    tourTimer = setInterval(() => tourPasso(1), 4200);
+  });
+
+  // ===================== TECLADO =====================
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fechar(); return; }
+
+    if (tourActive) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); tourPasso(1); return; }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); tourPasso(-1); return; }
+    }
+
+    // navegação por setas entre hotspots quando o foco está num deles (e sem modal aberto)
+    if (!overlay.classList.contains('aberto')) {
+      const atual = document.activeElement;
+      if (atual && atual.classList && atual.classList.contains('hotspot')) {
+        const idx = ORDEM.indexOf(atual.dataset.conceito);
+        if (idx === -1) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx + 1) % ORDEM.length]].focus();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); hotspotEls[ORDEM[(idx - 1 + ORDEM.length) % ORDEM.length]].focus();
+        }
+      }
+    }
+  });
+
+  // ===================== FULLSCREEN =====================
+  document.getElementById('btn-fullscreen').addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>
